@@ -7,6 +7,7 @@ module.exports = (@element) ->
   @resize()
   @stage = new Stage(this)
   @element.appendChild(@renderer.domElement)
+
   return
 
 module.exports::render = ->
