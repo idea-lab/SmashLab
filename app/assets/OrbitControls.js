@@ -423,7 +423,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 		// Greggman fix: https://github.com/greggman/three.js/commit/fde9f9917d6d8381f06bf22cdff766029d1761be
 		var needUpdate = false;
 		
-		switch ( event.keyCode ) {
+		/*switch ( event.keyCode ) {
 
 			case scope.keys.UP:
 				scope.pan( new THREE.Vector2( 0, scope.keyPanSpeed ) );
@@ -441,7 +441,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 				scope.pan( new THREE.Vector2( -scope.keyPanSpeed, 0 ) );
 				needUpdate = true;
 				break;
-		}
+		}*/
 
 		// Greggman fix: https://github.com/greggman/three.js/commit/fde9f9917d6d8381f06bf22cdff766029d1761be
 		if ( needUpdate ) {

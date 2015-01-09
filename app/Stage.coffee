@@ -17,14 +17,15 @@ module.exports = (@game) ->
   @add(@fighters[0])
   
   @orbitcontrols = new THREE.OrbitControls(@camera)
-  @orbitcontrols.damping = 0.2
   
   return
 
-module.exports::=THREE.Scene::
+module.exports:: = THREE.Scene::
 
 module.exports::update = ->
-  @orbitcontrols.update()
+  for fighter in @fighters
+    fighter.update()
+  #@orbitcontrols.update()
 
 module.exports::resize= ->
   @camera.aspect = @game.width/@game.height
