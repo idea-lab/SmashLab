@@ -7,3 +7,7 @@ exports.config =
       joinTo: 'app.css'
     templates:
       joinTo: 'app.js'
+  plugins:
+    autoReload:
+      # Autoreload has issues with c9
+      enabled:false

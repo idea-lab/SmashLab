@@ -1,3 +1,6 @@
+#That annoying c9 folder
+.c9
+
 # Numerous always-ignore extensions
 *.diff
 *.err

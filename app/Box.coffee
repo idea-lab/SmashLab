@@ -3,3 +3,9 @@ module.exports = (@size = new THREE.Vector3(), @position = new THREE.Vector3())-
   @debugBox = new THREE.Mesh(new THREE.BoxGeometry(@size.x,@size.y,.1), new THREE.MeshNormalMaterial())
   @debugBox.position.add(@position)
   return
+
+module.exports:: = THREE.Object3D::
+
+module.exports::intersects = (oBox)->
+  return
+  

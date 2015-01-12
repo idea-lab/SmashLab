@@ -9,26 +9,35 @@ module.exports = (@game) ->
   @add(@camera)
   console.log(this)
   @resize()
-  
+
   #Add hitboxes and fighters
   @hitboxes=[new Box(new THREE.Vector3(10,.5), new THREE.Vector3(0,-.25))]
   @fighters=[new Fighter()]
   @add(@hitboxes[0].debugBox)
   @add(@fighters[0])
-  
+
+  mesh=new THREE.Mesh(new THREE.BoxGeometry(10,.5,4),new THREE.MeshNormalMaterial())
+  mesh.position.set(0,-0.25,0)
+  @add(mesh)
+
   @orbitcontrols = new THREE.OrbitControls(@camera)
-  
   return
 
 module.exports:: = THREE.Scene::
 
 module.exports::update = ->
+  #Update each fighter
   for fighter in @fighters
     fighter.update()
+  
+  #Collide the fighters
+  @updatePhysics()
   #@orbitcontrols.update()
 
 module.exports::resize= ->
   @camera.aspect = @game.width/@game.height
   @camera.fov = @fov
   @camera.updateProjectionMatrix()
-
+  
+module.exports::updatePhysics = ->
+  return
