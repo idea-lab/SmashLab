@@ -26,25 +26,28 @@ module.exports = (@game) ->
 module.exports:: = Object.create(THREE.Scene::)
 module.exports::constructor = module.exports
 
+# Updates the entire fight.
 module.exports::update = ->
-  # Update each fighter
+  # Update cycle has these events in order:
+  # - Apply velocities
+  for fighter in @children when fighter instanceof Fighter
+    fighter.applyVelocity()
+
+  # - Resolve player-stage collisions
+  for fighter in @children when fighter instanceof Fighter
+    fighter.resolveStageCollisions(this)
+  
+  # - Update hitboxes and moves, player input, set movement velocity,
+  #   controllers, gravity, and the rest of the good stuff
   for fighter in @children when fighter instanceof Fighter
     fighter.update()
-    fighter.updateMatrixWorld()
   
-  # Collide the fighters
-  @resolveAllCollisions()
-  # @orbitcontrols.update()
+  # - Detect hitbox-player collision, set velocities for colliding hitboxes
+  #   (velocities will be applied next render)
+  
+  # - Update animations
 
 module.exports::resize = ->
   @camera.aspect = @game.width/@game.height
   @camera.fov = @fov
   @camera.updateProjectionMatrix()
-  
-module.exports::resolveAllCollisions = ->
-  for fighter in @children when fighter instanceof Fighter
-    for box in @children when box instanceof Box
-      if fighter.box.intersects(box)
-        #Fighter intersects stage hitbox
-        fighter.position.add(fighter.box.resolveCollision(box))
-  return
