@@ -1,4 +1,4 @@
-#Contains the stage and fighters, and updates the fight.
+# Contains the stage and fighters, and updates the fight.
 Fighter = require("Fighter")
 Box = require("Box")
 module.exports = (@game) ->
@@ -9,7 +9,7 @@ module.exports = (@game) ->
   @add(@camera)
   @resize()
 
-  #Add hitboxes and fighters
+  # Add hitboxes and fighters
   box=new Box(new THREE.Vector3(10,.5))
   box.position.set(0,-0.25,0)
   @add(box)
@@ -24,20 +24,27 @@ module.exports = (@game) ->
   return
 
 module.exports:: = Object.create(THREE.Scene::)
+module.exports::constructor = module.exports
 
 module.exports::update = ->
-  #Update each fighter
+  # Update each fighter
   for fighter in @children when fighter instanceof Fighter
     fighter.update()
+    fighter.updateMatrixWorld()
   
-  #Collide the fighters
-  @updatePhysics()
-  #@orbitcontrols.update()
+  # Collide the fighters
+  @resolveAllCollisions()
+  # @orbitcontrols.update()
 
 module.exports::resize = ->
   @camera.aspect = @game.width/@game.height
   @camera.fov = @fov
   @camera.updateProjectionMatrix()
   
-module.exports::updatePhysics = ->
+module.exports::resolveAllCollisions = ->
+  for fighter in @children when fighter instanceof Fighter
+    for box in @children when box instanceof Box
+      if fighter.box.intersects(box)
+        #Fighter intersects stage hitbox
+        fighter.position.add(fighter.box.resolveCollision(box))
   return

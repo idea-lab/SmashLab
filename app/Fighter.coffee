@@ -1,10 +1,10 @@
-#A moving, figting, controllable character
+# A moving, figting, controllable character
 Box = require("Box")
 KeyboardControls = require("controls/KeyboardControls")
 module.exports = ()->
   THREE.Object3D.call(this)
   @box = new Box(new THREE.Vector3(1,1.8))
-  @box.position.set(0,0.9)
+  @box.position.set(0,0.9,0)
   @add(@box)
 
   mesh=new THREE.Mesh(new THREE.BoxGeometry(1,1.8,1),new THREE.MeshNormalMaterial())
@@ -15,6 +15,7 @@ module.exports = ()->
   return
 
 module.exports:: = Object.create(THREE.Object3D::)
+module.exports::constructor = module.exports
 
 module.exports::update = ->
   @controller.update()

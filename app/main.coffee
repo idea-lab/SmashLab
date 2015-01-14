@@ -1,4 +1,4 @@
-#Sets up the game and renderloops it.
+# Sets up the game and renderloops it.
 Game = require("Game")
 window.game = new Game(document.body)
 render = ()->
