@@ -6,18 +6,25 @@ module.exports = ()->
 
   @velocity = new THREE.Vector3()
   @touchingGround = true
-  @jumpsRemaining = 2
+  @jumpRemaining = true
   
   # These two parameters control the jump. Very handy!
   @airTime = 60 # in frames
   @jumpHeight = 4 # in world units (meters)
 
-  @box = new Box(new THREE.Vector3(1,1.8))
-  @box.position.set(0,0.9,0)
+  # Here are velocities
+  @groundSpeed = 0.2
+  @airAccel = 0.015
+  @airSpeed = 0.1
+  @groundAccel = 0.05
+  @groundFriction = 0.03
+
+  @box = new Box(new THREE.Vector3(1, 1.8))
+  @box.position.set(0, 0.9,0)
   @add(@box)
 
-  mesh=new THREE.Mesh(new THREE.BoxGeometry(1,1.8,1),new THREE.MeshNormalMaterial())
-  mesh.position.set(0,0.9,0)
+  mesh=new THREE.Mesh(new THREE.BoxGeometry(1,1.8, 1),new THREE.MeshNormalMaterial())
+  mesh.position.set(0, 0.9, 0)
   @add(mesh)
 
   @controller = new KeyboardControls()
@@ -48,20 +55,33 @@ module.exports::resolveStageCollisions = (stage)->
         # Just landing. Engage your flaps and reverse your jets
         # because ground control needs to know your heading.
         @touchingGround = true
-        @jumpsRemaining = 2
+        @jumpRemaining = true
         if @velocity.y < 0
           @velocity.y = 0
         
 
 module.exports::update = ->
   @controller.update()
-  @velocity.x = @controller.joystick.x * .1
+
   # Jump
-  if @jumpsRemaining>0 and @controller.jump
+  if @jumpRemaining and @controller.jump
     @velocity.y = 4 * @jumpHeight / @airTime
+    if not @touchingGround
+      @jumpRemaining = false
     @touchingGround = false
-    @jumpsRemaining--
-  
+
+  # Lateral Movement
+  maxSpeed = if @touchingGround then @groundSpeed else @airSpeed
+  acceleration = if @touchingGround then @groundAccel else @airAccel
+  sign = Math.sign(@controller.joystick.x)
+  @velocity.x += sign *
+    Math.max(0,
+    Math.min(Math.abs(@controller.joystick.x*acceleration),
+    maxSpeed - sign*@velocity.x))
+  # Friction
+  if @touchingGround
+    @velocity.x = Math.sign(@velocity.x) * Math.max(0, Math.abs(@velocity.x) - @groundFriction)
+
   # Gotta get that gravity
   @velocity.y -= 8 * @jumpHeight / @airTime / @airTime
 
