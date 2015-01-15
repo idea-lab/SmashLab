@@ -4,7 +4,8 @@ module.exports = (keymap = {})->
   Controls.call(this)
   
   @keysDown = []
-  
+  @justJumped = false
+
   @upKey = keymap.upKey or 38
   @downKey = keymap.downKey or 40
   @leftKey = keymap.leftKey or 37
@@ -24,9 +25,15 @@ module.exports = (keymap = {})->
   window.addEventListener("keyup", handleKeyUp, false)
 
 module.exports::update = ()->
+  @jump = false
   @joystick.set(0, 0)
   if @upKey in @keysDown
     @joystick.y++
+    if not @justJumped
+      @jump = true
+      @justJumped = true
+  else
+    @justJumped = false
   if @downKey in @keysDown
     @joystick.y--
   if @leftKey in @keysDown
