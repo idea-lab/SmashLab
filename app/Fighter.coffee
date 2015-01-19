@@ -9,14 +9,17 @@ module.exports = ()->
   @jumpRemaining = true
   
   # These two parameters control the jump. Very handy!
-  @airTime = 60 # in frames
-  @jumpHeight = 4 # in world units (meters)
+  @airTime = 40 # in frames
+  @jumpHeight = 3 # in world units (meters)
+  @maxFallSpeed = 0.25
 
   # Here are velocities
-  @groundSpeed = 0.2
   @airAccel = 0.015
   @airSpeed = 0.1
+  @airFriction = 0.001
+
   @groundAccel = 0.05
+  @groundSpeed = 0.2
   @groundFriction = 0.03
 
   @box = new Box(new THREE.Vector3(1, 1.8))
@@ -78,10 +81,11 @@ module.exports::update = ->
     Math.max(0,
     Math.min(Math.abs(@controller.joystick.x*acceleration),
     maxSpeed - sign*@velocity.x))
+
   # Friction
-  if @touchingGround
-    @velocity.x = Math.sign(@velocity.x) * Math.max(0, Math.abs(@velocity.x) - @groundFriction)
+  friction = if @touchingGround then @groundFriction else @airFriction
+  @velocity.x = Math.sign(@velocity.x) * Math.max(0, Math.abs(@velocity.x) - friction)
 
   # Gotta get that gravity
-  @velocity.y -= 8 * @jumpHeight / @airTime / @airTime
+  @velocity.y -= Math.max(0, Math.min(8 * @jumpHeight / @airTime / @airTime, @velocity.y + @maxFallSpeed))
 

@@ -5,3 +5,6 @@ module.exports = ()->
   
   # A boolean set to true if the player wants to jump
   @jump = false
+
+module.exports::update = ()->
+  return

@@ -41,4 +41,4 @@ module.exports::update = ()->
   if @rightKey in @keysDown
     @joystick.x++
   @joystick.normalize()
-
+  Controls::update.call(this)
