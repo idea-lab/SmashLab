@@ -1,4 +1,4 @@
-# Managesand renders the entire game, menus, and stages.
+# Manages and renders the entire game, menus, and stages.
 Stage = require("Stage")
 module.exports = (@element) ->
   @renderer= new THREE.WebGLRenderer()

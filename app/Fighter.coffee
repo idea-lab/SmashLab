@@ -77,6 +77,8 @@ module.exports::update = ->
   maxSpeed = if @touchingGround then @groundSpeed else @airSpeed
   acceleration = if @touchingGround then @groundAccel else @airAccel
   sign = Math.sign(@controller.joystick.x)
+
+  # Don't allow the velocity to exceed the maximum speed
   @velocity.x += sign *
     Math.max(0,
     Math.min(Math.abs(@controller.joystick.x*acceleration),
