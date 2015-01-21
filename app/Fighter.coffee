@@ -22,13 +22,21 @@ module.exports = ()->
   @groundSpeed = 0.2
   @groundFriction = 0.03
 
-  @box = new Box(new THREE.Vector3(1, 1.8))
-  @box.position.set(0, 0.9,0)
+  @box = new Box(new THREE.Vector3(1, 1.86))
+  @box.position.set(0, 0.93,0)
   @add(@box)
 
-  mesh=new THREE.Mesh(new THREE.BoxGeometry(1,1.8, 1),new THREE.MeshNormalMaterial())
-  mesh.position.set(0, 0.9, 0)
-  @add(mesh)
+  @mesh = null
+  # TODO: Clean it up!
+  loader = new THREE.JSONLoader()
+  loader.load("models/Test 3.json", (geometry)=>
+    @mesh=new THREE.SkinnedMesh(geometry,new THREE.MeshBasicMaterial({skinning:true}))
+    @mesh.sdebug=new THREE.SkeletonHelper(@mesh)
+    @parent.add(@mesh.sdebug)
+    @add(@mesh)
+    @mesh.run = new THREE.Animation(@mesh, @mesh.geometry.animations[3])
+    @mesh.idle = new THREE.Animation(@mesh, @mesh.geometry.animations[0])
+  )
 
   @controller = new KeyboardControls()
   return
@@ -91,3 +99,23 @@ module.exports::update = ->
   # Gotta get that gravity
   @velocity.y -= Math.max(0, Math.min(8 * @jumpHeight / @airTime / @airTime, @velocity.y + @maxFallSpeed))
 
+  @updateMesh()
+
+module.exports::updateMesh = ->
+  # TODO: Clean it up!
+  return if not @mesh
+  @mesh.run.resetBlendWeights()
+  @mesh.idle.resetBlendWeights()
+  @mesh.run.update(1/30)
+  @mesh.idle.update(1/60)
+  @mesh.sdebug.update()
+  if @controller.joystick.x!=0
+    @mesh.run.play() if not @mesh.run.isPlaying
+    @mesh.idle.stop() if @mesh.idle.isPlaying
+    if @controller.joystick.x>0
+      @mesh.rotation.y=Math.PI/2
+    else
+      @mesh.rotation.y=-Math.PI/2
+  else
+    @mesh.run.stop() if @mesh.run.isPlaying
+    @mesh.idle.play() if not @mesh.idle.isPlaying

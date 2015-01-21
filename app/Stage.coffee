@@ -10,15 +10,18 @@ module.exports = (@game) ->
   @resize()
 
   # Add hitboxes and fighters
-  box=new Box(new THREE.Vector3(10,.5))
+  box=new Box(new THREE.Vector3(20,.5))
   box.position.set(0,-0.25,0)
   @add(box)
 
   @add(new Fighter())
 
-  mesh=new THREE.Mesh(new THREE.BoxGeometry(10,.5,4),new THREE.MeshNormalMaterial())
-  mesh.position.set(0,-0.25,0)
-  @add(mesh)
+  # TODO: Clean it up!
+  loader = new THREE.JSONLoader()
+  loader.load("models/Stage.json", (geometry)=>
+    mesh=new THREE.Mesh(geometry,new THREE.MeshNormalMaterial())
+    @add(mesh)
+  )
 
   @orbitcontrols = new THREE.OrbitControls(@camera)
   return

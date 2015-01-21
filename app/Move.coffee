@@ -9,6 +9,7 @@ module.exports = ()->
 module.exports::update = ()->
   @currentTime++
   if @currentTime > @length
+    return
     
 
 module.exports::reset = ()->
