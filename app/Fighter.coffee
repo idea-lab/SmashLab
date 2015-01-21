@@ -1,7 +1,7 @@
 # A moving, figting, controllable character
 Box = require("Box")
 KeyboardControls = require("controls/KeyboardControls")
-module.exports = ()->
+Fighter = module.exports = ()->
   THREE.Object3D.call(this)
 
   @velocity = new THREE.Vector3()
@@ -9,9 +9,9 @@ module.exports = ()->
   @jumpRemaining = true
   
   # These two parameters control the jump. Very handy!
-  @airTime = 40 # in frames
+  @airTime = 60 # in frames
   @jumpHeight = 3 # in world units (meters)
-  @maxFallSpeed = 0.25
+  @maxFallSpeed = 0.2
 
   # Here are velocities
   @airAccel = 0.015
@@ -41,11 +41,11 @@ module.exports = ()->
   @controller = new KeyboardControls()
   return
 
-module.exports:: = Object.create(THREE.Object3D::)
-module.exports::constructor = module.exports
+Fighter:: = Object.create(THREE.Object3D::)
+Fighter::constructor = Fighter
 
 # Plenty of these methods are explained in Stage.update()
-module.exports::applyVelocity = ->
+Fighter::applyVelocity = ->
   @position.add(@velocity)
   # Demo respawn (Please remove when the time comes)
   if @position.y < -10
@@ -55,7 +55,7 @@ module.exports::applyVelocity = ->
   @box.updateMatrixWorld()
 
 
-module.exports::resolveStageCollisions = (stage)->
+Fighter::resolveStageCollisions = (stage)->
   @touchingGround = false
   for stageBox in stage.children when stageBox instanceof Box
     if @box.intersects(stageBox)
@@ -71,8 +71,9 @@ module.exports::resolveStageCollisions = (stage)->
           @velocity.y = 0
         
 
-module.exports::update = ->
+Fighter::update = ->
   @controller.update()
+  console.log(@controller.move)
 
   # Jump
   if @jumpRemaining and @controller.jump
@@ -101,7 +102,7 @@ module.exports::update = ->
 
   @updateMesh()
 
-module.exports::updateMesh = ->
+Fighter::updateMesh = ->
   # TODO: Clean it up!
   return if not @mesh
   @mesh.run.resetBlendWeights()

@@ -5,17 +5,18 @@ tempVector2 = new THREE.Vector3()
 # Beware of security issues and other strange things that could occur
 returnVector = new THREE.Vector3()
 
-module.exports = (@size = new THREE.Vector3())->
+Box = module.exports = (@size = new THREE.Vector3())->
   THREE.Object3D.call(this)
   @debugBox = new THREE.Mesh(new THREE.BoxGeometry(@size.x,@size.y,.1), new THREE.MeshNormalMaterial())
   @add(@debugBox)
+  @debugBox.visible=false
   return
 
-module.exports:: = Object.create(THREE.Object3D::)
-module.exports::constructor = module.exports
+Box:: = Object.create(THREE.Object3D::)
+Box::constructor = Box
 
 # Returns whether or not the current box intersects the provided box
-module.exports::intersects = (otherBox)->
+Box::intersects = (otherBox)->
   tempVector.setFromMatrixPosition(@matrixWorld)
   tempVector2.setFromMatrixPosition(otherBox.matrixWorld)
   # Find vector from one center of box to the other center
@@ -28,7 +29,7 @@ module.exports::intersects = (otherBox)->
 # needs to make in order to stop colliding with the provided, stationary box
 # NOTE: Only works with static boxes wider than they are tall.
 # NOTE: It is assumed that the two boxes are intersecting beforehand.
-module.exports::resolveCollision = (staticBox)->
+Box::resolveCollision = (staticBox)->
   tempVector.setFromMatrixPosition(@matrixWorld)
   tempVector2.setFromMatrixPosition(staticBox.matrixWorld)
   # Find vector from one center of box to the other center

@@ -1,7 +1,7 @@
 # Contains the stage and fighters, and updates the fight.
 Fighter = require("Fighter")
 Box = require("Box")
-module.exports = (@game) ->
+Stage = module.exports = (@game) ->
   THREE.Scene.call(this)
   @fov = 45
   @camera = new THREE.PerspectiveCamera(1,1,1,100)
@@ -10,8 +10,8 @@ module.exports = (@game) ->
   @resize()
 
   # Add hitboxes and fighters
-  box=new Box(new THREE.Vector3(20,.5))
-  box.position.set(0,-0.25,0)
+  box=new Box(new THREE.Vector3(20,.3))
+  box.position.set(0,-0.15,0)
   @add(box)
 
   @add(new Fighter())
@@ -26,11 +26,11 @@ module.exports = (@game) ->
   @orbitcontrols = new THREE.OrbitControls(@camera)
   return
 
-module.exports:: = Object.create(THREE.Scene::)
-module.exports::constructor = module.exports
+Stage:: = Object.create(THREE.Scene::)
+Stage::constructor = Stage
 
 # Updates the entire fight.
-module.exports::update = ->
+Stage::update = ->
   # Update cycle has these events in order:
   # - Apply velocities
   for fighter in @children when fighter instanceof Fighter
@@ -50,7 +50,7 @@ module.exports::update = ->
   
   # - Update animations
 
-module.exports::resize = ->
+Stage::resize = ->
   @camera.aspect = @game.width/@game.height
   @camera.fov = @fov
   @camera.updateProjectionMatrix()

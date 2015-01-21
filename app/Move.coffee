@@ -1,16 +1,17 @@
 # A fixed-length sequence of events which the user can trigger, but loses most
 # control during.
-module.exports = ()->
+Move = module.exports = ()->
   @length = 60
   @currentTime = 0
   @activeBoxes = []
   
+#module.exports:: = THREE.Object3D
 
-module.exports::update = ()->
+Move::update = ()->
   @currentTime++
   if @currentTime > @length
     return
     
 
-module.exports::reset = ()->
+Move::reset = ()->
   @currentTime = 0

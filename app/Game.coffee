@@ -1,6 +1,6 @@
 # Manages and renders the entire game, menus, and stages.
 Stage = require("Stage")
-module.exports = (@element) ->
+Game = module.exports = (@element) ->
   @renderer= new THREE.WebGLRenderer()
   @width = 0
   @height = 0
@@ -10,11 +10,11 @@ module.exports = (@element) ->
 
   return
 
-module.exports::render = ->
+Game::render = ->
   @stage.update()
   @renderer.render(@stage, @stage.camera)
 
-module.exports::resize = ->
+Game::resize = ->
   @width = @element.offsetWidth
   @height = @element.offsetHeight
   @renderer.setSize(@width, @height)

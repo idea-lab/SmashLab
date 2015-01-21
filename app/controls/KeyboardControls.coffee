@@ -1,6 +1,6 @@
 # Controls for keyboard
 Controls = require("controls/Controls")
-module.exports = (keymap = {})->
+KeyboardControls = module.exports = (keymap = {})->
   Controls.call(this)
   
   @keysDown = []
@@ -10,11 +10,14 @@ module.exports = (keymap = {})->
   @downKey = keymap.downKey or 40
   @leftKey = keymap.leftKey or 37
   @rightKey = keymap.rightKey or 39
+  @attackKey = keymap.attackKey or 16
+  @specialKey = keymap.specialKey or 17
 
   handleKeyDown = (event)=>
     # Add if it's not in the array already
     if not (event.keyCode in @keysDown)
       @keysDown.push(event.keyCode)
+      # console.log(event.keyCode)
   
   handleKeyUp = (event)=>
     # Remove if it's in the array already
@@ -24,7 +27,9 @@ module.exports = (keymap = {})->
   window.addEventListener("keydown", handleKeyDown, false)
   window.addEventListener("keyup", handleKeyUp, false)
 
-module.exports::update = ()->
+KeyboardControls::update = ()->
+  # TODO: Clean up jump, move into Controls
+  # Joystick
   @jump = false
   @joystick.set(0, 0)
   if @upKey in @keysDown
@@ -41,4 +46,7 @@ module.exports::update = ()->
   if @rightKey in @keysDown
     @joystick.x++
   @joystick.normalize()
+  
+  @attackButton = @attackKey in @keysDown
+  @specialButton = @specialKey in @keysDown
   Controls::update.call(this)
