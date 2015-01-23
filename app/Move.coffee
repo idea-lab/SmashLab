@@ -2,10 +2,10 @@
 # control during.
 Move = module.exports = (@fighter, options)->
   # Number of frames
-  @length = 60
+  @length = 30
   @currentTime = 0
   # In order for a hitbox to register, it needs to 1. be a member of activeBoxes and 2. be activated by an event in the eventSequence.
-  @activeBoxes = options.activeBoxes  or []
+  @activeBoxes = options.activeBoxes or []
   @eventSequence = options.eventSequence  or []
   return
 
@@ -27,5 +27,6 @@ Move::reset = ()->
   @currentTime = 0
   for box in @activeBoxes
     box.deactivate()
+    box.alreadyHit = [] # TODO: more efficient?
   for event in @eventSequence
     event.reset()

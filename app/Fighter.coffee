@@ -4,7 +4,7 @@ KeyboardControls = require("controls/KeyboardControls")
 Controls = require("controls/Controls")
 Move = require("Move")
 Event = require("Event")
-Fighter = module.exports = ()->
+Fighter = module.exports = (options = {})->
   THREE.Object3D.call(this)
 
   @velocity = new THREE.Vector3()
@@ -30,13 +30,13 @@ Fighter = module.exports = ()->
   @add(@box)
 
   # TODO: Eventually remove this
-  @moveBox = new Box(size: new THREE.Vector3(.1, .1))
+  @moveBox = new Box(size: new THREE.Vector3(.8, .8), angle:.5)
   @moveBox.position.set(1, 0.9,0)
   @add(@moveBox)
   console.log(@moveBox)
   @coolMove = new Move(this, {
     activeBoxes: [@moveBox]
-    eventSequence: [new Event({callback:@moveBox.activate, time:30})]
+    eventSequence: [new Event({callback:@moveBox.activate, time:5})]
   })
 
   @mesh = null
@@ -50,15 +50,22 @@ Fighter = module.exports = ()->
     @mesh.run = new THREE.Animation(@mesh, @mesh.geometry.animations[3])
     @mesh.idle = new THREE.Animation(@mesh, @mesh.geometry.animations[0])
   )
-
-  @controller = new KeyboardControls()
+  @controller = options.controller or new KeyboardControls()
 
   @move = null
+  @damage = 0
   return
 
 Fighter:: = Object.create(THREE.Object3D::)
 Fighter::constructor = Fighter
 
+# When the fighter is hit by a hit box
+Fighter::hurt = (hitbox)->
+  @damage += hitbox.damage
+  #TODO: turn this into a temp variable
+  launchSpeed = (@damage*0.01)+hitbox.knockback*0.01
+  velocityToAdd = new THREE.Vector3(Math.cos(hitbox.angle)*launchSpeed,Math.sin(hitbox.angle)*launchSpeed,0)
+  @velocity.add(velocityToAdd)
 # Plenty of these methods are explained in Stage.update()
 Fighter::applyVelocity = ->
   @position.add(@velocity)
@@ -66,6 +73,7 @@ Fighter::applyVelocity = ->
   if @position.y < -10
     @position.set(0, 1, 0)
     @velocity.set(0, 0, 0)
+    @damage = 0
   @updateMatrixWorld()
   @box.updateMatrixWorld()
 

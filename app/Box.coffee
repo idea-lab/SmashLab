@@ -20,8 +20,9 @@ Box = module.exports = (options)->
   @knockbackScaling = options.knockbackScaling or 2
 
   # How much damage the box does, if you get hit
-  @damage = options.damage or 3
+  @damage = options.damage or 10
 
+  @alreadyHit = []
   # Can this box actively cause damage?
   @active = false
 

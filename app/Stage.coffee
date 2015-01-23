@@ -1,6 +1,7 @@
 # Contains the stage and fighters, and updates the fight.
 Fighter = require("Fighter")
 Box = require("Box")
+KeyboardControls = require("controls/KeyboardControls")
 Stage = module.exports = (@game) ->
   THREE.Scene.call(this)
   @fov = 45
@@ -15,7 +16,15 @@ Stage = module.exports = (@game) ->
   @add(box)
 
   @add(new Fighter())
-
+  @add(new Fighter({controller: new KeyboardControls({
+    upKey: 87
+    downKey: 83
+    leftKey: 65
+    rightKey: 68
+    attackKey: 70
+    specialKey: 71
+  })}))
+  
   # TODO: Clean it up!
   loader = new THREE.JSONLoader()
   loader.load("models/Stage.json", (geometry)=>
@@ -46,6 +55,15 @@ Stage::update = ->
   
   # - Detect hitbox-player collision, set velocities for colliding hitboxes
   #   (velocities will be applied next render)
+  for fighter in @children when fighter instanceof Fighter
+    if fighter.move
+      for hitbox in fighter.move.activeBoxes when hitbox.active
+        # Go through hitboxes
+        for target in @children when target instanceof Fighter
+          if hitbox.intersects(target.box) and not (target in hitbox.alreadyHit)
+            console.log("GO")
+            hitbox.alreadyHit.push(target)
+            target.hurt(hitbox)
   
   # - Update animations
 

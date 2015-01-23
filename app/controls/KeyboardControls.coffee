@@ -1,23 +1,24 @@
 # Controls for keyboard
 Controls = require("controls/Controls")
-KeyboardControls = module.exports = (keymap = {})->
-  Controls.call(this)
+KeyboardControls = module.exports = (options = {})->
+  Controls.call(this, options)
   
   @keysDown = []
   @justJumped = false
+  console.log("hmm")
 
-  @upKey = keymap.upKey or 38
-  @downKey = keymap.downKey or 40
-  @leftKey = keymap.leftKey or 37
-  @rightKey = keymap.rightKey or 39
-  @attackKey = keymap.attackKey or 16
-  @specialKey = keymap.specialKey or 17
+  @upKey = options.upKey or 38
+  @downKey = options.downKey or 40
+  @leftKey = options.leftKey or 37
+  @rightKey = options.rightKey or 39
+  @attackKey = options.attackKey or 16
+  @specialKey = options.specialKey or 17
 
   handleKeyDown = (event)=>
     # Add if it's not in the array already
     if not (event.keyCode in @keysDown)
       @keysDown.push(event.keyCode)
-      # console.log(event.keyCode)
+      console.log(event.keyCode)
   
   handleKeyUp = (event)=>
     # Remove if it's in the array already
