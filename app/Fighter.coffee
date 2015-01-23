@@ -3,13 +3,14 @@ Box = require("Box")
 KeyboardControls = require("controls/KeyboardControls")
 Controls = require("controls/Controls")
 Move = require("Move")
+Event = require("Event")
 Fighter = module.exports = ()->
   THREE.Object3D.call(this)
 
   @velocity = new THREE.Vector3()
   @touchingGround = true
   @jumpRemaining = true
-  
+
   # These two parameters control the jump. Very handy!
   @airTime = 60 # in frames
   @jumpHeight = 3 # in world units (meters)
@@ -28,6 +29,16 @@ Fighter = module.exports = ()->
   @box.position.set(0, 0.93,0)
   @add(@box)
 
+  # TODO: Eventually remove this
+  @moveBox = new Box(size: new THREE.Vector3(.1, .1))
+  @moveBox.position.set(1, 0.9,0)
+  @add(@moveBox)
+  console.log(@moveBox)
+  @coolMove = new Move(this, {
+    activeBoxes: [@moveBox]
+    eventSequence: [new Event({callback:@moveBox.activate, time:30})]
+  })
+
   @mesh = null
   # TODO: Clean it up!
   loader = new THREE.JSONLoader()
@@ -41,7 +52,7 @@ Fighter = module.exports = ()->
   )
 
   @controller = new KeyboardControls()
-  
+
   @move = null
   return
 
@@ -73,20 +84,20 @@ Fighter::resolveStageCollisions = (stage)->
         @jumpRemaining = true
         if @velocity.y < 0
           @velocity.y = 0
-        
+
 
 Fighter::update = ->
   @controller.update()
   #console.log(@controller.move)
   movementEnabled = true
   if @controller.move and not @move
-    @move = new Move()
+    @coolMove.reset()
+    @move = @coolMove
   if @move
     # Complete the current move
     movementEnabled = false
-    moveFinished = @move.update()
-    if moveFinished
-      @move = null
+    newMove = @move.update(1)
+    @move = newMove
 
   if movementEnabled
     # Jump
@@ -95,12 +106,12 @@ Fighter::update = ->
       if not @touchingGround
         @jumpRemaining = false
       @touchingGround = false
-  
+
     # Lateral Movement
     maxSpeed = if @touchingGround then @groundSpeed else @airSpeed
     acceleration = if @touchingGround then @groundAccel else @airAccel
     sign = Math.sign(@controller.joystick.x)
-  
+
     # Don't allow the velocity to exceed the maximum speed
     @velocity.x += sign *
       Math.max(0,

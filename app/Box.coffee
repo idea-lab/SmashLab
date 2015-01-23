@@ -10,7 +10,32 @@ Box = module.exports = (options)->
   @size = options.size or new THREE.Vector3()
   @debugBox = new THREE.Mesh(new THREE.BoxGeometry(@size.x,@size.y,.1), new THREE.MeshNormalMaterial())
   @add(@debugBox)
-  @debugBox.visible=false
+
+  # 0 degrees is straight out, -90 is down, and 90 is up. Use radians.
+  @angle = options.angle or 0
+
+  # Knockback is in m/s. Why not Newtons? Weight shouldn't make much of a difference.
+  @knockback = options.knockback or 1
+  # How much additional knockback the move does at 100%.
+  @knockbackScaling = options.knockbackScaling or 2
+
+  # How much damage the box does, if you get hit
+  @damage = options.damage or 3
+
+  # Can this box actively cause damage?
+  @active = false
+
+  @debugBox.visible = false
+
+  @activate = ()=>
+    console.log("activated")
+    @active = true
+    @debugBox.visible = true
+
+  @deactivate = ()=>
+    @active = false
+    @debugBox.visible = false
+
   return
 
 Box:: = Object.create(THREE.Object3D::)
