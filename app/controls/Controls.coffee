@@ -8,10 +8,10 @@ Controls = module.exports = ()->
   @joystickSmashed = 0
 
   # Why not go analog with the buttons?
-  @attackButton = 0
-  @attackButtonPrevious = 0
-  @specialButton = 0
-  @specialButtonPrevious = 0
+  @attack = 0
+  @attackPrevious = 0
+  @special = 0
+  @specialPrevious = 0
 
   # A boolean set to true if the player wants to jump
   @jump = false
@@ -32,6 +32,29 @@ Controls.SPECIAL = 64
 Controls.SMASH_FRAMES = 10
 Controls.SMASH_DISTANCE_NEEDED = 0.8
 
+# Call this at the end of update() in child classes
+Controls::update = ()->
+  @move = 0
+
+  # Detect smashes
+  if @joystickSmashed > 0
+    @joystickSmashed--
+  
+  if @joystick.length() > Controls.SMASH_DISTANCE_NEEDED and not @joystickPrevious.length()>Controls.SMASH_DISTANCE_NEEDED
+    @joystickSmashed = Controls.SMASH_FRAMES
+  
+  # Detect moves from buttons presses
+  if @attack and not @attackPrevious
+    @move = Controls.ATTACK | @getJoystickDirection()
+    if @joystickSmashed > 0
+      @move |= Controls.SMASH
+  else if @special and not @specialPrevious
+    @move = Controls.SPECIAL | @getJoystickDirection()
+
+  # Copy values to previous variables
+  @joystickPrevious.copy(@joystick)
+  @attackPrevious = @attack
+  @specialPrevious = @special
 
 Controls::getJoystickDirection = ()->
   # Include dead zone when the time comes
@@ -46,28 +69,3 @@ Controls::getJoystickDirection = ()->
   else if @joystick.y<=-Math.abs(@joystick.x)
     return Controls.DOWN
   return 0
-
-
-# Call this at the end of update() in child classes
-Controls::update = ()->
-  @move = 0
-
-  # Detect smashes
-  if @joystickSmashed > 0
-    @joystickSmashed--
-  
-  if @joystick.length() > Controls.SMASH_DISTANCE_NEEDED and not @joystickPrevious.length()>Controls.SMASH_DISTANCE_NEEDED
-    @joystickSmashed = Controls.SMASH_FRAMES
-
-  # Detect moves from button presses
-  if @attackButton and not @attackButtonPrevious
-    @move = Controls.ATTACK | @getJoystickDirection()
-    if @joystickSmashed > 0
-      @move |= Controls.SMASH
-  else if @specialButton and not @specialButtonPrevious
-    @move = Controls.ATTACK | @getJoystickDirection()
-
-  # Copy values to previous variables
-  @joystickPrevious.copy(@joystick)
-  @attackButtonPrevious = @attackButton
-  @specialButtonPrevious = @specialButton

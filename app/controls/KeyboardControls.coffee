@@ -27,6 +27,10 @@ KeyboardControls = module.exports = (keymap = {})->
   window.addEventListener("keydown", handleKeyDown, false)
   window.addEventListener("keyup", handleKeyUp, false)
 
+KeyboardControls:: = Object.create(Controls::)
+KeyboardControls::constructor = KeyboardControls
+
+
 KeyboardControls::update = ()->
   # TODO: Clean up jump, move into Controls
   # Joystick
@@ -47,6 +51,6 @@ KeyboardControls::update = ()->
     @joystick.x++
   @joystick.normalize()
   
-  @attackButton = @attackKey in @keysDown
-  @specialButton = @specialKey in @keysDown
+  @attack = if @attackKey in @keysDown then 1 else 0
+  @special = if @specialKey in @keysDown then 1 else 0
   Controls::update.call(this)

@@ -10,7 +10,7 @@ Stage = module.exports = (@game) ->
   @resize()
 
   # Add hitboxes and fighters
-  box=new Box(new THREE.Vector3(20,.3))
+  box=new Box(size: new THREE.Vector3(14,.3))
   box.position.set(0,-0.15,0)
   @add(box)
 
@@ -22,7 +22,6 @@ Stage = module.exports = (@game) ->
     mesh=new THREE.Mesh(geometry,new THREE.MeshNormalMaterial())
     @add(mesh)
   )
-
   @orbitcontrols = new THREE.OrbitControls(@camera)
   return
 

@@ -4,13 +4,16 @@ Move = module.exports = ()->
   @length = 60
   @currentTime = 0
   @activeBoxes = []
+  @eventSequence = []
+  return
   
 #module.exports:: = THREE.Object3D
 
 Move::update = ()->
   @currentTime++
   if @currentTime > @length
-    return
+    return true
+  return false
     
 
 Move::reset = ()->

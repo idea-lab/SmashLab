@@ -5,8 +5,9 @@ tempVector2 = new THREE.Vector3()
 # Beware of security issues and other strange things that could occur
 returnVector = new THREE.Vector3()
 
-Box = module.exports = (@size = new THREE.Vector3())->
+Box = module.exports = (options)->
   THREE.Object3D.call(this)
+  @size = options.size or new THREE.Vector3()
   @debugBox = new THREE.Mesh(new THREE.BoxGeometry(@size.x,@size.y,.1), new THREE.MeshNormalMaterial())
   @add(@debugBox)
   @debugBox.visible=false
