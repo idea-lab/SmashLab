@@ -2,7 +2,7 @@
 # control during.
 Move = module.exports = (@fighter, options)->
   # Number of frames
-  @length = 30
+  @length = 40
   @currentTime = 0
   # In order for a hitbox to register, it needs to 1. be a member of activeBoxes and 2. be activated by an event in the eventSequence.
   @activeBoxes = options.activeBoxes or []

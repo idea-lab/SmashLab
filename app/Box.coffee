@@ -15,12 +15,12 @@ Box = module.exports = (options)->
   @angle = options.angle or 0
 
   # Knockback is in m/s. Why not Newtons? Weight shouldn't make much of a difference.
-  @knockback = options.knockback or 1
+  @knockback = options.knockback or 4
   # How much additional knockback the move does at 100%.
-  @knockbackScaling = options.knockbackScaling or 2
+  @knockbackScaling = options.knockbackScaling or 20
 
   # How much damage the box does, if you get hit
-  @damage = options.damage or 10
+  @damage = options.damage or 20
 
   @alreadyHit = []
   # Can this box actively cause damage?
@@ -29,7 +29,6 @@ Box = module.exports = (options)->
   @debugBox.visible = false
 
   @activate = ()=>
-    console.log("activated")
     @active = true
     @debugBox.visible = true
 

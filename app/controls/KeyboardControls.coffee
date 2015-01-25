@@ -5,7 +5,6 @@ KeyboardControls = module.exports = (options = {})->
   
   @keysDown = []
   @justJumped = false
-  console.log("hmm")
 
   @upKey = options.upKey or 38
   @downKey = options.downKey or 40
