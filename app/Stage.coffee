@@ -2,6 +2,7 @@
 Fighter = require("Fighter")
 Box = require("Box")
 KeyboardControls = require("controls/KeyboardControls")
+tempVector = new THREE.Vector3()
 Stage = module.exports = (@game) ->
   THREE.Scene.call(this)
   @fov = 45
@@ -14,6 +15,18 @@ Stage = module.exports = (@game) ->
   box=new Box(size: new THREE.Vector3(14,.3))
   box.position.set(0,-0.15,0)
   @add(box)
+
+  @activeBoxes = [box]
+
+  # Safe box - the box in which you aren't immediately KO'ed
+  @safebox = new Box(size: new THREE.Vector3(40,22))
+  @safebox.position.y = 5
+  @add(@safebox)
+
+  # Camera stays in the camera box
+  @camerabox = new Box(size: new THREE.Vector3(24,13.5))
+  @camerabox.debugBox.visible = true
+  @add(@camerabox)
 
   @add(new Fighter({controller: new KeyboardControls({
     upKey: 38
@@ -67,10 +80,10 @@ Stage::update = ->
   for fighter in @children when fighter instanceof Fighter
     fighter.applyVelocity()
 
-  # - Resolve player-stage collisions
+  # - Resolve player-stage collisions and players out of bounds
   for fighter in @children when fighter instanceof Fighter
     fighter.resolveStageCollisions(this)
-  
+
   # - Update hitboxes and moves, player input, set movement velocity,
   #   controllers, gravity, and the rest of the good stuff
   for fighter in @children when fighter instanceof Fighter
@@ -92,27 +105,50 @@ Stage::update = ->
   # Update camera
   # maxPosition = new THREE.Vector3(-Infinity, -Infinity, 0) # TODO: Make temporary
   # minPosition = new THREE.Vector3(Infinity, Infinity, 0) # TODO: Make temporary
-  maxPosition = new THREE.Vector3() # TODO: Make temporary
-  minPosition = new THREE.Vector3() # TODO: Make temporary
-  worldPosition = new THREE.Vector3()# TODO: Make temporary
+  maxPositionX = -Infinity
+  maxPositionY = -Infinity
+  minPositionX = Infinity
+  minPositionY = Infinity
+  worldPosition = tempVector.set(0, 0, 0) # TODO: Make temporary
+
+  # Find the bounding box of all fighters
   for fighter in @children when fighter instanceof Fighter
     worldPosition.setFromMatrixPosition(fighter.box.matrixWorld)
-    maxPosition.x = Math.max(maxPosition.x, worldPosition.x)
-    maxPosition.y = Math.max(maxPosition.y, worldPosition.y)
-    minPosition.x = Math.min(minPosition.x, worldPosition.x)
-    minPosition.y = Math.min(minPosition.y, worldPosition.y)
-  characterMargin = 5
-  maxPosition.x+=characterMargin
-  maxPosition.y+=characterMargin
-  minPosition.x-=characterMargin
-  minPosition.y-=characterMargin
-  averagePosition = maxPosition.add(minPosition).multiplyScalar(.5)
-  targetCameraPosition = new THREE.Vector3() # TODO: Make temporary
-  targetCameraPosition.copy(averagePosition)
-  targetCameraPosition.z = (maxPosition.x-minPosition.x)*1.2
+    maxPositionX = Math.max(maxPositionX, worldPosition.x)
+    maxPositionY = Math.max(maxPositionY, worldPosition.y)
+    minPositionX = Math.min(minPositionX, worldPosition.x)
+    minPositionY = Math.min(minPositionY, worldPosition.y)
+  characterMargin = 4
 
-  targetCameraPosition.multiplyScalar(.1)
-  @camera.position.multiplyScalar(.9).add(targetCameraPosition)
+  # Add a margin to the bounding box
+  maxPositionX += characterMargin
+  maxPositionY += characterMargin
+  minPositionX -= characterMargin
+  minPositionY -= characterMargin
+  
+  # Compute where the camera wants to go
+  averagePosition = tempVector.set(maxPositionX + minPositionX, maxPositionY + minPositionY, 0).multiplyScalar(0.5)
+  averagePosition.z = Math.max(
+    (maxPositionY - minPositionY),
+    (maxPositionX - minPositionX) / @camera.aspect
+  )/2/Math.tan(Math.PI*@camera.fov/180/2)
+
+  # Pull back from camera bounds
+  maxZ = Math.max(
+    @camerabox.size.y,
+    @camerabox.size.x / @camera.aspect
+  )/2/Math.tan(Math.PI*@camera.fov/180/2)
+  zFactor = 1 - averagePosition.z/maxZ
+  maxPositionX = @camerabox.position.x + @camerabox.size.x * 0.5 * zFactor
+  maxPositionY = @camerabox.position.y + @camerabox.size.y * 0.5 * zFactor
+  minPositionX = @camerabox.position.x - @camerabox.size.x * 0.5 * zFactor
+  minPositionY = @camerabox.position.y - @camerabox.size.y * 0.5 * zFactor
+
+  averagePosition.x = Math.min(Math.max(averagePosition.x, minPositionX), maxPositionX)
+  averagePosition.y = Math.min(Math.max(averagePosition.y, minPositionY), maxPositionY)
+
+  # Lerp the camera to the averagePosition
+  @camera.position.lerp(averagePosition, 0.1)
   # - Update animations
 
 Stage::resize = ->

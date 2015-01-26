@@ -81,18 +81,13 @@ Fighter::hurt = (hitbox)->
 # Plenty of these methods are explained in Stage.update()
 Fighter::applyVelocity = ->
   @position.add(@velocity)
-  # Demo respawn (Please remove when the time comes)
-  if @position.y < -10
-    @position.set(0, 1, 0)
-    @velocity.set(0, 0, 0)
-    @damage = 0
   @updateMatrixWorld()
   @box.updateMatrixWorld()
 
 
 Fighter::resolveStageCollisions = (stage)->
   @touchingGround = false
-  for stageBox in stage.children when stageBox instanceof Box
+  for stageBox in stage.activeBoxes when stageBox instanceof Box
     if @box.intersects(stageBox)
       #Touching the stage
       resolutionVector = @box.resolveCollision(stageBox)
@@ -104,6 +99,11 @@ Fighter::resolveStageCollisions = (stage)->
         @jumpRemaining = true
         if @velocity.y < 0
           @velocity.y = 0
+  
+  #Detect out of bounds
+  if not @box.intersects(stage.safebox)
+    @respawn()
+    @position.set(0, 1, 0)
 
 
 Fighter::update = ->
@@ -176,3 +176,11 @@ Fighter::updateMesh = ->
     else
       @mesh.run.stop() if @mesh.run.isPlaying
       @mesh.idle.play() if not @mesh.idle.isPlaying
+
+Fighter::respawn = ()->
+  @position.set(0, 0, 0)
+  @velocity.set(0, 0, 0)
+  @damage = 0
+  @touchingGround = true
+  @jumpRemaining = true
+  @move = null
