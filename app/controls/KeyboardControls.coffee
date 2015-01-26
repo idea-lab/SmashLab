@@ -17,7 +17,7 @@ KeyboardControls = module.exports = (options = {})->
     # Add if it's not in the array already
     if not (event.keyCode in @keysDown)
       @keysDown.push(event.keyCode)
-      console.log(event.keyCode)
+      #console.log(event.keyCode)
   
   handleKeyUp = (event)=>
     # Remove if it's in the array already

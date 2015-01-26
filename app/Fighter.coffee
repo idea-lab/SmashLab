@@ -4,6 +4,7 @@ KeyboardControls = require("controls/KeyboardControls")
 Controls = require("controls/Controls")
 Move = require("Move")
 Event = require("Event")
+tempVector = new THREE.Vector3()
 Fighter = module.exports = (options = {})->
   THREE.Object3D.call(this)
 
@@ -71,11 +72,18 @@ Fighter::constructor = Fighter
 # When the fighter is hit by a hit box
 Fighter::hurt = (hitbox)->
   @damage += hitbox.damage
-  #TODO: turn this into a temp variable
+
   launchSpeed = (@damage/100*hitbox.knockbackScaling+hitbox.knockback)/60
-  velocityToAdd = new THREE.Vector3(Math.cos(hitbox.angle)*launchSpeed,Math.sin(hitbox.angle)*launchSpeed,0)
+  velocityToAdd = tempVector.set(Math.cos(hitbox.angle)*launchSpeed,Math.sin(hitbox.angle)*launchSpeed,0)
+
   # Change velocity based on facing
   velocityToAdd.x *= hitbox.matrixWorld.elements[0]
+
+  # Change facing based on velocity
+  @facingRight = hitbox.matrixWorld.elements[0] < 0
+
+  # Gain another jump
+  @jumpRemaining = true
 
   @velocity.add(velocityToAdd)
 # Plenty of these methods are explained in Stage.update()
@@ -144,10 +152,13 @@ Fighter::update = ->
   if movementEnabled and @touchingGround
     if sign > 0
       @facingRight = true
-      @rotation.y = 0
     else if sign < 0
       @facingRight = false
-      @rotation.y = Math.PI 
+
+  if @facingRight
+    @rotation.y = 0
+  else
+    @rotation.y = Math.PI 
 
   # Friction
   friction = if @touchingGround then @groundFriction else @airFriction
@@ -183,4 +194,6 @@ Fighter::respawn = ()->
   @damage = 0
   @touchingGround = true
   @jumpRemaining = true
+  if move
+    @move.reset()
   @move = null

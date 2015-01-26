@@ -24,8 +24,9 @@ Stage = module.exports = (@game) ->
   @add(@safebox)
 
   # Camera stays in the camera box
-  @camerabox = new Box(size: new THREE.Vector3(24,13.5))
-  @camerabox.debugBox.visible = true
+  @camerabox = new Box(size: new THREE.Vector3(24,18))
+  # @camerabox.debugBox.visible = true
+  @camerabox.position.y = 2
   @add(@camerabox)
 
   @add(new Fighter({controller: new KeyboardControls({
@@ -125,6 +126,11 @@ Stage::update = ->
   maxPositionY += characterMargin
   minPositionX -= characterMargin
   minPositionY -= characterMargin
+
+  maxPositionX = Math.min(maxPositionX, @camerabox.position.x + @camerabox.size.x * 0.5)
+  maxPositionY = Math.min(maxPositionY, @camerabox.position.y + @camerabox.size.y * 0.5)
+  minPositionX = Math.max(minPositionX, @camerabox.position.x - @camerabox.size.x * 0.5)
+  minPositionY = Math.max(minPositionY, @camerabox.position.y - @camerabox.size.y * 0.5)
   
   # Compute where the camera wants to go
   averagePosition = tempVector.set(maxPositionX + minPositionX, maxPositionY + minPositionY, 0).multiplyScalar(0.5)
@@ -133,12 +139,14 @@ Stage::update = ->
     (maxPositionX - minPositionX) / @camera.aspect
   )/2/Math.tan(Math.PI*@camera.fov/180/2)
 
+
+
   # Pull back from camera bounds
-  maxZ = Math.max(
+  maxZ = Math.min(
     @camerabox.size.y,
     @camerabox.size.x / @camera.aspect
   )/2/Math.tan(Math.PI*@camera.fov/180/2)
-  zFactor = 1 - averagePosition.z/maxZ
+  zFactor = 1 - Math.min(1, averagePosition.z/maxZ)
   maxPositionX = @camerabox.position.x + @camerabox.size.x * 0.5 * zFactor
   maxPositionY = @camerabox.position.y + @camerabox.size.y * 0.5 * zFactor
   minPositionX = @camerabox.position.x - @camerabox.size.x * 0.5 * zFactor
