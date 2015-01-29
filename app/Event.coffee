@@ -7,7 +7,6 @@ Event = module.exports = (options)->
 
 Event::trigger = ()->
   if not @occurred
-    console.log(@callback)
     @callback.call(this)
     @occurred = true
 Event::reset = ()->

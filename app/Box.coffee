@@ -5,9 +5,13 @@ tempVector2 = new THREE.Vector3()
 # Beware of security issues and other strange things that could occur
 returnVector = new THREE.Vector3()
 
+Utils = require("Utils")
 Box = module.exports = (options)->
   THREE.Object3D.call(this)
-  @size = options.size or new THREE.Vector3()
+  @size = Utils.setVectorByArray(new THREE.Vector3(), options.size)
+
+  Utils.setVectorByArray(@position, options.position)
+
   @debugBox = new THREE.Mesh(new THREE.BoxGeometry(@size.x,@size.y,.1), new THREE.MeshNormalMaterial())
   @add(@debugBox)
 
@@ -15,12 +19,12 @@ Box = module.exports = (options)->
   @angle = options.angle or 0
 
   # Knockback is in m/s. Why not Newtons? Weight shouldn't make much of a difference.
-  @knockback = options.knockback or 4
+  @knockback = options.knockback or 0
   # How much additional knockback the move does at 100%.
-  @knockbackScaling = options.knockbackScaling or 20
+  @knockbackScaling = options.knockbackScaling or 0
 
   # How much damage the box does, if you get hit
-  @damage = options.damage or 20
+  @damage = options.damage or 0
 
   @alreadyHit = []
   # Can this box actively cause damage?

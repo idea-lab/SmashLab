@@ -29,41 +29,49 @@ Stage = module.exports = (@game) ->
   @camerabox.position.y = 2
   @add(@camerabox)
 
-  @add(new Fighter({controller: new KeyboardControls({
-    upKey: 38
-    downKey: 40
-    leftKey: 37
-    rightKey: 39
-    attackKey: 16
-    specialKey: 34 #Page down
-  })}))
-  @add(new Fighter({controller: new KeyboardControls({
-    upKey: 87
-    downKey: 83
-    leftKey: 65
-    rightKey: 68
-    attackKey: 81
-    specialKey: 69
-  })}))
-  @add(new Fighter({controller: new KeyboardControls({
-    upKey: 84
-    downKey: 71
-    leftKey: 70
-    rightKey: 72
-    attackKey: 82
-    specialKey: 89
-  })}))
-  @add(new Fighter({controller: new KeyboardControls({
-    upKey: 73
-    downKey: 75
-    leftKey: 74
-    rightKey: 76
-    attackKey: 85
-    specialKey: 79
-  })}))
+  # TODO: Remove this eventually
+  @loaded = false
   
-  # TODO: Clean it up!
+  testFighterData = require("fighters/test3")
   loader = new THREE.JSONLoader()
+  $.ajax(testFighterData.modelSrc).done (data)=>
+    console.log("hey")
+    testFighterData.modelJSON = data
+    @add(window.player=new Fighter(testFighterData, new KeyboardControls({
+      upKey: 38
+      downKey: 40
+      leftKey: 37
+      rightKey: 39
+      attackKey: 16
+      specialKey: 34 #Page down
+    })))
+    @add(new Fighter(testFighterData, new KeyboardControls({
+      upKey: 87
+      downKey: 83
+      leftKey: 65
+      rightKey: 68
+      attackKey: 81
+      specialKey: 69
+    })))
+    @add(new Fighter(testFighterData, new KeyboardControls({
+      upKey: 84
+      downKey: 71
+      leftKey: 70
+      rightKey: 72
+      attackKey: 82
+      specialKey: 89
+    })))
+    @add(new Fighter(testFighterData, new KeyboardControls({
+      upKey: 73
+      downKey: 75
+      leftKey: 74
+      rightKey: 76
+      attackKey: 85
+      specialKey: 79
+    })))
+    @loaded = true
+
+  # TODO: Clean it up!
   loader.load("models/Stage.json", (geometry)=>
     mesh=new THREE.Mesh(geometry,new THREE.MeshNormalMaterial())
     @add(mesh)
@@ -76,6 +84,8 @@ Stage::constructor = Stage
 
 # Updates the entire fight.
 Stage::update = ->
+  if not @loaded
+    return
   # Update cycle has these events in order:
   # - Apply velocities
   for fighter in @children when fighter instanceof Fighter
@@ -157,7 +167,6 @@ Stage::update = ->
 
   # Lerp the camera to the averagePosition
   @camera.position.lerp(averagePosition, 0.1)
-  # - Update animations
 
 Stage::resize = ->
   @camera.aspect = @game.width/@game.height

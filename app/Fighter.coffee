@@ -1,69 +1,73 @@
 # A moving, figting, controllable character
 Box = require("Box")
-KeyboardControls = require("controls/KeyboardControls")
-Controls = require("controls/Controls")
-Move = require("Move")
-Event = require("Event")
+Move = require("moves/Move")
+IdleMove = require("moves/IdleMove")
+WalkMove = require("moves/WalkMove")
+Utils = require("Utils")
 tempVector = new THREE.Vector3()
-Fighter = module.exports = (options = {})->
+Fighter = module.exports = (fighterData = {}, @controller)->
   THREE.Object3D.call(this)
 
   @velocity = new THREE.Vector3()
   @touchingGround = true
   @jumpRemaining = true
 
+  ## Start initializing everything based on the fighter data. ##
+
   # These two parameters control the jump. Very handy!
-  @airTime = 60 # in frames
-  @jumpHeight = 3 # in world units (meters)
-  @maxFallSpeed = 0.12
+  @airTime = fighterData.airTime # in frames
+  @jumpHeight = fighterData.jumpHeight # in world units (meters)
+  @maxFallSpeed = fighterData.maxFallSpeed
 
   # Here are velocities
-  @airAccel = 0.01
-  @airSpeed = 0.1
-  @airFriction = 0.002
+  @airAccel = fighterData.airAccel
+  @airSpeed = fighterData.airSpeed
+  @airFriction = fighterData.airFriction
 
-  @groundAccel = 0.015
-  @groundSpeed = 0.2
-  @groundFriction = 0.01
+  @groundAccel = fighterData.groundAccel
+  @groundSpeed = fighterData.groundSpeed
+  @groundFriction = fighterData.groundFriction
 
   @diAccel = 0.01
   @diSpeed = 0.05
 
-  @box = new Box(size: new THREE.Vector3(.5, 1.86))
-  @box.position.set(0, 0.93,0)
+  # Hitbox
+  @box = new Box(fighterData.box)
   @add(@box)
 
-  # TODO: Eventually remove this
-  @moveBox = new Box(size: new THREE.Vector3(.8, .8), angle:1)
-  @moveBox.position.set(.7, 0.9,0)
-  @add(@moveBox)
-  @coolMove = new Move(this, {
-    activeBoxes: [@moveBox]
-    eventSequence: [
-      new Event({callback:@moveBox.activate, time:5})
-      new Event({callback:@moveBox.deactivate, time:15})
-    ]
-  })
+  # The fighterdata is expected to come with its own JSON. Be sure to load beforehand!
+  parsedJSON = THREE.JSONLoader.prototype.parse(Utils.clone(fighterData.modelJSON))
+  @mesh=new THREE.SkinnedMesh(parsedJSON.geometry, new THREE.MeshBasicMaterial({skinning:true, color: Math.floor(Math.random()*0xffffff)}))
+  @mesh.rotation.y=Math.PI/2
+  @add(@mesh)
+  @mesh.sdebug=new THREE.SkeletonHelper(@mesh)
 
-  @mesh = null
-  # TODO: Clean it up!
-  loader = new THREE.JSONLoader()
-  loader.load("models/Test 3.json", (geometry)=>
-    @mesh=new THREE.SkinnedMesh(geometry,new THREE.MeshBasicMaterial({skinning:true, color: Math.floor(Math.random()*0xffffff)}))
-    @mesh.rotation.y=Math.PI/2
-    @mesh.sdebug=new THREE.SkeletonHelper(@mesh)
+  # HAX to the MAX. Please remove this eventually.
+  setTimeout ()=>
     @parent.add(@mesh.sdebug)
-    @add(@mesh)
-    @mesh.run = new THREE.Animation(@mesh, @mesh.geometry.animations[3])
-    @mesh.idle = new THREE.Animation(@mesh, @mesh.geometry.animations[0])
-  )
-  @controller = options.controller or new KeyboardControls()
+  , 0
+  
+  # Set up moves
+  @moveset = [
+    new IdleMove(this, Utils.findObjectByName(fighterData.moves, "idle"))
+    new WalkMove(this, Utils.findObjectByName(fighterData.moves, "walk"))
+    new Move(this, Utils.findObjectByName(fighterData.moves, "jump"))
+    new Move(this, Utils.findObjectByName(fighterData.moves, "fall"))
+    new Move(this, Utils.findObjectByName(fighterData.moves, "hurt"))
+    new Move(this, Utils.findObjectByName(fighterData.moves, "neutral"))
+    new Move(this, Utils.findObjectByName(fighterData.moves, "sidesmashcharge"))
+    new Move(this, Utils.findObjectByName(fighterData.moves, "sidesmash"))
+  ]
 
+  # Current move
   @move = null
+
   @damage = 0
 
   # True if right, false if left
   @facingRight = true
+
+  @respawn()
   return
 
 Fighter:: = Object.create(THREE.Object3D::)
@@ -85,13 +89,12 @@ Fighter::hurt = (hitbox)->
   # Gain another jump
   @jumpRemaining = true
 
-  @velocity.add(velocityToAdd)
+  @velocity.copy(velocityToAdd)
 # Plenty of these methods are explained in Stage.update()
 Fighter::applyVelocity = ->
   @position.add(@velocity)
   @updateMatrixWorld()
   @box.updateMatrixWorld()
-
 
 Fighter::resolveStageCollisions = (stage)->
   @touchingGround = false
@@ -113,21 +116,40 @@ Fighter::resolveStageCollisions = (stage)->
     @respawn()
     @position.set(0, 1, 0)
 
-
 Fighter::update = ->
   @controller.update()
-  movementEnabled = true
-  if @controller.move and not @move
-    @coolMove.reset()
-    @move = @coolMove
-  if @move
-    # Complete the current move
-    movementEnabled = false
-    newMove = @move.update(1)
-    @move = newMove
 
+  # Complete the current move
+  newMove = @move.update(1)
+  # Handle automatic endings of moves
+  if newMove isnt @move.name
+    @trigger(newMove)
+
+  # Handle fading of weights to new move
+  @move.weight = Math.min(1, @move.weight + 1/(@move.blendFrames+1))
+  # Compute sum of existing weights
+  sum = 0
+  for move in @moveset when move isnt @move
+    sum += move.weight
+
+  # Reduce existing weight sums to 0
+  factor = if @move.weight > .999 or sum< .001 then 0 else (1-@move.weight)/sum
+  for move in @moveset when move isnt @move
+    if move.weight > 0
+      move.weight *= factor
+      if move.weight is 0
+        # Move completely expired
+        move.animationReset()
+
+  # Complete animation update
+  for move in @moveset when move.weight isnt 0
+    move.preUpdateAnimation()
+  for move in @moveset when move.weight isnt 0
+    move.updateAnimation()
+
+  ## Physics
   # Jump
-  if movementEnabled and @jumpRemaining and @controller.jump
+  if "jump" in @move.triggerableMoves and @move.movement is Move.FULL_MOVEMENT and @jumpRemaining and @controller.jump
     @velocity.y = 4 * @jumpHeight / @airTime
     if not @touchingGround
       @jumpRemaining = false
@@ -136,12 +158,13 @@ Fighter::update = ->
   sign = Math.sign(@controller.joystick.x)
 
   # Lateral Movement
-  if movementEnabled or not @touchingGround
+  if @move.movement is Move.FULL_MOVEMENT or @move.movement is Move.DI_MOVEMENT and not @touchingGround
     # Even if movement is disabled during a move,
     # still allow DI if in the air.
-    maxSpeed = if not movementEnabled then @diSpeed else if @touchingGround then @groundSpeed else @airSpeed
-    acceleration = if not movementEnabled then @diAccel+@airFriction else if @touchingGround then @groundAccel+@groundFriction else @airAccel+@airFriction
-
+    maxSpeed = if @move.movement is Move.DI_MOVEMENT then @diSpeed else
+      if @touchingGround then @groundSpeed else @airSpeed
+    acceleration = if @move.movement is Move.DI_MOVEMENT then @diAccel+@airFriction else
+      if @touchingGround then @groundAccel+@groundFriction else @airAccel+@airFriction
     # Don't allow the velocity to exceed the maximum speed
     @velocity.x += sign *
       Math.max(0,
@@ -149,7 +172,7 @@ Fighter::update = ->
       maxSpeed - sign*@velocity.x))
 
   # Facing
-  if movementEnabled and @touchingGround
+  if @move.movement is Move.FULL_MOVEMENT and @touchingGround
     if sign > 0
       @facingRight = true
     else if sign < 0
@@ -166,27 +189,8 @@ Fighter::update = ->
 
   # Gotta get that gravity
   @velocity.y -= Math.max(0, Math.min(8 * @jumpHeight / @airTime / @airTime, @velocity.y + @maxFallSpeed))
-
-  @updateMesh()
-
-Fighter::updateMesh = ->
-  # TODO: Clean it up!
-  return if not @mesh
-  @mesh.run.resetBlendWeights()
-  @mesh.idle.resetBlendWeights()
-  @mesh.run.update(1/30)
-  @mesh.idle.update(1/60)
+  
   @mesh.sdebug.update()
-  if @move
-    @mesh.run.stop() if @mesh.run.isPlaying
-    @mesh.idle.stop() if @mesh.idle.isPlaying
-  else
-    if @controller.joystick.x != 0
-      @mesh.run.play() if not @mesh.run.isPlaying
-      @mesh.idle.stop() if @mesh.idle.isPlaying
-    else
-      @mesh.run.stop() if @mesh.run.isPlaying
-      @mesh.idle.play() if not @mesh.idle.isPlaying
 
 Fighter::respawn = ()->
   @position.set(0, 0, 0)
@@ -194,6 +198,15 @@ Fighter::respawn = ()->
   @damage = 0
   @touchingGround = true
   @jumpRemaining = true
-  if move
+  @trigger("idle")
+  @move.animationReset()
+  @move.reset()
+  @move.weight = 1
+  # TODO: Reset moves
+
+# Triggers a move
+Fighter::trigger = (movename)->
+  @move = Utils.findObjectByName(@moveset, movename)
+  if @move.weight isnt 0
     @move.reset()
-  @move = null
+  @move.trigger()
