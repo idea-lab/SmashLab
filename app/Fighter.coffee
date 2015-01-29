@@ -8,6 +8,7 @@ FallMove = require("moves/FallMove")
 LandMove = require("moves/LandMove")
 SmashChargeMove = require("moves/SmashChargeMove")
 SmashMove = require("moves/SmashMove")
+HurtMove = require("moves/HurtMove")
 Utils = require("Utils")
 Controls = require("controls/Controls")
 tempVector = new THREE.Vector3()
@@ -34,8 +35,8 @@ Fighter = module.exports = (fighterData = {}, @controller)->
   @groundSpeed = fighterData.groundSpeed
   @groundFriction = fighterData.groundFriction
 
-  @diAccel = 0.01
-  @diSpeed = 0.05
+  @diAccel = 0.002
+  @diSpeed = 0.02
 
   # Hitbox
   @box = new Box(fighterData.box)
@@ -59,7 +60,7 @@ Fighter = module.exports = (fighterData = {}, @controller)->
     new JumpMove(this, Utils.findObjectByName(fighterData.moves, "jump"))
     new FallMove(this, Utils.findObjectByName(fighterData.moves, "fall"))
     new LandMove(this, Utils.findObjectByName(fighterData.moves, "land"))
-    new Move(this, Utils.findObjectByName(fighterData.moves, "hurt"))
+    new HurtMove(this, Utils.findObjectByName(fighterData.moves, "hurt"))
     new Move(this, Utils.findObjectByName(fighterData.moves, "neutral"))
     new SmashChargeMove(this, Utils.findObjectByName(fighterData.moves, "sidesmashcharge"))
     new SmashMove(this, Utils.findObjectByName(fighterData.moves, "sidesmash"))
