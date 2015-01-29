@@ -35,7 +35,6 @@ Stage = module.exports = (@game) ->
   testFighterData = require("fighters/test3")
   loader = new THREE.JSONLoader()
   $.ajax(testFighterData.modelSrc).done (data)=>
-    console.log("hey")
     testFighterData.modelJSON = data
     @add(window.player=new Fighter(testFighterData, new KeyboardControls({
       upKey: 38

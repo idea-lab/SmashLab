@@ -3,7 +3,13 @@ Box = require("Box")
 Move = require("moves/Move")
 IdleMove = require("moves/IdleMove")
 WalkMove = require("moves/WalkMove")
+JumpMove = require("moves/JumpMove")
+FallMove = require("moves/FallMove")
+LandMove = require("moves/LandMove")
+SmashChargeMove = require("moves/SmashChargeMove")
+SmashMove = require("moves/SmashMove")
 Utils = require("Utils")
+Controls = require("controls/Controls")
 tempVector = new THREE.Vector3()
 Fighter = module.exports = (fighterData = {}, @controller)->
   THREE.Object3D.call(this)
@@ -41,7 +47,6 @@ Fighter = module.exports = (fighterData = {}, @controller)->
   @mesh.rotation.y=Math.PI/2
   @add(@mesh)
   @mesh.sdebug=new THREE.SkeletonHelper(@mesh)
-
   # HAX to the MAX. Please remove this eventually.
   setTimeout ()=>
     @parent.add(@mesh.sdebug)
@@ -51,12 +56,13 @@ Fighter = module.exports = (fighterData = {}, @controller)->
   @moveset = [
     new IdleMove(this, Utils.findObjectByName(fighterData.moves, "idle"))
     new WalkMove(this, Utils.findObjectByName(fighterData.moves, "walk"))
-    new Move(this, Utils.findObjectByName(fighterData.moves, "jump"))
-    new Move(this, Utils.findObjectByName(fighterData.moves, "fall"))
+    new JumpMove(this, Utils.findObjectByName(fighterData.moves, "jump"))
+    new FallMove(this, Utils.findObjectByName(fighterData.moves, "fall"))
+    new LandMove(this, Utils.findObjectByName(fighterData.moves, "land"))
     new Move(this, Utils.findObjectByName(fighterData.moves, "hurt"))
     new Move(this, Utils.findObjectByName(fighterData.moves, "neutral"))
-    new Move(this, Utils.findObjectByName(fighterData.moves, "sidesmashcharge"))
-    new Move(this, Utils.findObjectByName(fighterData.moves, "sidesmash"))
+    new SmashChargeMove(this, Utils.findObjectByName(fighterData.moves, "sidesmashcharge"))
+    new SmashMove(this, Utils.findObjectByName(fighterData.moves, "sidesmash"))
   ]
 
   # Current move
@@ -75,9 +81,10 @@ Fighter::constructor = Fighter
 
 # When the fighter is hit by a hit box
 Fighter::hurt = (hitbox)->
-  @damage += hitbox.damage
+  smashChargeFactor = 1 + hitbox.smashCharge*.2
+  @damage += hitbox.damage * smashChargeFactor
 
-  launchSpeed = (@damage/100*hitbox.knockbackScaling+hitbox.knockback)/60
+  launchSpeed = smashChargeFactor * (@damage/100*hitbox.knockbackScaling+hitbox.knockback)/60
   velocityToAdd = tempVector.set(Math.cos(hitbox.angle)*launchSpeed,Math.sin(hitbox.angle)*launchSpeed,0)
 
   # Change velocity based on facing
@@ -89,6 +96,9 @@ Fighter::hurt = (hitbox)->
   # Gain another jump
   @jumpRemaining = true
 
+  @trigger("hurt")
+  @move.duration = launchSpeed*200
+  
   @velocity.copy(velocityToAdd)
 # Plenty of these methods are explained in Stage.update()
 Fighter::applyVelocity = ->
@@ -125,6 +135,11 @@ Fighter::update = ->
   if newMove isnt @move.name
     @trigger(newMove)
 
+  # Triggerables (is this the right place?)
+  if "sidesmashcharge" in @move.triggerableMoves and (@controller.move & Controls.SMASH)
+    @trigger("sidesmashcharge")
+  else if "neutral" in @move.triggerableMoves and (@controller.move & Controls.ATTACK)
+    @trigger("neutral")
   # Handle fading of weights to new move
   @move.weight = Math.min(1, @move.weight + 1/(@move.blendFrames+1))
   # Compute sum of existing weights
@@ -137,9 +152,6 @@ Fighter::update = ->
   for move in @moveset when move isnt @move
     if move.weight > 0
       move.weight *= factor
-      if move.weight is 0
-        # Move completely expired
-        move.animationReset()
 
   # Complete animation update
   for move in @moveset when move.weight isnt 0
@@ -149,8 +161,12 @@ Fighter::update = ->
 
   ## Physics
   # Jump
+  if not @touchingGround and (@move.name is "idle" or @move.name is "walk")
+    @trigger("fall")
+  # TODO: Hmmm... How to trigger land when hitting ground during an aerial?
   if "jump" in @move.triggerableMoves and @move.movement is Move.FULL_MOVEMENT and @jumpRemaining and @controller.jump
     @velocity.y = 4 * @jumpHeight / @airTime
+    @trigger("jump")
     if not @touchingGround
       @jumpRemaining = false
     @touchingGround = false
@@ -206,7 +222,8 @@ Fighter::respawn = ()->
 
 # Triggers a move
 Fighter::trigger = (movename)->
-  @move = Utils.findObjectByName(@moveset, movename)
-  if @move.weight isnt 0
+  if @move
     @move.reset()
+  @move = Utils.findObjectByName(@moveset, movename)
+  @move.reset()
   @move.trigger()

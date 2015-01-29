@@ -14,7 +14,7 @@ Move = module.exports = (@fighter, options)->
   # TODO: Eventually try to remove the clone, if possible.
 
   # Automatically transition into another move when completed. If null, the animation loops
-  @nextMove = null
+  @nextMove = "idle"
 
   # The number of frames the previous animation will blend into the current one
   @blendFrames = 0
@@ -27,8 +27,9 @@ Move = module.exports = (@fighter, options)->
   # The maximum allowed fighter movement during the move
   @movement = Move.NO_MOVEMENT
 
+  @animationDuration = Math.round(@animation.data.length*60)
   # Number of frames
-  @duration = options.duration or Math.round(@animation.data.length*60) or 1
+  @duration = options.duration or @animationDuration
   @currentTime = 1
 
   # In order for a hitbox to register, it needs to 1. be a member of activeBoxes and
@@ -42,8 +43,8 @@ Move = module.exports = (@fighter, options)->
       box = new Box(boxOptions)
       @fighter.add(box)
       @activeBoxes.push(box)
-      @eventSequence.push(new Event(callback:box.activate, time:box.startTime))
-      @eventSequence.push(new Event(callback:box.deactivate, time:box.endTime))
+      @eventSequence.push(new Event(callback:box.activate, time:boxOptions.startTime))
+      @eventSequence.push(new Event(callback:box.deactivate, time:boxOptions.endTime))
 
   @reset()
   return
@@ -56,7 +57,7 @@ Move::update = (deltaTime)->
     event.trigger()
   @currentTime += deltaTime
   if @currentTime > @duration
-    if @nextMove
+    if @nextMove?
       # Stay on ending frame to potentially blend into the next move
       @currentTime = @duration
       @animation.stop()
@@ -76,19 +77,19 @@ Move::preUpdateAnimation = ()->
   @animation.resetBlendWeights()
 
 Move::updateAnimation = ()->
+  # TODO: Factor in animationDuration to prevent false times
   @animation.currentTime = (@currentTime-1)/60
   @animation.weight = @weight
-  @animation.update(1/60)
+  @animation.update(0)
 
 Move::trigger = ()->
   @animation.play(0, 0)
 
 Move::animationReset = ()->
-  @currentTime = 1
-  @weight = 0
   @animation.reset()
 
 Move::reset = ()->
+  @currentTime = 1
   for box in @activeBoxes
     box.deactivate()
     box.alreadyHit = [] # TODO: more efficient?

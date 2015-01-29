@@ -26,6 +26,9 @@ Box = module.exports = (options)->
   # How much damage the box does, if you get hit
   @damage = options.damage or 0
 
+  # How much the current box has been charged by a smash
+  @smashCharge = 0
+
   @alreadyHit = []
   # Can this box actively cause damage?
   @active = false

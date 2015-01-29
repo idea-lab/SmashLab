@@ -12,11 +12,11 @@ module.exports = {
   maxFallSpeed: 0.12
 
   airAccel: 0.01
-  airSpeed: 0.1
+  airSpeed: 0.08
   airFriction: 0.002
 
   groundAccel: 0.015
-  groundSpeed: 0.2
+  groundSpeed: 0.15
   groundFriction: 0.01
 
   # The main hitbox
@@ -46,6 +46,10 @@ module.exports = {
       animation: "Fall"
     }
     {
+      name: "land"
+      animation: "Land"
+    }
+    {
       name: "hurt"
       animation: "Hurt"
     }
@@ -54,14 +58,14 @@ module.exports = {
       animation: "Neutral"
       activeBoxes: [
         {
-          size: [.8, .8]
+          size: [.5, .5]
           angle: 1
-          knockback: 4
-          knockbackScaling: 20
-          damage: 20
-          position: [.7, 0.9]
-          startTime: 8
-          endTime: 3
+          knockback: 2
+          knockbackScaling: 10
+          damage: 5
+          position: [.4, 1.3]
+          startTime: 3
+          endTime: 8
         }
       ]
     }
@@ -72,7 +76,6 @@ module.exports = {
     {
       name: "sidesmash"
       animation: "Side Smash"
-      duration: 40
       activeBoxes: [
         {
           size: [.8, .8]
