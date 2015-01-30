@@ -5,7 +5,7 @@ AerialAttackMove = module.exports = (@fighter, options)->
   @blendFrames = 0
   @triggerableMoves = []
   @movement = Move.DI_MOVEMENT
-  @nextMove = "falls"
+  @nextMove = "fall"
   return
 
 AerialAttackMove:: = Object.create(Move::)
@@ -13,5 +13,5 @@ AerialAttackMove::constructor = AerialAttackMove
 AerialAttackMove::update = (deltaTime)->
   Move::update.apply(this, arguments)
   if @fighter.touchingGround
-    @triggerMove("land", 100) # Higher priority fall
+    @triggerMove("land", 100) # Higher priority land
 

@@ -1,7 +1,7 @@
 GroundAttackMove = require("moves/GroundAttackMove")
 SmashMove = module.exports = (@fighter, options)->
   GroundAttackMove.apply(this, arguments)
-  @blendFrames = 10
+  @blendFrames = 5
   @movement = GroundAttackMove.NO_MOVEMENT
   # 0 if smash is not charged, 1 if smash is fully charged
   # This is set by the smash charge move

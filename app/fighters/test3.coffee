@@ -64,7 +64,7 @@ module.exports = {
           knockbackScaling: 10
           damage: 5
           position: [.4, 1.3]
-          startTime: 3
+          startTime: 1
           endTime: 8
         }
       ]
@@ -78,14 +78,32 @@ module.exports = {
       animation: "Side Smash"
       activeBoxes: [
         {
-          size: [.8, .8]
+          size: [.7, .7]
           angle: 1
           knockback: 4
           knockbackScaling: 20
           damage: 20
-          position: [.7, 0.9]
-          startTime: 5
-          endTime: 15
+          position: [.5, 0.9]
+          startTime: 4
+          endTime: 10
+        }
+      ]
+    }
+    {
+      name: "neutralaerial"
+      animation: "Knee of Fury"
+      activeBoxes: [
+        {
+          size: [.5, .5]
+          angle: 1
+          knockback: 3
+          knockbackScaling: 14
+          damage: 10
+          # Used blender's 3D cursor.
+          # How convenient!
+          position: [.38, 0.67]
+          startTime: 17
+          endTime: 28
         }
       ]
     }

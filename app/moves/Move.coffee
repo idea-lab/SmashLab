@@ -18,7 +18,7 @@ Move = module.exports = (@fighter, options)->
 
   # The next move that the current move would immediately like to trigger
   @triggerNextPriority = -Infinity
-  @triggerNext = @name
+  @triggerNext = null
 
   # The number of frames the previous animation will blend into the current one
   @blendFrames = 0
@@ -86,7 +86,7 @@ Move::updateAnimation = ()->
   @animation.update(0)
 
 Move::trigger = ()->
-  @triggerNext = @name
+  @triggerNext = null
   @triggerNextPriority = -Infinity
   @animation.play(0, 0)
 

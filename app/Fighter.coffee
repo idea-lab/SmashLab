@@ -53,9 +53,10 @@ Fighter = module.exports = (fighterData = {}, @controller)->
     new (require("moves/FallMove"))(this, Utils.findObjectByName(fighterData.moves, "fall"))
     new (require("moves/LandMove"))(this, Utils.findObjectByName(fighterData.moves, "land"))
     new (require("moves/HurtMove"))(this, Utils.findObjectByName(fighterData.moves, "hurt"))
-    new (require("moves/Move"))(this, Utils.findObjectByName(fighterData.moves, "neutral"))
+    new (require("moves/NeutralMove"))(this, Utils.findObjectByName(fighterData.moves, "neutral"))
     new (require("moves/SmashChargeMove"))(this, Utils.findObjectByName(fighterData.moves, "sidesmashcharge"))
     new (require("moves/SmashMove"))(this, Utils.findObjectByName(fighterData.moves, "sidesmash"))
+    new (require("moves/AerialAttackMove"))(this, Utils.findObjectByName(fighterData.moves, "neutralaerial"))
   ]
 
   # Current move
@@ -125,14 +126,17 @@ Fighter::update = ->
   # Complete the current move
   @move.update(1)
   # Handle automatic endings of moves
-  if @move.triggerNext isnt @move.name
+  if @move.triggerNext?
     @trigger(@move.triggerNext)
 
   # TODO: Triggerables (is this the right place?)
   if "sidesmashcharge" in @move.triggerableMoves and (@controller.move & Controls.SMASH)
     @trigger("sidesmashcharge")
-  else if "neutral" in @move.triggerableMoves and (@controller.move & Controls.ATTACK)
-    @trigger("neutral")
+  if (@controller.move & Controls.ATTACK)
+    if "neutral" in @move.triggerableMoves
+      @trigger("neutral")
+    else if "neutralaerial" in @move.triggerableMoves
+      @trigger("neutralaerial")
   # Handle fading of weights to new move
   @move.weight = Math.min(1, @move.weight + 1/(@move.blendFrames+1))
   # Compute sum of existing weights
@@ -216,5 +220,4 @@ Fighter::trigger = (movename)->
   if @move
     @move.reset()
   @move = Utils.findObjectByName(@moveset, movename)
-  @move.reset()
   @move.trigger()
