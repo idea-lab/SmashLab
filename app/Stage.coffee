@@ -44,32 +44,36 @@ Stage = module.exports = (@game) ->
       attackKey: 16
       specialKey: 34 #Page down
     })))
-    @add(new Fighter(testFighterData, new KeyboardControls({
-      upKey: 87
-      downKey: 83
-      leftKey: 65
-      rightKey: 68
-      attackKey: 81
-      specialKey: 69
-    })))
-    @add(new Fighter(testFighterData, new KeyboardControls({
-      upKey: 84
-      downKey: 71
-      leftKey: 70
-      rightKey: 72
-      attackKey: 82
-      specialKey: 89
-    })))
-    @add(new Fighter(testFighterData, new KeyboardControls({
-      upKey: 73
-      downKey: 75
-      leftKey: 74
-      rightKey: 76
-      attackKey: 85
-      specialKey: 79
-    })))
     @loaded = true
-
+  $(window).on "keydown", (event)=>
+    switch event.keyCode
+      when 50#Number 2
+        @add(new Fighter(testFighterData, new KeyboardControls({
+          upKey: 87
+          downKey: 83
+          leftKey: 65
+          rightKey: 68
+          attackKey: 81
+          specialKey: 69
+        })))
+      when 51#Number 3
+        @add(new Fighter(testFighterData, new KeyboardControls({
+          upKey: 73
+          downKey: 75
+          leftKey: 74
+          rightKey: 76
+          attackKey: 85
+          specialKey: 79
+        })))
+      when 52#Number 4
+        @add(new Fighter(testFighterData, new KeyboardControls({
+          upKey: 84
+          downKey: 71
+          leftKey: 70
+          rightKey: 72
+          attackKey: 82
+          specialKey: 89
+        })))
   # TODO: Clean it up!
   loader.load("models/Stage.json", (geometry)=>
     mesh=new THREE.Mesh(geometry,new THREE.MeshNormalMaterial())

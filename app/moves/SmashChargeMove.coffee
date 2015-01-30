@@ -1,21 +1,20 @@
-Move = require("moves/Move")
+GroundAttackMove = require("moves/GroundAttackMove")
 Utils = require("Utils")
 SmashChargeMove = module.exports = (@fighter, options)->
-  Move.apply(this, arguments)
-  @blendFrames = 0
-  @triggerableMoves = []
-  @movement = Move.NO_MOVEMENT
+  GroundAttackMove.apply(this, arguments)
   @nextMove = options.name[0..-7] # Remove that charge
+  @associatedSmashMove = null
   return
 
-SmashChargeMove:: = Object.create(Move::)
+SmashChargeMove:: = Object.create(GroundAttackMove::)
 SmashChargeMove::constructor = SmashChargeMove
 SmashChargeMove::update = (deltaTime)->
   smashCharge = (@currentTime-1)/(@duration-1)
-  nextMove = Move::update.apply(this, arguments)
+  GroundAttackMove::update.apply(this, arguments)
   # TODO: Make more efficient
-  Utils.findObjectByName(@fighter.moveset,@nextMove).smashCharge = smashCharge
+  if not @associatedSmashMove?
+    @associatedSmashMove = Utils.findObjectByName(@fighter.moveset,@nextMove)
+  @associatedSmashMove.smashCharge = smashCharge
   if not @fighter.controller.attack
     # Released the attack button, so smash now
-    return @nextMove
-  return nextMove
+    @triggerMove(@nextMove, 50)

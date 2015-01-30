@@ -1,7 +1,7 @@
 # Manages and renders the entire game, menus, and stages.
 Stage = require("Stage")
 Game = module.exports = (@element) ->
-  @renderer= new THREE.WebGLRenderer()
+  @renderer= new THREE.WebGLRenderer({morphTargets: 16})
   @width = 0
   @height = 0
   @stage = new Stage(this)

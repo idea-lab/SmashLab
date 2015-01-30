@@ -4,10 +4,10 @@ HurtMove = module.exports = (@fighter, options)->
   @blendFrames = 0
   @triggerableMoves = []
   @movement = Move.DI_MOVEMENT
-  @nextMove = "idle"
+  @nextMove = "fall"
   return
 
 HurtMove:: = Object.create(Move::)
 HurtMove::constructor = HurtMove
 HurtMove::update = (deltaTime)->
-  return Move::update.apply(this, arguments)
+  Move::update.apply(this, arguments)

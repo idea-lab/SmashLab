@@ -1,14 +1,6 @@
 # A moving, figting, controllable character
 Box = require("Box")
 Move = require("moves/Move")
-IdleMove = require("moves/IdleMove")
-WalkMove = require("moves/WalkMove")
-JumpMove = require("moves/JumpMove")
-FallMove = require("moves/FallMove")
-LandMove = require("moves/LandMove")
-SmashChargeMove = require("moves/SmashChargeMove")
-SmashMove = require("moves/SmashMove")
-HurtMove = require("moves/HurtMove")
 Utils = require("Utils")
 Controls = require("controls/Controls")
 tempVector = new THREE.Vector3()
@@ -55,15 +47,15 @@ Fighter = module.exports = (fighterData = {}, @controller)->
   
   # Set up moves
   @moveset = [
-    new IdleMove(this, Utils.findObjectByName(fighterData.moves, "idle"))
-    new WalkMove(this, Utils.findObjectByName(fighterData.moves, "walk"))
-    new JumpMove(this, Utils.findObjectByName(fighterData.moves, "jump"))
-    new FallMove(this, Utils.findObjectByName(fighterData.moves, "fall"))
-    new LandMove(this, Utils.findObjectByName(fighterData.moves, "land"))
-    new HurtMove(this, Utils.findObjectByName(fighterData.moves, "hurt"))
-    new Move(this, Utils.findObjectByName(fighterData.moves, "neutral"))
-    new SmashChargeMove(this, Utils.findObjectByName(fighterData.moves, "sidesmashcharge"))
-    new SmashMove(this, Utils.findObjectByName(fighterData.moves, "sidesmash"))
+    new (require("moves/IdleMove"))(this, Utils.findObjectByName(fighterData.moves, "idle"))
+    new (require("moves/WalkMove"))(this, Utils.findObjectByName(fighterData.moves, "walk"))
+    new (require("moves/JumpMove"))(this, Utils.findObjectByName(fighterData.moves, "jump"))
+    new (require("moves/FallMove"))(this, Utils.findObjectByName(fighterData.moves, "fall"))
+    new (require("moves/LandMove"))(this, Utils.findObjectByName(fighterData.moves, "land"))
+    new (require("moves/HurtMove"))(this, Utils.findObjectByName(fighterData.moves, "hurt"))
+    new (require("moves/Move"))(this, Utils.findObjectByName(fighterData.moves, "neutral"))
+    new (require("moves/SmashChargeMove"))(this, Utils.findObjectByName(fighterData.moves, "sidesmashcharge"))
+    new (require("moves/SmashMove"))(this, Utils.findObjectByName(fighterData.moves, "sidesmash"))
   ]
 
   # Current move
@@ -131,12 +123,12 @@ Fighter::update = ->
   @controller.update()
 
   # Complete the current move
-  newMove = @move.update(1)
+  @move.update(1)
   # Handle automatic endings of moves
-  if newMove isnt @move.name
-    @trigger(newMove)
+  if @move.triggerNext isnt @move.name
+    @trigger(@move.triggerNext)
 
-  # Triggerables (is this the right place?)
+  # TODO: Triggerables (is this the right place?)
   if "sidesmashcharge" in @move.triggerableMoves and (@controller.move & Controls.SMASH)
     @trigger("sidesmashcharge")
   else if "neutral" in @move.triggerableMoves and (@controller.move & Controls.ATTACK)
@@ -162,8 +154,6 @@ Fighter::update = ->
 
   ## Physics
   # Jump
-  if not @touchingGround and (@move.name is "idle" or @move.name is "walk")
-    @trigger("fall")
   # TODO: Hmmm... How to trigger land when hitting ground during an aerial?
   if "jump" in @move.triggerableMoves and @move.movement is Move.FULL_MOVEMENT and @jumpRemaining and @controller.jump
     @velocity.y = 4 * @jumpHeight / @airTime

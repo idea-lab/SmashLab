@@ -16,6 +16,10 @@ Move = module.exports = (@fighter, options)->
   # Automatically transition into another move when completed. If null, the animation loops
   @nextMove = "idle"
 
+  # The next move that the current move would immediately like to trigger
+  @triggerNextPriority = -Infinity
+  @triggerNext = @name
+
   # The number of frames the previous animation will blend into the current one
   @blendFrames = 0
   @weight = 0
@@ -60,14 +64,13 @@ Move::update = (deltaTime)->
     if @nextMove?
       # Stay on ending frame to potentially blend into the next move
       @currentTime = @duration
-      @animation.stop()
-      return @nextMove
+      # DON'T DARE STOP THE MOVE - CAUSES WEIGHTS TO STOP WORKING
+      @triggerMove(@nextMove)
     else
       # Loop
       @currentTime = 1 + (@currentTime-1) % @duration
       @animation.play(0, 0)
   # Continue moving
-  return @name
 
 # Syncs values in move to its associated animation
 # UGH - I've been solving this bug for hours
@@ -83,7 +86,15 @@ Move::updateAnimation = ()->
   @animation.update(0)
 
 Move::trigger = ()->
+  @triggerNext = @name
+  @triggerNextPriority = -Infinity
   @animation.play(0, 0)
+
+# Request to trigger the next move with a given priority
+Move::triggerMove = (name, priority = 0)->
+  if priority > @triggerNextPriority
+    @triggerNextPriority = priority
+    @triggerNext = name
 
 Move::animationReset = ()->
   @animation.reset()

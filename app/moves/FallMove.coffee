@@ -1,17 +1,10 @@
-Move = require("moves/Move")
+AerialMove = require("moves/AerialMove")
 FallMove = module.exports = (@fighter, options)->
-  Move.apply(this, arguments)
-  @blendFrames = 10
-  @triggerableMoves = ["jump", "neutral"]
-  @movement = Move.FULL_MOVEMENT
-  @nextMove = null
+  AerialMove.apply(this, arguments)
   return
 
-FallMove:: = Object.create(Move::)
+FallMove:: = Object.create(AerialMove::)
 FallMove::constructor = FallMove
 FallMove::update = (deltaTime)->
-  nextMove = Move::update.apply(this, arguments)
-  if @fighter.touchingGround
-    return "land"
-  return nextMove
+  AerialMove::update.apply(this, arguments)
   # Fast falling goes here

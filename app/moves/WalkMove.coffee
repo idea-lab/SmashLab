@@ -1,17 +1,12 @@
-Move = require("moves/Move")
+GroundMove = require("moves/GroundMove")
 WalkMove = module.exports = (@fighter, options)->
-  Move.apply(this, arguments)
-  @blendFrames = 10
-  @triggerableMoves = ["sidesmashcharge", "neutral", "jump"]
-  @movement = Move.FULL_MOVEMENT
+  GroundMove.apply(this, arguments)
   return
 
-WalkMove:: = Object.create(Move::)
+WalkMove:: = Object.create(GroundMove::)
 WalkMove::constructor = WalkMove
 WalkMove::update = (deltaTime)->
-  nextMove = Move::update.apply(this, arguments)
   # Do the walk
+  GroundMove::update.apply(this, arguments)
   if @fighter.controller.joystick.x is 0
-    return "idle"
-  else
-    return nextMove
+    @triggerMove("idle", 50)

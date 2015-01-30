@@ -1,13 +1,12 @@
-Move = require("moves/Move")
+GroundMove = require("moves/GroundMove")
 LandMove = module.exports = (@fighter, options)->
-  Move.apply(this, arguments)
+  GroundMove.apply(this, arguments)
+  # Perhaps you can't trigger anything upon landing?
   @blendFrames = 3
-  @triggerableMoves = []
-  @movement = Move.FULL_MOVEMENT
   @nextMove = "idle"
   return
 
-LandMove:: = Object.create(Move::)
+LandMove:: = Object.create(GroundMove::)
 LandMove::constructor = LandMove
 LandMove::update = (deltaTime)->
-  return Move::update.apply(this, arguments)
+  GroundMove::update.apply(this, arguments)
