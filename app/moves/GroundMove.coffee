@@ -5,6 +5,7 @@ GroundMove = module.exports = (@fighter, options)->
   @blendFrames = 10
   @triggerableMoves = @triggerableMoves.concat [
     "sidesmashcharge", 
+    "upsmashcharge", 
     "neutral", 
     "jump"
   ]

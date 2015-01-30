@@ -27,8 +27,8 @@ Fighter = module.exports = (fighterData = {}, @controller)->
   @groundSpeed = fighterData.groundSpeed
   @groundFriction = fighterData.groundFriction
 
-  @diAccel = 0.002
-  @diSpeed = 0.02
+  @diAccel = 0.008
+  @diSpeed = 0.05
 
   # Hitbox
   @box = new Box(fighterData.box)
@@ -56,7 +56,10 @@ Fighter = module.exports = (fighterData = {}, @controller)->
     new (require("moves/NeutralMove"))(this, Utils.findObjectByName(fighterData.moves, "neutral"))
     new (require("moves/SmashChargeMove"))(this, Utils.findObjectByName(fighterData.moves, "sidesmashcharge"))
     new (require("moves/SmashMove"))(this, Utils.findObjectByName(fighterData.moves, "sidesmash"))
+    new (require("moves/SmashChargeMove"))(this, Utils.findObjectByName(fighterData.moves, "upsmashcharge"))
+    new (require("moves/SmashMove"))(this, Utils.findObjectByName(fighterData.moves, "upsmash"))
     new (require("moves/AerialAttackMove"))(this, Utils.findObjectByName(fighterData.moves, "neutralaerial"))
+    new (require("moves/AerialAttackMove"))(this, Utils.findObjectByName(fighterData.moves, "downaerial"))
   ]
 
   # Current move
@@ -130,13 +133,23 @@ Fighter::update = ->
     @trigger(@move.triggerNext)
 
   # TODO: Triggerables (is this the right place?)
-  if "sidesmashcharge" in @move.triggerableMoves and (@controller.move & Controls.SMASH)
-    @trigger("sidesmashcharge")
+  if (@controller.move & Controls.SMASH)
+    if (@controller.move & Controls.UP)
+      if "upsmashcharge" in @move.triggerableMoves
+        @trigger("upsmashcharge")
+    else if (@controller.move & (Controls.LEFT | Controls.RIGHT))
+      if "sidesmashcharge" in @move.triggerableMoves
+        @facingRight = not (@controller.move & Controls.LEFT)
+        @trigger("sidesmashcharge")
   if (@controller.move & Controls.ATTACK)
-    if "neutral" in @move.triggerableMoves
-      @trigger("neutral")
-    else if "neutralaerial" in @move.triggerableMoves
-      @trigger("neutralaerial")
+    if (@controller.move & Controls.DOWN)
+      if "downaerial" in @move.triggerableMoves
+        @trigger("downaerial")
+    else
+      if "neutral" in @move.triggerableMoves
+        @trigger("neutral")
+      else if "neutralaerial" in @move.triggerableMoves
+        @trigger("neutralaerial")
   # Handle fading of weights to new move
   @move.weight = Math.min(1, @move.weight + 1/(@move.blendFrames+1))
   # Compute sum of existing weights
@@ -159,7 +172,9 @@ Fighter::update = ->
   ## Physics
   # Jump
   # TODO: Hmmm... How to trigger land when hitting ground during an aerial?
-  if "jump" in @move.triggerableMoves and @move.movement is Move.FULL_MOVEMENT and @jumpRemaining and @controller.jump
+  if "jump" in @move.triggerableMoves and
+      @move.movement is Move.FULL_MOVEMENT and
+      @jumpRemaining and @controller.move is Controls.JUMP
     @velocity.y = 4 * @jumpHeight / @airTime
     @trigger("jump")
     if not @touchingGround

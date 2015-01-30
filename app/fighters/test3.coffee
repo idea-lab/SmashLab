@@ -58,7 +58,7 @@ module.exports = {
       animation: "Neutral"
       activeBoxes: [
         {
-          size: [.5, .5]
+          size: [.6, .6]
           angle: 1
           knockback: 2
           knockbackScaling: 10
@@ -78,7 +78,7 @@ module.exports = {
       animation: "Side Smash"
       activeBoxes: [
         {
-          size: [.7, .7]
+          size: [.8, .8]
           angle: 1
           knockback: 4
           knockbackScaling: 20
@@ -90,20 +90,58 @@ module.exports = {
       ]
     }
     {
+      name: "upsmashcharge"
+      animation: "Up Smash Charge"
+    }
+    {
+      name: "upsmash"
+      animation: "Up Smash"
+      activeBoxes: [
+        {
+          size: [.9, .9]
+          angle: 1.5
+          knockback: 4
+          knockbackScaling: 20
+          damage: 20
+          position: [0, 1.7]
+          startTime: 8
+          endTime: 15
+        }
+      ]
+    }
+    {
       name: "neutralaerial"
       animation: "Knee of Fury"
       activeBoxes: [
         {
-          size: [.5, .5]
+          size: [.85, .85]
           angle: 1
-          knockback: 3
-          knockbackScaling: 14
+          knockback: 5
+          knockbackScaling: 10
           damage: 10
           # Used blender's 3D cursor.
           # How convenient!
           position: [.38, 0.67]
-          startTime: 17
-          endTime: 28
+          startTime: 10
+          endTime: 20
+        }
+      ]
+    }
+    {
+      name: "downaerial"
+      animation: "Down Aerial"
+      activeBoxes: [
+        {
+          size: [.8, .8]
+          angle: -1.3
+          knockback: 6
+          knockbackScaling: 12
+          damage: 10
+          # Used blender's 3D cursor.
+          # How convenient!
+          position: [0.05, 0.25]
+          startTime: 8
+          endTime: 16
         }
       ]
     }

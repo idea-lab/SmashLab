@@ -13,9 +13,10 @@ Controls = module.exports = ()->
   @special = 0
   @specialPrevious = 0
 
-  # A boolean set to true if the player wants to jump
-  @jump = false
-
+  # Jump is a "button"
+  @jump = 0
+  @jumpPrevious = 0
+  @queueJump = false
   # The detected move the player wants to make
   @move = 0
 
@@ -25,11 +26,12 @@ Controls.LEFT = 1
 Controls.RIGHT = 2
 Controls.UP = 4
 Controls.DOWN = 8
-Controls.ATTACK = 16
-Controls.SMASH = 32
-Controls.SPECIAL = 64
+Controls.JUMP = 16
+Controls.ATTACK = 32
+Controls.SMASH = 64
+Controls.SPECIAL = 128
 
-Controls.SMASH_FRAMES = 10
+Controls.SMASH_FRAMES = 8
 Controls.SMASH_DISTANCE_NEEDED = 0.8
 
 # Call this at the end of update() in child classes
@@ -44,7 +46,13 @@ Controls::update = ()->
     @joystickSmashed = Controls.SMASH_FRAMES
   
   # Detect moves from buttons presses
-  if @attack and not @attackPrevious
+  if @jump and not @jumpPrevious
+    @jumpQueued = true
+  
+  if @jumpQueued and not @joystickSmashed
+    @jumpQueued = false
+    @move = Controls.JUMP
+  else if @attack and not @attackPrevious
     @move = Controls.ATTACK | @getJoystickDirection()
     if @joystickSmashed > 0
       @move |= Controls.SMASH
@@ -55,6 +63,7 @@ Controls::update = ()->
   @joystickPrevious.copy(@joystick)
   @attackPrevious = @attack
   @specialPrevious = @special
+  @jumpPrevious = @jump
 
 Controls::getJoystickDirection = ()->
   # Include dead zone when the time comes

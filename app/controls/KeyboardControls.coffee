@@ -34,15 +34,12 @@ KeyboardControls::constructor = KeyboardControls
 KeyboardControls::update = ()->
   # TODO: Clean up jump, move into Controls
   # Joystick
-  @jump = false
   @joystick.set(0, 0)
   if @upKey in @keysDown
     @joystick.y++
-    if not @justJumped
-      @jump = true
-      @justJumped = true
+    @jump = 1
   else
-    @justJumped = false
+    @jump = 0
   if @downKey in @keysDown
     @joystick.y--
   if @leftKey in @keysDown

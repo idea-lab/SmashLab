@@ -5,6 +5,7 @@ AerialMove = module.exports = (@fighter, options)->
   @blendFrames = 10
   @triggerableMoves = @triggerableMoves.concat [
     "neutralaerial", 
+    "downaerial",
     "jump"
   ]
   @movement = Move.FULL_MOVEMENT
