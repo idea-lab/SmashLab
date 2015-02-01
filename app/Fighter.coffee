@@ -54,18 +54,29 @@ Fighter = module.exports = (fighterData = {}, @controller)->
     new (require("moves/LandMove"))(this, Utils.findObjectByName(fighterData.moves, "land"))
     new (require("moves/HurtMove"))(this, Utils.findObjectByName(fighterData.moves, "hurt"))
     new (require("moves/NeutralMove"))(this, Utils.findObjectByName(fighterData.moves, "neutral"))
+    new (require("moves/GroundAttackMove"))(this, Utils.findObjectByName(fighterData.moves, "uptilt"))
+    new (require("moves/GroundAttackMove"))(this, Utils.findObjectByName(fighterData.moves, "downtilt"))
+    new (require("moves/GroundAttackMove"))(this, Utils.findObjectByName(fighterData.moves, "sidetilt"))
     new (require("moves/SmashChargeMove"))(this, Utils.findObjectByName(fighterData.moves, "sidesmashcharge"))
     new (require("moves/SmashMove"))(this, Utils.findObjectByName(fighterData.moves, "sidesmash"))
     new (require("moves/SmashChargeMove"))(this, Utils.findObjectByName(fighterData.moves, "upsmashcharge"))
     new (require("moves/SmashMove"))(this, Utils.findObjectByName(fighterData.moves, "upsmash"))
+    new (require("moves/SmashChargeMove"))(this, Utils.findObjectByName(fighterData.moves, "downsmashcharge"))
+    new (require("moves/SmashMove"))(this, Utils.findObjectByName(fighterData.moves, "downsmash"))
     new (require("moves/AerialAttackMove"))(this, Utils.findObjectByName(fighterData.moves, "neutralaerial"))
     new (require("moves/AerialAttackMove"))(this, Utils.findObjectByName(fighterData.moves, "downaerial"))
+    new (require("moves/AerialAttackMove"))(this, Utils.findObjectByName(fighterData.moves, "upaerial"))
+    new (require("moves/AerialAttackMove"))(this, Utils.findObjectByName(fighterData.moves, "backaerial"))
+    new (require("moves/AerialAttackMove"))(this, Utils.findObjectByName(fighterData.moves, "forwardaerial"))
   ]
 
   # Current move
   @move = null
 
   @damage = 0
+
+  # How much the current player has been charged by a smash
+  @smashCharge = 0
 
   # True if right, false if left
   @facingRight = true
@@ -77,8 +88,13 @@ Fighter:: = Object.create(THREE.Object3D::)
 Fighter::constructor = Fighter
 
 # When the fighter is hit by a hit box
-Fighter::hurt = (hitbox)->
-  smashChargeFactor = 1 + hitbox.smashCharge*.2
+Fighter::hurt = (hitbox, otherfighter)->
+  if otherfighter?
+    smashChargeFactor = 1 + otherfighter.smashCharge*.2
+    console.log(smashChargeFactor)
+  else
+    smashChargeFactor = 1
+
   @damage += hitbox.damage * smashChargeFactor
 
   launchSpeed = smashChargeFactor * (@damage/100*hitbox.knockbackScaling+hitbox.knockback)/60
@@ -113,10 +129,14 @@ Fighter::resolveStageCollisions = (stage)->
       if resolutionVector.y > 0
         # Just landing. Engage your flaps and reverse your jets
         # because ground control needs to know your heading.
-        @touchingGround = true
-        @jumpRemaining = true
-        if @velocity.y < 0
-          @velocity.y = 0
+        if @move.name is "hurt"
+          # Bounce!
+          @velocity.y = Math.abs(@velocity.y)
+        else
+          @touchingGround = true
+          @jumpRemaining = true
+          if @velocity.y < 0
+            @velocity.y = 0
   
   #Detect out of bounds
   if not @box.intersects(stage.safebox)
@@ -137,18 +157,44 @@ Fighter::update = ->
     if (@controller.move & Controls.UP)
       if "upsmashcharge" in @move.triggerableMoves
         @trigger("upsmashcharge")
+    else if (@controller.move & Controls.DOWN)
+      if "downsmashcharge" in @move.triggerableMoves
+        @trigger("downsmashcharge")
     else if (@controller.move & (Controls.LEFT | Controls.RIGHT))
       if "sidesmashcharge" in @move.triggerableMoves
         @facingRight = not (@controller.move & Controls.LEFT)
         @trigger("sidesmashcharge")
   if (@controller.move & Controls.ATTACK)
-    if (@controller.move & Controls.DOWN)
+    if (@controller.move & Controls.UP)
+      if "uptilt" in @move.triggerableMoves
+        @trigger("uptilt")
+      if "upaerial" in @move.triggerableMoves
+        @trigger("upaerial")
+    else if (@controller.move & Controls.DOWN)
+      if "downtilt" in @move.triggerableMoves
+        @trigger("downtilt")
       if "downaerial" in @move.triggerableMoves
         @trigger("downaerial")
+    else if (@controller.move & (Controls.RIGHT | Controls.LEFT))
+      # Side/tilt
+      if "sidetilt" in @move.triggerableMoves
+        @facingRight = not (@controller.move & Controls.LEFT)
+        @trigger("sidetilt")
+      else
+        # Forward/back Aerial
+        forward = @facingRight and (@controller.move & Controls.RIGHT) or
+          not @facingRight and (@controller.move & Controls.LEFT)
+        if forward
+          if "forwardaerial" in @move.triggerableMoves
+            @trigger("forwardaerial")
+        else
+          if "backaerial" in @move.triggerableMoves
+            @trigger("backaerial")
     else
+      # Side
       if "neutral" in @move.triggerableMoves
         @trigger("neutral")
-      else if "neutralaerial" in @move.triggerableMoves
+      if "neutralaerial" in @move.triggerableMoves
         @trigger("neutralaerial")
   # Handle fading of weights to new move
   @move.weight = Math.min(1, @move.weight + 1/(@move.blendFrames+1))

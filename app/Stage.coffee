@@ -34,9 +34,10 @@ Stage = module.exports = (@game) ->
   
   testFighterData = require("fighters/test3")
   loader = new THREE.JSONLoader()
+  @players = [false, false, false, false]
   $.ajax(testFighterData.modelSrc).done (data)=>
     testFighterData.modelJSON = data
-    @add(window.player=new Fighter(testFighterData, new KeyboardControls({
+    @add(window.player=@players[0]=new Fighter(testFighterData, new KeyboardControls({
       upKey: 38
       downKey: 40
       leftKey: 37
@@ -45,13 +46,11 @@ Stage = module.exports = (@game) ->
       specialKey: 34 #Page down
     })))
     @loaded = true
-  players = [false, false, false]
   $(window).on "keydown", (event)=>
     switch event.keyCode
       when 50#Number 2
-        if not players[0]
-          players[0] = true
-          @add(new Fighter(testFighterData, new KeyboardControls({
+        if not @players[1]
+          @add(@players[1] = new Fighter(testFighterData, new KeyboardControls({
             upKey: 87
             downKey: 83
             leftKey: 65
@@ -60,9 +59,8 @@ Stage = module.exports = (@game) ->
             specialKey: 69
           })))
       when 51#Number 3
-        if not players[1]
-          players[1] = true
-          @add(new Fighter(testFighterData, new KeyboardControls({
+        if not @players[2]
+          @add(@players[2] = new Fighter(testFighterData, new KeyboardControls({
             upKey: 73
             downKey: 75
             leftKey: 74
@@ -71,9 +69,8 @@ Stage = module.exports = (@game) ->
             specialKey: 79
           })))
       when 52#Number 4
-        if not players[2]
-          players[2] = true
-          @add(new Fighter(testFighterData, new KeyboardControls({
+        if not @players[3]
+          @add(@players[3] = new Fighter(testFighterData, new KeyboardControls({
             upKey: 84
             downKey: 71
             leftKey: 70
@@ -81,6 +78,7 @@ Stage = module.exports = (@game) ->
             attackKey: 82
             specialKey: 89
           })))
+
   # TODO: Clean it up!
   loader.load("models/Stage.json", (geometry)=>
     mesh=new THREE.Mesh(geometry,new THREE.MeshNormalMaterial())
@@ -101,7 +99,7 @@ Stage::update = ->
   for fighter in @children when fighter instanceof Fighter
     fighter.applyVelocity()
 
-  # - Resolve player-stage collisions and players out of bounds
+  # - Resolve player-stage collisions and @players out of bounds
   for fighter in @children when fighter instanceof Fighter
     fighter.resolveStageCollisions(this)
 
@@ -120,10 +118,34 @@ Stage::update = ->
         # Go through hitboxes
         for target in @children when target isnt fighter and target instanceof Fighter
           if hitbox.intersects(target.box) and not (target in hitbox.alreadyHit)
+            target.hurt(hitbox, fighter)
             hitbox.alreadyHit.push(target)
-            target.hurt(hitbox)
   
-  # Update camera
+  if @players[0]
+    color = @players[0].mesh.material.color
+    $("#player1").text(Math.floor(@players[0].damage))
+      .css("border-bottom-color", "rgb(#{Math.floor(color.r*256)}, #{Math.floor(color.g*256)}, #{Math.floor(color.b*256)})")
+    console.log()
+  if @players[1]
+    color = @players[1].mesh.material.color
+    $("#player2").text(Math.floor(@players[1].damage))
+      .css("border-bottom-color", "rgb(#{Math.floor(color.r*256)}, #{Math.floor(color.g*256)}, #{Math.floor(color.b*256)})")
+    console.log()
+  if @players[2]
+    color = @players[2].mesh.material.color
+    $("#player3").text(Math.floor(@players[2].damage))
+      .css("border-bottom-color", "rgb(#{Math.floor(color.r*256)}, #{Math.floor(color.g*256)}, #{Math.floor(color.b*256)})")
+    console.log()
+  if @players[3]
+    color = @players[3].mesh.material.color
+    $("#player4").text(Math.floor(@players[3].damage))
+      .css("border-bottom-color", "rgb(#{Math.floor(color.r*256)}, #{Math.floor(color.g*256)}, #{Math.floor(color.b*256)})")
+    console.log()
+
+  @updateCamera()
+
+# Update camera
+Stage::updateCamera = ->
   # maxPosition = new THREE.Vector3(-Infinity, -Infinity, 0) # TODO: Make temporary
   # minPosition = new THREE.Vector3(Infinity, Infinity, 0) # TODO: Make temporary
   maxPositionX = -Infinity

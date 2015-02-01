@@ -4,9 +4,13 @@ GroundMove = module.exports = (@fighter, options)->
   Move.apply(this, arguments)
   @blendFrames = 10
   @triggerableMoves = @triggerableMoves.concat [
-    "sidesmashcharge", 
-    "upsmashcharge", 
     "neutral", 
+    "uptilt",
+    "downtilt",
+    "sidetilt",
+    "upsmashcharge", 
+    "downsmashcharge", 
+    "sidesmashcharge", 
     "jump"
   ]
   @movement = Move.FULL_MOVEMENT
