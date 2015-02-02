@@ -26,9 +26,9 @@ module.exports = {
   }
 
   # The box used for grabbing the edge
-  ledgeGrab: {
-    size: [0.9, .3]
-    position: [0.3, 0.93]
+  ledgeBox: {
+    size: [2.2, 1.5]
+    position: [0.1, 1.7]
   }
   # The list of moves
   moves: [
@@ -60,6 +60,10 @@ module.exports = {
       animation: "Hurt"
     }
     {
+      name: "ledgegrab"
+      animation: "Ledge Hang"
+    }
+    {
       name: "neutral"
       animation: "Neutral"
       activeBoxes: [
@@ -68,7 +72,7 @@ module.exports = {
           angle: 1
           knockback: 2
           knockbackScaling: 7
-          damage: 5
+          damage: 2
           position: [0.4, 1.3]
           startTime: 1
           endTime: 8
@@ -84,7 +88,7 @@ module.exports = {
           angle: 1.3
           knockback: 2
           knockbackScaling: 8
-          damage: 7
+          damage: 4
           position: [0.1, 1.7]
           startTime: 5
           endTime: 12
@@ -100,7 +104,7 @@ module.exports = {
           angle: 0.6
           knockback: 2
           knockbackScaling: 7
-          damage: 8
+          damage: 5
           position: [0.6, 0.4]
           startTime: 3
           endTime: 7
@@ -116,7 +120,7 @@ module.exports = {
           angle: 0.5
           knockback: 4
           knockbackScaling: 7
-          damage: 6
+          damage: 4
           position: [0.35, 1.3]
           startTime: 4
           endTime: 10
@@ -135,12 +139,12 @@ module.exports = {
           size: [0.9, 0.9]
           angle: 1.4
           knockback: 8
-          knockbackScaling: 13
-          damage: 20
+          knockbackScaling: 15
+          damage: 15
           position: [0, 1.5]
           startTime: 2
           endTime: 10
-          freezeTime: 10
+          freezeTime: 13
         }
       ]
     }
@@ -157,11 +161,11 @@ module.exports = {
           angle: 0.8
           knockback: 4
           knockbackScaling: 23
-          damage: 20
+          damage: 18
           position: [0.5, 1.2]
           startTime: 2
           endTime: 10
-          freezeTime: 12
+          freezeTime: 14
         }
       ]
     }
@@ -177,23 +181,23 @@ module.exports = {
           size: [0.9, 0.9]
           angle: 0.7
           knockback: 2
-          knockbackScaling: 20
-          damage: 18
+          knockbackScaling: 22
+          damage: 14
           position: [0.4, 0.7]
           startTime: 4
           endTime: 12
-          freezeTime: 12
+          freezeTime: 13
         }
         {
           size: [0.9, 0.9]
           angle: Math.PI - 0.7
           knockback: 2
-          knockbackScaling: 20
-          damage: 18
+          knockbackScaling: 22
+          damage: 14
           position: [-0.4, 0.7]
           startTime: 24
           endTime: 30
-          freezeTime: 10
+          freezeTime: 13
         }
       ]
     }
@@ -206,7 +210,7 @@ module.exports = {
           angle: Math.PI - 0.8
           knockback: 2
           knockbackScaling: 4
-          damage: 4
+          damage: 3
           position: [0.4, 1.4]
           startTime: 5
           endTime: 10
@@ -217,7 +221,7 @@ module.exports = {
           angle: 0.8
           knockback: 2
           knockbackScaling: 4
-          damage: 4
+          damage: 3
           position: [-0.4, 1.4]
           startTime: 5
           endTime: 10
@@ -228,7 +232,7 @@ module.exports = {
           angle: .8
           knockback: 4
           knockbackScaling: 8
-          damage: 4
+          damage: 3
           position: [0.4, 1.4]
           startTime: 17
           endTime: 25
@@ -239,7 +243,7 @@ module.exports = {
           angle: Math.PI - 0.8
           knockback: 4
           knockbackScaling: 8
-          damage: 4
+          damage: 3
           position: [-0.4, 1.4]
           startTime: 17
           endTime: 25
@@ -286,7 +290,7 @@ module.exports = {
           angle: 2.5
           knockback: 5
           knockbackScaling: 10
-          damage: 10
+          damage: 6
           # Used blender's 3D cursor.
           # How convenient!
           position: [-0.7, 0.5]
@@ -304,13 +308,12 @@ module.exports = {
           angle: 1.5
           knockback: 4
           knockbackScaling: 12
-          damage: 10
+          damage: 8
           # Used blender's 3D cursor.
           # How convenient!
           position: [0.1, 1.6]
           startTime: 11
           endTime: 16
-          freezeTime: 8
         }
       ]
     }
@@ -323,13 +326,12 @@ module.exports = {
           angle: -1.3
           knockback: 6
           knockbackScaling: 12
-          damage: 10
+          damage: 7
           # Used blender's 3D cursor.
           # How convenient!
           position: [0.05, 0.25]
           startTime: 8
           endTime: 16
-          freezeTime: 8
         }
       ]
     }

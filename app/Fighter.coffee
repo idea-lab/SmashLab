@@ -3,6 +3,7 @@ Box = require("Box")
 Move = require("moves/Move")
 Utils = require("Utils")
 Controls = require("controls/Controls")
+Ledge = require("Ledge")
 tempVector = new THREE.Vector3()
 Fighter = module.exports = (fighterData = {}, @options)->
   THREE.Object3D.call(this)
@@ -35,7 +36,17 @@ Fighter = module.exports = (fighterData = {}, @options)->
   @color = options.color or new THREE.Color(Math.floor(Math.random()*0xffffff))
   # Hitbox
   @box = new Box(fighterData.box)
+  # @box.debugBox.visible = true
   @add(@box)
+
+  # The current ledge being grabbed, if any
+  @ledge = null
+  @canGrabLedge = true
+
+  # The box used for grabbing the edge
+  @ledgeBox = new Box(fighterData.ledgeBox)
+  # @ledgeBox.debugBox.visible = true
+  @add(@ledgeBox)
 
   # The fighterdata is expected to come with its own JSON. Be sure to load beforehand!
   parsedJSON = THREE.JSONLoader.prototype.parse(Utils.clone(fighterData.modelJSON))
@@ -56,6 +67,7 @@ Fighter = module.exports = (fighterData = {}, @options)->
     new (require("moves/FallMove"))(this, Utils.findObjectByName(fighterData.moves, "fall"))
     new (require("moves/LandMove"))(this, Utils.findObjectByName(fighterData.moves, "land"))
     new (require("moves/HurtMove"))(this, Utils.findObjectByName(fighterData.moves, "hurt"))
+    new (require("moves/LedgeGrabMove"))(this, Utils.findObjectByName(fighterData.moves, "ledgegrab"))
     new (require("moves/NeutralMove"))(this, Utils.findObjectByName(fighterData.moves, "neutral"))
     new (require("moves/GroundAttackMove"))(this, Utils.findObjectByName(fighterData.moves, "uptilt"))
     new (require("moves/GroundAttackMove"))(this, Utils.findObjectByName(fighterData.moves, "downtilt"))
@@ -137,6 +149,14 @@ Fighter::applyVelocity = ->
 Fighter::resolveStageCollisions = (stage)->
   if @frozen > 0
     return
+
+  #Detect out of bounds
+  if not @box.intersects(stage.safebox)
+    @respawn()
+    @position.set(0, 1, 0)
+    return
+
+  # Grond collision
   @touchingGround = false
   for stageBox in stage.activeBoxes when stageBox instanceof Box
     if @box.intersects(stageBox)
@@ -155,10 +175,17 @@ Fighter::resolveStageCollisions = (stage)->
           if @velocity.y < 0
             @velocity.y = 0
   
-  #Detect out of bounds
-  if not @box.intersects(stage.safebox)
-    @respawn()
-    @position.set(0, 1, 0)
+  #Ledge grab
+  ledgeAvailable = false
+  for ledge in stage.children when ledge instanceof Ledge
+    if @ledgeBox.contains(ledge.position)
+      ledgeAvailable = true
+      if @canGrabLedge and not (@controller.move & Controls.DOWN)
+        @trigger("ledgegrab", ledge)
+        @canGrabLedge = false
+      break
+  if not ledgeAvailable
+    @canGrabLedge = true
 
 Fighter::update = ->
   @controller.update()
@@ -188,6 +215,8 @@ Fighter::respawn = ()->
   @damage = 0
   @touchingGround = true
   @jumpRemaining = true
+  @ledge = null
+  @canGrabLedge = true
   @trigger("idle")
   @move.animationReset()
   @move.reset()
@@ -248,6 +277,13 @@ Fighter::triggerFromController = ()->
       if "neutralaerial" in @move.triggerableMoves
         @trigger("neutralaerial")
 
+  # Fall from ledge
+  if @move.name is "ledgegrab" and (@controller.move & Controls.DOWN) and "fall" in @move.triggerableMoves
+      @ledge.fighter = null
+      @ledge = null
+      @trigger("fall")
+
+
 Fighter::updateMesh = ()->
   # Handle fading of weights to new move
   @move.weight = Math.min(1, @move.weight + 1/(@move.blendFrames+1))
@@ -272,6 +308,7 @@ Fighter::updateMesh = ()->
     @rotation.y = 0
   else
     @rotation.y = Math.PI 
+
 Fighter::updatePhysics = ()->
   ## Physics
   # Jump
@@ -314,3 +351,12 @@ Fighter::updatePhysics = ()->
 
   # Gotta get that gravity
   @velocity.y -= Math.max(0, Math.min(8 * @jumpHeight / @airTime / @airTime, @velocity.y + @maxFallSpeed))
+
+  # Ledge Grab
+  if @move.name is "ledgegrab" and @ledge?
+    @facingRight = @ledge.facingRight
+    # Move to the ledge
+    handPosition = @box.getVertex(@facingRight)
+    @velocity.copy(@ledge.position).sub(handPosition)
+    length = @velocity.length()
+    @velocity.normalize().multiplyScalar(Math.min(0.2, length))

@@ -2,24 +2,30 @@
 Fighter = require("Fighter")
 Box = require("Box")
 Utils = require("Utils")
+Ledge = require("Ledge")
 KeyboardControls = require("controls/KeyboardControls")
 tempVector = new THREE.Vector3()
 Stage = module.exports = (@game) ->
   THREE.Scene.call(this)
   @fov = 45
-  @camera = new THREE.PerspectiveCamera(1,1,1,100)
+  @camera = new THREE.PerspectiveCamera(1, 1, 1, 100)
   @camera.position.set(0, 0, 10)
   @add(@camera)
   @resize()
   @cameraShakeTime = 0
   @cameraShake = new THREE.Vector3()
 
-  # Add hitboxes and fighters
-  box=new Box(size: new THREE.Vector3(14,.3))
-  box.position.set(0,-0.15,0)
+  # Add hitboxes
+  box=new Box(size: new THREE.Vector3(14, 0.3, 0), position: new THREE.Vector3(0, -0.15, 0))
   @add(box)
-
   @activeBoxes = [box]
+
+  # Makes it so the ledges work
+  box.updateMatrixWorld()
+  ledge1 = new Ledge(position: (new THREE.Vector3()).copy(box.getVertex(true)), facingRight: false)
+  @add(ledge1)
+  ledge2 = new Ledge(position: (new THREE.Vector3()).copy(box.getVertex(false)), facingRight: true)
+  @add(ledge2)
 
   # Safe box - the box in which you aren't immediately KO'ed
   @safebox = new Box(size: new THREE.Vector3(34,20))
@@ -103,7 +109,7 @@ Stage::update = ->
   for fighter in @children when fighter instanceof Fighter
     fighter.applyVelocity()
 
-  # - Resolve player-stage collisions and @players out of bounds
+  # - Resolve player-stage collisions and players out of bounds, as well as ledge grab
   for fighter in @children when fighter instanceof Fighter
     fighter.resolveStageCollisions(this)
 
@@ -128,19 +134,15 @@ Stage::update = ->
   if @players[0]
     $("#player1").text(Math.floor(@players[0].damage))
       .css("border-bottom-color", Utils.colorToCSS(@players[0].color))
-    console.log()
   if @players[1]
     $("#player2").text(Math.floor(@players[1].damage))
       .css("border-bottom-color", Utils.colorToCSS(@players[1].color))
-    console.log()
   if @players[2]
     $("#player3").text(Math.floor(@players[2].damage))
       .css("border-bottom-color", Utils.colorToCSS(@players[2].color))
-    console.log()
   if @players[3]
     $("#player4").text(Math.floor(@players[3].damage))
       .css("border-bottom-color", Utils.colorToCSS(@players[3].color))
-    console.log()
 
   @updateCamera()
 

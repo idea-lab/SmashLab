@@ -31,6 +31,7 @@ Box = module.exports = (options)->
   @active = false
 
   @freezeTime = options.freezeTime or 0
+
   @debugBox.visible = false
 
   @activate = ()=>
@@ -46,6 +47,20 @@ Box = module.exports = (options)->
 Box:: = Object.create(THREE.Object3D::)
 Box::constructor = Box
 
+# Gets the top left/right vertex of the box.
+Box::getVertex = (right)->
+  tempVector.setFromMatrixPosition(@matrixWorld)
+  if right
+    return returnVector.set(tempVector.x + @size.x / 2, tempVector.y + @size.y / 2, 0)
+  else
+    return returnVector.set(tempVector.x - @size.x / 2, tempVector.y + @size.y / 2, 0)
+
+# Returns whether or not the current box contains the provided vector
+Box::contains = (vector)->
+  tempVector.setFromMatrixPosition(@matrixWorld)
+  return -@size.x / 2 <= vector.x - tempVector.x <= @size.x / 2 and
+    -@size.y / 2 <= vector.y - tempVector.y <= @size.y / 2
+
 # Returns whether or not the current box intersects the provided box
 Box::intersects = (otherBox)->
   tempVector.setFromMatrixPosition(@matrixWorld)
@@ -53,8 +68,8 @@ Box::intersects = (otherBox)->
   # Find vector from one center of box to the other center
   tempVector.sub(tempVector2)
   # If the distance is less than the sum of the "radii", the boxes intersect.
-  return Math.abs(tempVector.x)*2<=@size.x+otherBox.size.x and
-    Math.abs(tempVector.y)*2<=@size.y+otherBox.size.y
+  return Math.abs(tempVector.x) * 2 <= @size.x + otherBox.size.x and
+    Math.abs(tempVector.y) * 2 <= @size.y + otherBox.size.y
 
 # Returns a vector describing the change in position the current dynamic box
 # needs to make in order to stop colliding with the provided, stationary box
