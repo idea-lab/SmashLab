@@ -69,7 +69,7 @@ module.exports = {
       activeBoxes: [
         {
           size: [0.6, 0.4]
-          angle: 1
+          angle: .7
           knockback: 2
           knockbackScaling: 7
           damage: 2
@@ -86,7 +86,7 @@ module.exports = {
         {
           size: [0.6, 0.8]
           angle: 1.3
-          knockback: 2
+          knockback: 5
           knockbackScaling: 8
           damage: 4
           position: [0.1, 1.7]
@@ -257,7 +257,7 @@ module.exports = {
       activeBoxes: [
         {
           size: [0.85, 0.85]
-          angle: 1
+          angle: .8
           knockback: 2
           knockbackScaling: 13
           damage: 6

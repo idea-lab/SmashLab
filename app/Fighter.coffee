@@ -2,7 +2,7 @@
 Box = require("Box")
 Move = require("moves/Move")
 Utils = require("Utils")
-Controls = require("controls/Controls")
+Controller = require("controller/Controller")
 Ledge = require("Ledge")
 tempVector = new THREE.Vector3()
 Fighter = module.exports = (fighterData = {}, @options)->
@@ -180,7 +180,7 @@ Fighter::resolveStageCollisions = (stage)->
   for ledge in stage.children when ledge instanceof Ledge
     if @ledgeBox.contains(ledge.position)
       ledgeAvailable = true
-      if @canGrabLedge and not (@controller.move & Controls.DOWN)
+      if @canGrabLedge and not (@controller.move & Controller.DOWN)
         @trigger("ledgegrab", ledge)
         @canGrabLedge = false
       break
@@ -233,37 +233,41 @@ Fighter::trigger = (movename, options)->
 # Triggers moves that the controller would like to
 Fighter::triggerFromController = ()->
   # TODO: Triggerables (is this the right place?)
-  if (@controller.move & Controls.SMASH)
-    if (@controller.move & Controls.UP)
+  if @move.name is "idle"
+    if @controller.move and not @controller.suspendedMove
+      @controller.suspendMove(@controller.move)
+
+  if (@controller.move & Controller.ATTACK) and (@controller.move & Controller.TILT)
+    if (@controller.move & Controller.UP)
       if "upsmashcharge" in @move.triggerableMoves
         @trigger("upsmashcharge")
-    else if (@controller.move & Controls.DOWN)
+    else if (@controller.move & Controller.DOWN)
       if "downsmashcharge" in @move.triggerableMoves
         @trigger("downsmashcharge")
-    else if (@controller.move & (Controls.LEFT | Controls.RIGHT))
+    else if (@controller.move & (Controller.LEFT | Controller.RIGHT))
       if "sidesmashcharge" in @move.triggerableMoves
-        @facingRight = not (@controller.move & Controls.LEFT)
+        @facingRight = not (@controller.move & Controller.LEFT)
         @trigger("sidesmashcharge")
-  if (@controller.move & Controls.ATTACK)
-    if (@controller.move & Controls.UP)
+  if (@controller.move & Controller.ATTACK)
+    if (@controller.move & Controller.UP)
       if "uptilt" in @move.triggerableMoves
         @trigger("uptilt")
       if "upaerial" in @move.triggerableMoves
         @trigger("upaerial")
-    else if (@controller.move & Controls.DOWN)
+    else if (@controller.move & Controller.DOWN)
       if "downtilt" in @move.triggerableMoves
         @trigger("downtilt")
       if "downaerial" in @move.triggerableMoves
         @trigger("downaerial")
-    else if (@controller.move & (Controls.RIGHT | Controls.LEFT))
+    else if (@controller.move & (Controller.RIGHT | Controller.LEFT))
       # Side/tilt
       if "sidetilt" in @move.triggerableMoves
-        @facingRight = not (@controller.move & Controls.LEFT)
+        @facingRight = not (@controller.move & Controller.LEFT)
         @trigger("sidetilt")
       else
         # Forward/back Aerial
-        forward = @facingRight and (@controller.move & Controls.RIGHT) or
-          not @facingRight and (@controller.move & Controls.LEFT)
+        forward = @facingRight and (@controller.move & Controller.RIGHT) or
+          not @facingRight and (@controller.move & Controller.LEFT)
         if forward
           if "forwardaerial" in @move.triggerableMoves
             @trigger("forwardaerial")
@@ -278,10 +282,13 @@ Fighter::triggerFromController = ()->
         @trigger("neutralaerial")
 
   # Fall from ledge
-  if @move.name is "ledgegrab" and (@controller.move & Controls.DOWN) and "fall" in @move.triggerableMoves
-      @ledge.fighter = null
-      @ledge = null
-      @trigger("fall")
+  if @move.name is "ledgegrab"
+    if (@controller.move & Controller.DOWN) #or (@controller.move & (Controller.LEFT | Controller.RIGHT)) 
+      if "fall" in @move.triggerableMoves
+        @ledge.fighter = null
+        @ledge = null
+        @trigger("fall")
+
 
 
 Fighter::updateMesh = ()->
@@ -313,8 +320,8 @@ Fighter::updatePhysics = ()->
   ## Physics
   # Jump
   # TODO: Hmmm... Is this the right place to trigger jump?
-  if "jump" in @move.triggerableMoves  and
-      @jumpRemaining and (@controller.move & Controls.JUMP)
+  if "jump" in @move.triggerableMoves and
+      @jumpRemaining and ((@controller.move & Controller.JUMP) or (@controller.move & Controller.UP) and (@controller.move & Controller.TILT))
     @velocity.y = 4 * @jumpHeight / @airTime
     @trigger("jump")
     if not @touchingGround
@@ -324,14 +331,15 @@ Fighter::updatePhysics = ()->
   sign = Math.sign(@controller.joystick.x)
 
   # Lateral Movement
-  if @move.movement is Move.FULL_MOVEMENT or (@move.movement is Move.DI_MOVEMENT and not @touchingGround)
-    if (@move.name isnt "idle" or @controller.joystickSmashed is 0)
+  if (@controller.move & (Controller.ANY_DIRECTION)) and (@move.movement is Move.FULL_MOVEMENT or (@move.movement is Move.DI_MOVEMENT and not @touchingGround))
       # Even if movement is disabled during a move,
       # still allow DI if in the air.
       maxSpeed = if @move.movement is Move.DI_MOVEMENT then @diSpeed else
         if @touchingGround then @groundSpeed else @airSpeed
       acceleration = if @move.movement is Move.DI_MOVEMENT then @diAccel+@airFriction else
         if @touchingGround then @groundAccel+@groundFriction else @airAccel+@airFriction
+      if "walk" in @move.triggerableMoves
+        @trigger("walk")
       # Don't allow the velocity to exceed the maximum speed
       @velocity.x += sign *
         Math.max(0,

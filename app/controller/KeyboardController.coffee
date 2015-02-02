@@ -1,10 +1,9 @@
-# Controls for keyboard
-Controls = require("controls/Controls")
-KeyboardControls = module.exports = (options = {})->
-  Controls.call(this, options)
-  
+# Controller for keyboard
+Controller = require("controller/Controller")
+KeyboardController = module.exports = (options = {})->
+  Controller.call(this, options)
+
   @keysDown = []
-  @justJumped = false
 
   @upKey = options.upKey or 38
   @downKey = options.downKey or 40
@@ -13,33 +12,38 @@ KeyboardControls = module.exports = (options = {})->
   @attackKey = options.attackKey or 16
   @specialKey = options.specialKey or 17
 
+  @handleKeys = [@upKey, @downKey, @leftKey, @rightKey, @attackKey, @specialKey]
+
   handleKeyDown = (event)=>
     # Add if it's not in the array already
-    if not (event.keyCode in @keysDown)
-      @keysDown.push(event.keyCode)
-      #console.log(event.keyCode)
+    if event.keyCode in @handleKeys
+      @active = true
+      if not (event.keyCode in @keysDown)
+        @keysDown.push(event.keyCode)
+        #console.log(event.keyCode)
   
   handleKeyUp = (event)=>
     # Remove if it's in the array already
-    if event.keyCode in @keysDown
-      @keysDown.splice(@keysDown.indexOf(event.keyCode),1)
+    if event.keyCode in @handleKeys
+      if event.keyCode in @keysDown
+        @keysDown.splice(@keysDown.indexOf(event.keyCode),1)
 
   window.addEventListener("keydown", handleKeyDown, false)
   window.addEventListener("keyup", handleKeyUp, false)
 
-KeyboardControls:: = Object.create(Controls::)
-KeyboardControls::constructor = KeyboardControls
+KeyboardController:: = Object.create(Controller::)
+KeyboardController::constructor = KeyboardController
 
 
-KeyboardControls::update = ()->
-  # TODO: Clean up jump, move into Controls
+KeyboardController::update = ()->
+  # TODO: Clean up jump, move into Controller
   # Joystick
   @joystick.set(0, 0)
   if @upKey in @keysDown
     @joystick.y++
-    @jump = 1
+    @jump = true
   else
-    @jump = 0
+    @jump = false
   if @downKey in @keysDown
     @joystick.y--
   if @leftKey in @keysDown
@@ -50,4 +54,4 @@ KeyboardControls::update = ()->
   
   @attack = if @attackKey in @keysDown then 1 else 0
   @special = if @specialKey in @keysDown then 1 else 0
-  Controls::update.call(this)
+  Controller::update.call(this)

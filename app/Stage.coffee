@@ -3,8 +3,11 @@ Fighter = require("Fighter")
 Box = require("Box")
 Utils = require("Utils")
 Ledge = require("Ledge")
-KeyboardControls = require("controls/KeyboardControls")
+KeyboardController = require("controller/KeyboardController")
+GamepadController = require("controller/GamepadController")
 tempVector = new THREE.Vector3()
+testFighterData = require("fighters/test3")
+
 Stage = module.exports = (@game) ->
   THREE.Scene.call(this)
   @fov = 45
@@ -41,54 +44,69 @@ Stage = module.exports = (@game) ->
   # TODO: Remove this eventually
   @loaded = false
   
-  testFighterData = require("fighters/test3")
-  loader = new THREE.JSONLoader()
-  @players = [false, false, false, false]
-  $.ajax(testFighterData.modelSrc).done (data)=>
-    testFighterData.modelJSON = data
-    @add(window.player=@players[0]=new Fighter(testFighterData, stage: this, color : new THREE.Color(0xff0000), controller : new KeyboardControls({
+  @inactiveControllers = [
+    new KeyboardController({
       upKey: 38
       downKey: 40
       leftKey: 37
       rightKey: 39
-      attackKey: 16
-      specialKey: 34 #Page down
-    })))
+      attackKey: 188 #,
+      specialKey: 190 #.
+    })
+    new KeyboardController({
+      upKey: 87
+      downKey: 83
+      leftKey: 65
+      rightKey: 68
+      attackKey: 81
+      specialKey: 69
+      })
+    new KeyboardController({
+      upKey: 73
+      downKey: 75
+      leftKey: 74
+      rightKey: 76
+      attackKey: 85
+      specialKey: 79
+      })
+    new KeyboardController({
+      upKey: 84
+      downKey: 71
+      leftKey: 70
+      rightKey: 72
+      attackKey: 82
+      specialKey: 89
+    })
+    new KeyboardController({
+      upKey: 36
+      downKey: 35
+      leftKey: 46
+      rightKey: 34
+      attackKey: 45
+      specialKey: 33
+    })
+    new KeyboardController({
+      upKey: 104
+      downKey: 101
+      leftKey: 100
+      rightKey: 102
+      attackKey: 103
+      specialKey: 105
+    })
+  ]
+
+  @players = []
+  @playerHudElements = [] # TODO: Remove!
+  
+  $.ajax(testFighterData.modelSrc).done (data)=>
+    testFighterData.modelJSON = data
     @loaded = true
-  $(window).on "keydown", (event)=>
-    switch event.keyCode
-      when 50#Number 2
-        if not @players[1]
-          @add(@players[1] = new Fighter(testFighterData, stage: this, color: new THREE.Color(0x0000ff), controller: new KeyboardControls({
-            upKey: 87
-            downKey: 83
-            leftKey: 65
-            rightKey: 68
-            attackKey: 81
-            specialKey: 69
-          })))
-      when 51#Number 3
-        if not @players[2]
-          @add(@players[2] = new Fighter(testFighterData, stage: this, color: new THREE.Color(0xffff00), controller: new KeyboardControls({
-            upKey: 73
-            downKey: 75
-            leftKey: 74
-            rightKey: 76
-            attackKey: 85
-            specialKey: 79
-          })))
-      when 52#Number 4
-        if not @players[3]
-          @add(@players[3] = new Fighter(testFighterData, stage: this, color: new THREE.Color(0x00ff00), controller: new KeyboardControls({
-            upKey: 84
-            downKey: 71
-            leftKey: 70
-            rightKey: 72
-            attackKey: 82
-            specialKey: 89
-          })))
+
+  window.addEventListener "gamepadconnected", (event)->
+    @inactiveControllers.push(new GamepadController(gamepad: event.gamepad))
 
   # TODO: Clean it up!
+  loader = new THREE.JSONLoader()
   loader.load("models/Stage.json", (geometry)=>
     mesh=new THREE.Mesh(geometry,new THREE.MeshNormalMaterial())
     @add(mesh)
@@ -103,6 +121,8 @@ Stage::constructor = Stage
 Stage::update = ->
   if not @loaded
     return
+
+  @updateInactiveControllers()
 
   # Update cycle has these events in order:
   # - Apply velocities
@@ -130,24 +150,14 @@ Stage::update = ->
           if hitbox.intersects(target.box) and not (target in hitbox.alreadyHit)
             target.hurt(hitbox, fighter)
             hitbox.alreadyHit.push(target)
-  
-  if @players[0]
-    $("#player1").text(Math.floor(@players[0].damage))
-      .css("border-bottom-color", Utils.colorToCSS(@players[0].color))
-  if @players[1]
-    $("#player2").text(Math.floor(@players[1].damage))
-      .css("border-bottom-color", Utils.colorToCSS(@players[1].color))
-  if @players[2]
-    $("#player3").text(Math.floor(@players[2].damage))
-      .css("border-bottom-color", Utils.colorToCSS(@players[2].color))
-  if @players[3]
-    $("#player4").text(Math.floor(@players[3].damage))
-      .css("border-bottom-color", Utils.colorToCSS(@players[3].color))
 
+  @updateHUD()
   @updateCamera()
 
 # Update camera
 Stage::updateCamera = ->
+  if not @players.length
+    return
   # maxPosition = new THREE.Vector3(-Infinity, -Infinity, 0) # TODO: Make temporary
   # minPosition = new THREE.Vector3(Infinity, Infinity, 0) # TODO: Make temporary
   maxPositionX = -Infinity
@@ -212,3 +222,42 @@ Stage::resize = ->
   @camera.aspect = @game.width/@game.height
   @camera.fov = @fov
   @camera.updateProjectionMatrix()
+
+Stage::updateInactiveControllers = ()->
+  for i in [0...@inactiveControllers.length]
+    if i >= @inactiveControllers.length
+      break
+    controller = @inactiveControllers[i]
+    controller.update()
+    if controller.active
+      fighter = new Fighter(testFighterData, {
+        stage: this,
+        color: @getPlayerColor(@players.length),
+        controller: controller
+      })
+      @add(fighter)
+      @players.push(fighter)
+      hudElement = $("<div class=\"damagepercent\"></div>")
+      $(".bottombar").append(hudElement)
+      @playerHudElements.push(
+        hudElement
+      )
+      @inactiveControllers.splice(i, 1)
+
+      
+Stage::updateHUD = ()->
+  for i in [0...@players.length]
+    @playerHudElements[i].text(Math.floor(@players[i].damage))
+      .css("border-bottom-color", Utils.colorToCSS(@players[i].color))
+
+Stage::getPlayerColor = (index)->
+  return switch index
+    when 0 then new THREE.Color(0xff0000)
+    when 1 then new THREE.Color(0x0000ff)
+    when 2 then new THREE.Color(0xffff00)
+    when 3 then new THREE.Color(0x00ff00)
+    when 4 then new THREE.Color(0xffaa00)
+    when 5 then new THREE.Color(0x00ffff)
+    when 6 then new THREE.Color(0xff00ff)
+    when 7 then new THREE.Color(0xaa00ff)
+    else new THREE.Color(Math.round(Math.random() * 0xffffff))

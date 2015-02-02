@@ -1,5 +1,5 @@
 # A rapid-fire-able neutral.
-Controls = require("controls/Controls")
+Controller = require("controller/Controller")
 GroundAttackMove = require("moves/GroundAttackMove")
 NeutralMove = module.exports = (@fighter, options)->
   GroundAttackMove.apply(this, arguments)
@@ -9,7 +9,7 @@ NeutralMove:: = Object.create(GroundAttackMove::)
 NeutralMove::constructor = NeutralMove
 NeutralMove::update = (deltaTime)->
   GroundAttackMove::update.apply(this, arguments)
-  if @fighter.controller.move & Controls.ATTACK
+  if @fighter.controller.move & Controller.ATTACK
     # Retrigger again if spamming attack
     @nextMove = @name
 
