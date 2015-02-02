@@ -31,12 +31,12 @@ Controls.ATTACK = 32
 Controls.SMASH = 64
 Controls.SPECIAL = 128
 
-Controls.SMASH_FRAMES = 8
+Controls.SMASH_FRAMES = 3
 Controls.SMASH_DISTANCE_NEEDED = 0.8
 
 # Call this at the end of update() in child classes
 Controls::update = ()->
-  @move = 0
+  @move = @getJoystickDirection()
 
   # Detect smashes
   if @joystickSmashed > 0
@@ -51,13 +51,13 @@ Controls::update = ()->
   
   if @jumpQueued and not @joystickSmashed
     @jumpQueued = false
-    @move = Controls.JUMP
+    @move |= Controls.JUMP
   else if @attack and not @attackPrevious
-    @move = Controls.ATTACK | @getJoystickDirection()
+    @move |= Controls.ATTACK
     if @joystickSmashed > 0
       @move |= Controls.SMASH
   else if @special and not @specialPrevious
-    @move = Controls.SPECIAL | @getJoystickDirection()
+    @move |= Controls.SPECIAL
 
   # Copy values to previous variables
   @joystickPrevious.copy(@joystick)

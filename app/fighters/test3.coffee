@@ -24,6 +24,12 @@ module.exports = {
     size: [0.5, 1.86]
     position: [0, 0.93]
   }
+
+  # The box used for grabbing the edge
+  ledgeGrab: {
+    size: [0.9, .3]
+    position: [0.3, 0.93]
+  }
   # The list of moves
   moves: [
     # Pay attentiton to the move names!
@@ -61,7 +67,7 @@ module.exports = {
           size: [0.6, 0.4]
           angle: 1
           knockback: 2
-          knockbackScaling: 10
+          knockbackScaling: 7
           damage: 5
           position: [0.4, 1.3]
           startTime: 1
@@ -77,8 +83,8 @@ module.exports = {
           size: [0.6, 0.8]
           angle: 1.3
           knockback: 2
-          knockbackScaling: 10
-          damage: 6
+          knockbackScaling: 8
+          damage: 7
           position: [0.1, 1.7]
           startTime: 5
           endTime: 12
@@ -91,9 +97,9 @@ module.exports = {
       activeBoxes: [
         {
           size: [0.8, 0.6]
-          angle: 0.5
+          angle: 0.6
           knockback: 2
-          knockbackScaling: 10
+          knockbackScaling: 7
           damage: 8
           position: [0.6, 0.4]
           startTime: 3
@@ -108,9 +114,9 @@ module.exports = {
         {
           size: [0.8, 0.4]
           angle: 0.5
-          knockback: 2
-          knockbackScaling: 10
-          damage: 7
+          knockback: 4
+          knockbackScaling: 7
+          damage: 6
           position: [0.35, 1.3]
           startTime: 4
           endTime: 10
@@ -128,12 +134,13 @@ module.exports = {
         {
           size: [0.9, 0.9]
           angle: 1.4
-          knockback: 3
-          knockbackScaling: 14
+          knockback: 8
+          knockbackScaling: 13
           damage: 20
           position: [0, 1.5]
           startTime: 2
           endTime: 10
+          freezeTime: 10
         }
       ]
     }
@@ -149,11 +156,12 @@ module.exports = {
           size: [1.2, 0.8]
           angle: 0.8
           knockback: 4
-          knockbackScaling: 20
+          knockbackScaling: 23
           damage: 20
           position: [0.5, 1.2]
           startTime: 2
           endTime: 10
+          freezeTime: 12
         }
       ]
     }
@@ -167,23 +175,25 @@ module.exports = {
       activeBoxes: [
         {
           size: [0.9, 0.9]
-          angle: 0.5
-          knockback: 3
-          knockbackScaling: 17
+          angle: 0.7
+          knockback: 2
+          knockbackScaling: 20
           damage: 18
           position: [0.4, 0.7]
           startTime: 4
-          endTime: 10
+          endTime: 12
+          freezeTime: 12
         }
         {
           size: [0.9, 0.9]
-          angle: Math.PI - 0.5
-          knockback: 3
-          knockbackScaling: 17
+          angle: Math.PI - 0.7
+          knockback: 2
+          knockbackScaling: 20
           damage: 18
           position: [-0.4, 0.7]
           startTime: 24
           endTime: 30
+          freezeTime: 10
         }
       ]
     }
@@ -195,41 +205,45 @@ module.exports = {
           size: [.75, 0.4]
           angle: Math.PI - 0.8
           knockback: 2
-          knockbackScaling: 2
+          knockbackScaling: 4
           damage: 4
           position: [0.4, 1.4]
           startTime: 5
           endTime: 10
+          freezeTime: 6
         }
         {
           size: [.75, 0.4]
           angle: 0.8
           knockback: 2
-          knockbackScaling: 2
+          knockbackScaling: 4
           damage: 4
           position: [-0.4, 1.4]
           startTime: 5
           endTime: 10
+          freezeTime: 6
         }
         {
           size: [.75, 0.4]
           angle: .8
-          knockback: 1
-          knockbackScaling: 10
+          knockback: 4
+          knockbackScaling: 8
           damage: 4
           position: [0.4, 1.4]
           startTime: 17
           endTime: 25
+          freezeTime: 6
         }
         {
           size: [.75, 0.4]
           angle: Math.PI - 0.8
-          knockback: 1
-          knockbackScaling: 10
+          knockback: 4
+          knockbackScaling: 8
           damage: 4
           position: [-0.4, 1.4]
           startTime: 17
           endTime: 25
+          freezeTime: 6
         }
       ]
     }
@@ -240,9 +254,9 @@ module.exports = {
         {
           size: [0.85, 0.85]
           angle: 1
-          knockback: 5
-          knockbackScaling: 10
-          damage: 10
+          knockback: 2
+          knockbackScaling: 13
+          damage: 6
           # Used blender's 3D cursor.
           # How convenient!
           position: [0.38, 0.67]
@@ -253,12 +267,13 @@ module.exports = {
         {
           size: [0.2, 0.2]
           angle: 1
-          knockback: 2.5
-          knockbackScaling: 5
-          damage: 5
-          position: [0.38, 0.67]
+          knockback: 4
+          knockbackScaling: 26
+          damage: 2
+          position: [0.28, 0.67]
           startTime: 12
-          endTime: 18
+          endTime: 14
+          freezeTime: 15
         }
       ]
     }
@@ -268,7 +283,7 @@ module.exports = {
       activeBoxes: [
         {
           size: [0.8, 0.8]
-          angle: 3
+          angle: 2.5
           knockback: 5
           knockbackScaling: 10
           damage: 10
@@ -288,13 +303,14 @@ module.exports = {
           size: [0.8, 0.8]
           angle: 1.5
           knockback: 4
-          knockbackScaling: 10
+          knockbackScaling: 12
           damage: 10
           # Used blender's 3D cursor.
           # How convenient!
           position: [0.1, 1.6]
           startTime: 11
           endTime: 16
+          freezeTime: 8
         }
       ]
     }
@@ -313,6 +329,7 @@ module.exports = {
           position: [0.05, 0.25]
           startTime: 8
           endTime: 16
+          freezeTime: 8
         }
       ]
     }

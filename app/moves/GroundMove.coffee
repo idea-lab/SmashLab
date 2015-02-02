@@ -8,9 +8,6 @@ GroundMove = module.exports = (@fighter, options)->
     "uptilt",
     "downtilt",
     "sidetilt",
-    "upsmashcharge", 
-    "downsmashcharge", 
-    "sidesmashcharge", 
     "jump"
   ]
   @movement = Move.FULL_MOVEMENT

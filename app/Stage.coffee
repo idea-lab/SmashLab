@@ -1,6 +1,7 @@
 # Contains the stage and fighters, and updates the fight.
 Fighter = require("Fighter")
 Box = require("Box")
+Utils = require("Utils")
 KeyboardControls = require("controls/KeyboardControls")
 tempVector = new THREE.Vector3()
 Stage = module.exports = (@game) ->
@@ -10,6 +11,8 @@ Stage = module.exports = (@game) ->
   @camera.position.set(0, 0, 10)
   @add(@camera)
   @resize()
+  @cameraShakeTime = 0
+  @cameraShake = new THREE.Vector3()
 
   # Add hitboxes and fighters
   box=new Box(size: new THREE.Vector3(14,.3))
@@ -19,8 +22,8 @@ Stage = module.exports = (@game) ->
   @activeBoxes = [box]
 
   # Safe box - the box in which you aren't immediately KO'ed
-  @safebox = new Box(size: new THREE.Vector3(40,22))
-  @safebox.position.y = 5
+  @safebox = new Box(size: new THREE.Vector3(34,20))
+  @safebox.position.y = 4
   @add(@safebox)
 
   # Camera stays in the camera box
@@ -37,7 +40,7 @@ Stage = module.exports = (@game) ->
   @players = [false, false, false, false]
   $.ajax(testFighterData.modelSrc).done (data)=>
     testFighterData.modelJSON = data
-    @add(window.player=@players[0]=new Fighter(testFighterData, new KeyboardControls({
+    @add(window.player=@players[0]=new Fighter(testFighterData, stage: this, color : new THREE.Color(0xff0000), controller : new KeyboardControls({
       upKey: 38
       downKey: 40
       leftKey: 37
@@ -50,7 +53,7 @@ Stage = module.exports = (@game) ->
     switch event.keyCode
       when 50#Number 2
         if not @players[1]
-          @add(@players[1] = new Fighter(testFighterData, new KeyboardControls({
+          @add(@players[1] = new Fighter(testFighterData, stage: this, color: new THREE.Color(0x0000ff), controller: new KeyboardControls({
             upKey: 87
             downKey: 83
             leftKey: 65
@@ -60,7 +63,7 @@ Stage = module.exports = (@game) ->
           })))
       when 51#Number 3
         if not @players[2]
-          @add(@players[2] = new Fighter(testFighterData, new KeyboardControls({
+          @add(@players[2] = new Fighter(testFighterData, stage: this, color: new THREE.Color(0xffff00), controller: new KeyboardControls({
             upKey: 73
             downKey: 75
             leftKey: 74
@@ -70,7 +73,7 @@ Stage = module.exports = (@game) ->
           })))
       when 52#Number 4
         if not @players[3]
-          @add(@players[3] = new Fighter(testFighterData, new KeyboardControls({
+          @add(@players[3] = new Fighter(testFighterData, stage: this, color: new THREE.Color(0x00ff00), controller: new KeyboardControls({
             upKey: 84
             downKey: 71
             leftKey: 70
@@ -94,6 +97,7 @@ Stage::constructor = Stage
 Stage::update = ->
   if not @loaded
     return
+
   # Update cycle has these events in order:
   # - Apply velocities
   for fighter in @children when fighter instanceof Fighter
@@ -122,24 +126,20 @@ Stage::update = ->
             hitbox.alreadyHit.push(target)
   
   if @players[0]
-    color = @players[0].mesh.material.color
     $("#player1").text(Math.floor(@players[0].damage))
-      .css("border-bottom-color", "rgb(#{Math.floor(color.r*256)}, #{Math.floor(color.g*256)}, #{Math.floor(color.b*256)})")
+      .css("border-bottom-color", Utils.colorToCSS(@players[0].color))
     console.log()
   if @players[1]
-    color = @players[1].mesh.material.color
     $("#player2").text(Math.floor(@players[1].damage))
-      .css("border-bottom-color", "rgb(#{Math.floor(color.r*256)}, #{Math.floor(color.g*256)}, #{Math.floor(color.b*256)})")
+      .css("border-bottom-color", Utils.colorToCSS(@players[1].color))
     console.log()
   if @players[2]
-    color = @players[2].mesh.material.color
     $("#player3").text(Math.floor(@players[2].damage))
-      .css("border-bottom-color", "rgb(#{Math.floor(color.r*256)}, #{Math.floor(color.g*256)}, #{Math.floor(color.b*256)})")
+      .css("border-bottom-color", Utils.colorToCSS(@players[2].color))
     console.log()
   if @players[3]
-    color = @players[3].mesh.material.color
     $("#player4").text(Math.floor(@players[3].damage))
-      .css("border-bottom-color", "rgb(#{Math.floor(color.r*256)}, #{Math.floor(color.g*256)}, #{Math.floor(color.b*256)})")
+      .css("border-bottom-color", Utils.colorToCSS(@players[3].color))
     console.log()
 
   @updateCamera()
@@ -197,8 +197,14 @@ Stage::updateCamera = ->
   averagePosition.x = Math.min(Math.max(averagePosition.x, minPositionX), maxPositionX)
   averagePosition.y = Math.min(Math.max(averagePosition.y, minPositionY), maxPositionY)
 
+  
   # Lerp the camera to the averagePosition
   @camera.position.lerp(averagePosition, 0.1)
+  shake = tempVector.copy(@cameraShake)
+  @cameraShakeTime++
+  shake.multiplyScalar(0.7 * Math.sin(@cameraShakeTime * 0.5))
+  @camera.position.add(shake)
+  @cameraShake.multiplyScalar(.8)
 
 Stage::resize = ->
   @camera.aspect = @game.width/@game.height

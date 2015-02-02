@@ -30,6 +30,7 @@ Box = module.exports = (options)->
   # Can this box actively cause damage?
   @active = false
 
+  @freezeTime = options.freezeTime or 0
   @debugBox.visible = false
 
   @activate = ()=>
