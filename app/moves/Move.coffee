@@ -47,8 +47,12 @@ Move = module.exports = (@fighter, options)->
       box = new Box(boxOptions)
       @fighter.add(box)
       @activeBoxes.push(box)
-      @eventSequence.push(new Event(callback:box.activate, time:boxOptions.startTime))
-      @eventSequence.push(new Event(callback:box.deactivate, time:boxOptions.endTime))
+      @eventSequence.push(new Event({
+        start: box.activate
+        startTime: boxOptions.startTime
+        end: box.deactivate
+        endTime: boxOptions.endTime
+      }))
 
   @reset()
   return
@@ -57,8 +61,8 @@ Move = module.exports = (@fighter, options)->
 
 # Note: does not update the animation!
 Move::update = (deltaTime)->
-  for event in @eventSequence when not event.occurred and event.time<=@currentTime
-    event.trigger()
+  for event in @eventSequence
+    event.update(@currentTime)
   @currentTime += deltaTime
   if @currentTime > @duration
     if @nextMove?
@@ -68,8 +72,7 @@ Move::update = (deltaTime)->
       @triggerMove(@nextMove)
     else
       # Loop
-      @currentTime = 1 + (@currentTime-1) % @duration
-      @animation.play(0, 0)
+      # @animation.play(0, 0)
   # Continue moving
 
 # Syncs values in move to its associated animation
@@ -81,7 +84,7 @@ Move::preUpdateAnimation = ()->
 
 Move::updateAnimation = ()->
   # TODO: Factor in animationDuration to prevent false times
-  @animation.currentTime = (@currentTime-1)/60
+  @animation.currentTime = ((@currentTime - 1) % @animationDuration) / 60
   @animation.weight = @weight
   @animation.update(0)
 
@@ -102,7 +105,6 @@ Move::animationReset = ()->
 Move::reset = ()->
   @currentTime = 1
   for box in @activeBoxes
-    box.deactivate()
     box.alreadyHit = [] # TODO: more efficient?
   for event in @eventSequence
     event.reset()

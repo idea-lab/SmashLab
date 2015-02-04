@@ -7,7 +7,7 @@ SmashChargeMove = module.exports = (@fighter, options)->
 
 SmashChargeMove:: = Object.create(GroundAttackMove::)
 SmashChargeMove::constructor = SmashChargeMove
-SmashChargeMove::update = (deltaTime)->
+SmashChargeMove::update = ()->
   smashCharge = (@currentTime-1)/(@duration-1)
   GroundAttackMove::update.apply(this, arguments)
   # TODO: Make more efficient

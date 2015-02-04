@@ -51,7 +51,7 @@ Stage = module.exports = (@game) ->
       leftKey: 37
       rightKey: 39
       attackKey: 188 #,
-      specialKey: 190 #.
+      shieldKey: 190 #.
     })
     new KeyboardController({
       upKey: 87
@@ -59,7 +59,7 @@ Stage = module.exports = (@game) ->
       leftKey: 65
       rightKey: 68
       attackKey: 81
-      specialKey: 69
+      shieldKey: 69
       })
     new KeyboardController({
       upKey: 73
@@ -67,7 +67,7 @@ Stage = module.exports = (@game) ->
       leftKey: 74
       rightKey: 76
       attackKey: 85
-      specialKey: 79
+      shieldKey: 79
       })
     new KeyboardController({
       upKey: 84
@@ -75,7 +75,7 @@ Stage = module.exports = (@game) ->
       leftKey: 70
       rightKey: 72
       attackKey: 82
-      specialKey: 89
+      shieldKey: 89
     })
     new KeyboardController({
       upKey: 36
@@ -83,7 +83,7 @@ Stage = module.exports = (@game) ->
       leftKey: 46
       rightKey: 34
       attackKey: 45
-      specialKey: 33
+      shieldKey: 33
     })
     new KeyboardController({
       upKey: 104
@@ -91,7 +91,7 @@ Stage = module.exports = (@game) ->
       leftKey: 100
       rightKey: 102
       attackKey: 103
-      specialKey: 105
+      shieldKey: 105
     })
   ]
 
@@ -147,7 +147,7 @@ Stage::update = ->
         hitbox.updateMatrixWorld()
         # Go through hitboxes
         for target in @children when target isnt fighter and target instanceof Fighter
-          if hitbox.intersects(target.box) and not (target in hitbox.alreadyHit)
+          if hitbox.intersects(if target.shielding then target.shieldBox else target.box) and not (target in hitbox.alreadyHit)
             target.hurt(hitbox, fighter)
             hitbox.alreadyHit.push(target)
 
@@ -173,7 +173,7 @@ Stage::updateCamera = ->
     maxPositionY = Math.max(maxPositionY, worldPosition.y)
     minPositionX = Math.min(minPositionX, worldPosition.x)
     minPositionY = Math.min(minPositionY, worldPosition.y)
-  characterMargin = 4
+  characterMargin = 3.5
 
   # Add a margin to the bounding box
   maxPositionX += characterMargin

@@ -7,8 +7,8 @@ Controller = module.exports = ()->
   # Why not go analog with the buttons?
   @attack = 0
   @attackPrevious = 0
-  @special = 0
-  @specialPrevious = 0
+  @shield = 0
+  @shieldPrevious = 0
 
   @jump = 0
   @jumpPrevious = 0
@@ -30,8 +30,8 @@ Controller.ANY_DIRECTION = Controller.LEFT | Controller.RIGHT | Controller.UP | 
 Controller.TILT = 16
 Controller.JUMP = 32
 Controller.ATTACK = 64
-Controller.SPECIAL = 128
-Controller.ANY_BUTTON = Controller.ATTACK | Controller.SPECIAL
+Controller.SHIELD = 128
+Controller.ANY_BUTTON = Controller.ATTACK | Controller.SHIELD
 
 # Frames to suspend a move while looking for combos
 Controller.SUSPEND_FRAMES = 3
@@ -49,8 +49,8 @@ Controller::update = ()->
     move |= Controller.JUMP
   if @attack and not @attackPrevious
     move |= Controller.ATTACK
-  if @special and not @specialPrevious
-    move |= Controller.SPECIAL
+  if @shield and not @shieldPrevious
+    move |= Controller.SHIELD
 
   if @suspendCounter > 0
     @move = 0
@@ -67,7 +67,7 @@ Controller::update = ()->
   # Copy values to previous variables
   @joystickPrevious.copy(@joystick)
   @attackPrevious = @attack
-  @specialPrevious = @special
+  @specialPrevious = @shield
   @jumpPrevious = @jump
 
 Controller::getJoystickDirection = ()->

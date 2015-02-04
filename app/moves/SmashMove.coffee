@@ -6,7 +6,7 @@ SmashMove = module.exports = (@fighter, options)->
 
 SmashMove:: = Object.create(GroundAttackMove::)
 SmashMove::constructor = SmashMove
-SmashMove::update = (deltaTime)->
+SmashMove::update = ()->
   GroundAttackMove::update.apply(this, arguments)
 
 

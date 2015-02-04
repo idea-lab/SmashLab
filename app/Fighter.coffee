@@ -17,6 +17,7 @@ Fighter = module.exports = (fighterData = {}, @options)->
   # These two parameters control the jump. Very handy!
   @airTime = fighterData.airTime # in frames
   @jumpHeight = fighterData.jumpHeight # in world units (meters)
+  @shortHopHeight = fighterData.shortHopHeight
   @maxFallSpeed = fighterData.maxFallSpeed
 
   # Here are velocities
@@ -39,6 +40,17 @@ Fighter = module.exports = (fighterData = {}, @options)->
   # @box.debugBox.visible = true
   @add(@box)
 
+  # The fighterdata is expected to come with its own JSON. Be sure to load beforehand!
+  parsedJSON = THREE.JSONLoader.prototype.parse(Utils.clone(fighterData.modelJSON))
+  @mesh=new THREE.SkinnedMesh(parsedJSON.geometry, new THREE.MeshBasicMaterial({skinning:true, color: (new THREE.Color()).copy(@color)}))
+  @mesh.rotation.y=Math.PI/2
+  @add(@mesh)
+  # @mesh.sdebug=new THREE.SkeletonHelper(@mesh)
+  # # HAX to the MAX. Please remove this eventually.
+  # setTimeout ()=>
+  #   @parent.add(@mesh.sdebug)
+  # , 0
+
   # The current ledge being grabbed, if any
   @ledge = null
   @canGrabLedge = true
@@ -48,17 +60,63 @@ Fighter = module.exports = (fighterData = {}, @options)->
   # @ledgeBox.debugBox.visible = true
   @add(@ledgeBox)
 
-  # The fighterdata is expected to come with its own JSON. Be sure to load beforehand!
-  parsedJSON = THREE.JSONLoader.prototype.parse(Utils.clone(fighterData.modelJSON))
-  @mesh=new THREE.SkinnedMesh(parsedJSON.geometry, new THREE.MeshBasicMaterial({skinning:true, color: @color}))
-  @mesh.rotation.y=Math.PI/2
-  @add(@mesh)
-  @mesh.sdebug=new THREE.SkeletonHelper(@mesh)
-  # HAX to the MAX. Please remove this eventually.
-  setTimeout ()=>
-    @parent.add(@mesh.sdebug)
-  , 0
+  # Whether or not the player is INVICIBLE
+  @invulnerable = false
+  @makeInvulnerable = ()=>
+    @invulnerable = true
+    @mesh.material.color.copy(@color)
+    # Apply the screen effect to the color    
+    @mesh.material.color.r = 1 - (1 - @mesh.material.color.r) * 0.5
+    @mesh.material.color.g = 1 - (1 - @mesh.material.color.g) * 0.5
+    @mesh.material.color.b = 1 - (1 - @mesh.material.color.b) * 0.5
+  @makeVulnerable = ()=>
+    @invulnerable = false
+    @mesh.material.color.copy(@color)
+
+  # Current move
+  @move = null
+
+  @damage = 0
+
+  # How much the current player has been charged by a smash
+  @smashCharge = 0
+
+  # True if right, false if left
+  @facingRight = true
+
+  # TODO: This is spaghetti code. Please clean this up.
+  @shieldDamage = Fighter.SHIELD_MAX_DAMAGE
+  @shielding = false
+  @shieldScale = 1.5
+  @shieldBox = new Box(position: @box.position)
+  @add(@shieldBox)
+
+  @shieldObject = new THREE.Object3D()
+  @shieldObject.visible = false
+  @shieldObject.position.copy(@box.position)
+  @add(@shieldObject)
+  shield1Image = THREE.ImageUtils.loadTexture("images/Shield Additive.png")
+  shield1 = new THREE.Sprite(new THREE.SpriteMaterial({depthTest:false, blending:THREE.AdditiveBlending, map:shield1Image, opacity:1}))
+  @shieldObject.add(shield1)
+  shield2Image = THREE.ImageUtils.loadTexture("images/Shield Subtractive.png")
+  oppositeColor = new THREE.Color()
+  oppositeColor.copy(@color)
+  oppositeColor.r = 1 - oppositeColor.r
+  oppositeColor.g = 1 - oppositeColor.g
+  oppositeColor.b = 1 - oppositeColor.b
+  shield2 = new THREE.Sprite(new THREE.SpriteMaterial({depthTest:false, blending:THREE.SubtractiveBlending, map:shield2Image, opacity:1, color: oppositeColor}))
+  @shieldObject.add(shield2)
+  shield3Image = THREE.ImageUtils.loadTexture("images/Shield Tint.png")
+  shield3 = new THREE.Sprite(new THREE.SpriteMaterial({depthTest:false, blending:THREE.AdditiveBlending, map:shield3Image, opacity:1, color: @color}))
+  @shieldObject.add(shield3)
+
+  @activateShield = ()=>
+    @shielding = true
+
+  @deactivateShield = ()=>
+    @shielding = false
   
+
   # Set up moves
   @moveset = [
     new (require("moves/IdleMove"))(this, Utils.findObjectByName(fighterData.moves, "idle"))
@@ -83,18 +141,8 @@ Fighter = module.exports = (fighterData = {}, @options)->
     new (require("moves/AerialAttackMove"))(this, Utils.findObjectByName(fighterData.moves, "upaerial"))
     new (require("moves/AerialAttackMove"))(this, Utils.findObjectByName(fighterData.moves, "backaerial"))
     new (require("moves/AerialAttackMove"))(this, Utils.findObjectByName(fighterData.moves, "forwardaerial"))
+    new (require("moves/ShieldMove"))(this, Utils.findObjectByName(fighterData.moves, "shield"))
   ]
-
-  # Current move
-  @move = null
-
-  @damage = 0
-
-  # How much the current player has been charged by a smash
-  @smashCharge = 0
-
-  # True if right, false if left
-  @facingRight = true
 
   @respawn()
   return
@@ -104,39 +152,50 @@ Fighter::constructor = Fighter
 
 # When the fighter is hit by a hit box
 Fighter::hurt = (hitbox, otherfighter)->
+  if @invulnerable
+    return
+
   if otherfighter?
     smashChargeFactor = 1 + otherfighter.smashCharge*.2
   else
     smashChargeFactor = 1
 
-  launchSpeed = smashChargeFactor * (@damage/100*hitbox.knockbackScaling+hitbox.knockback)/60
+  if @shielding
+    launchSpeed = 0.05
+  else
+    launchSpeed = smashChargeFactor * (@damage/100*hitbox.knockbackScaling+hitbox.knockback)/60
   velocityToAdd = tempVector.set(Math.cos(hitbox.angle)*launchSpeed,Math.sin(hitbox.angle)*launchSpeed,0)
-
-  @damage += hitbox.damage * smashChargeFactor
-
   # Change velocity based on facing
   velocityToAdd.x *= hitbox.matrixWorld.elements[0]
 
-  # Change facing based on velocity
-  @facingRight = hitbox.matrixWorld.elements[0] < 0
+  damage = hitbox.damage * smashChargeFactor
+  if @shielding
+    @shieldDamage = Math.max(0, @shieldDamage - damage * Fighter.SHIELD_DAMAGE_REDUCTION)
+  else
+    @damage += damage
 
-  # Gain another jump
-  @jumpRemaining = true
+    # Change facing based on velocity
+    @facingRight = hitbox.matrixWorld.elements[0] < 0
 
+    # Gain another jump
+    @jumpRemaining = true
+  
   # Freeze Time
-  launchSpeedFactor = Math.max(Math.min(launchSpeed * 3, 1), 0)
+  launchSpeedFactor = Math.max(Math.min(launchSpeed * 3 - .4, 1), 0.01)
   freeze = Math.max(hitbox.freezeTime, 3) * launchSpeedFactor
   @frozen = otherfighter.frozen = freeze
 
   # Multiple hitboxes compound velocities
-  if @move.name is "hurt" and @move.currentTime is 1
+  if not @shielding and @move.name is "hurt" and @move.currentTime is 1
     @velocity.add(velocityToAdd)
   else
     @velocity.copy(velocityToAdd)
-  velocityToAdd.multiplyScalar(launchSpeedFactor)
+  console.log(launchSpeedFactor)
+  velocityToAdd.normalize().multiplyScalar(launchSpeedFactor)
   @stage.cameraShake.sub(velocityToAdd)
   @stage.cameraShakeTime = 1
-  @trigger("hurt", launchSpeed)
+  if not @shielding
+    @trigger("hurt", launchSpeed)
   
 # Plenty of these methods are explained in Stage.update()
 Fighter::applyVelocity = ->
@@ -153,6 +212,7 @@ Fighter::resolveStageCollisions = (stage)->
   #Detect out of bounds
   if not @box.intersects(stage.safebox)
     @respawn()
+    @makeVulnerable()
     @position.set(0, 1, 0)
     return
 
@@ -189,8 +249,7 @@ Fighter::resolveStageCollisions = (stage)->
 
 Fighter::update = ->
   @controller.update()
-
-
+  
   if @frozen > 0
     @frozen = Math.max(0, @frozen - 1)
   else
@@ -205,14 +264,16 @@ Fighter::update = ->
 
     @updatePhysics()
 
+  @updateShield()
   @updateMesh()
-  
-  @mesh.sdebug.update()
+
+  #@mesh.sdebug.update()
 
 Fighter::respawn = ()->
   @position.set(0, 0, 0)
   @velocity.set(0, 0, 0)
   @damage = 0
+  @shieldDamage = Fighter.SHIELD_MAX_DAMAGE
   @touchingGround = true
   @jumpRemaining = true
   @ledge = null
@@ -281,6 +342,10 @@ Fighter::triggerFromController = ()->
       if "neutralaerial" in @move.triggerableMoves
         @trigger("neutralaerial")
 
+  # Shield
+  if (@controller.move & Controller.SHIELD)
+    if "shield" in @move.triggerableMoves
+      @trigger("shield")
   # Fall from ledge
   if @move.name is "ledgegrab"
     if (@controller.move & Controller.DOWN) #or (@controller.move & (Controller.LEFT | Controller.RIGHT)) 
@@ -322,11 +387,7 @@ Fighter::updatePhysics = ()->
   # TODO: Hmmm... Is this the right place to trigger jump?
   if "jump" in @move.triggerableMoves and
       @jumpRemaining and ((@controller.move & Controller.JUMP) or (@controller.move & Controller.UP) and (@controller.move & Controller.TILT))
-    @velocity.y = 4 * @jumpHeight / @airTime
     @trigger("jump")
-    if not @touchingGround
-      @jumpRemaining = false
-    @touchingGround = false
 
   sign = Math.sign(@controller.joystick.x)
 
@@ -367,4 +428,26 @@ Fighter::updatePhysics = ()->
     handPosition = @box.getVertex(@facingRight)
     @velocity.copy(@ledge.position).sub(handPosition)
     length = @velocity.length()
-    @velocity.normalize().multiplyScalar(Math.min(0.2, length))
+    factor = 1 / Math.max(1, 10 - @move.currentTime)
+    @velocity.normalize().multiplyScalar(length * factor)
+
+Fighter::updateShield = ()->
+  if @shielding
+    @shieldDamage = Math.max(0, @shieldDamage - Fighter.SHIELD_DRAIN_RATE)
+    @shieldObject.visible = true
+    size = @shieldScale * (0.3 + 0.7 * @shieldDamage / Fighter.SHIELD_MAX_DAMAGE)
+    @shieldObject.scale.set(size, size, size)
+    @shieldBox.size.set(0.8 * size, 0.8 * size, 0)
+    if @shieldDamage is 0
+      # TODO: Add a penalty
+      @shieldDamage = 0.6 * Fighter.SHIELD_MAX_DAMAGE
+      @damage = 9001
+      @trigger("idle")
+  else
+    @shieldDamage = Math.min(Fighter.SHIELD_MAX_DAMAGE, @shieldDamage + Fighter.SHIELD_RECHARGE_RATE)
+    @shieldObject.visible = false
+
+Fighter.SHIELD_DRAIN_RATE = 8/60
+Fighter.SHIELD_RECHARGE_RATE = 2/60
+Fighter.SHIELD_MAX_DAMAGE = 50
+Fighter.SHIELD_DAMAGE_REDUCTION = 0.7

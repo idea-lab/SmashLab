@@ -10,9 +10,9 @@ KeyboardController = module.exports = (options = {})->
   @leftKey = options.leftKey or 37
   @rightKey = options.rightKey or 39
   @attackKey = options.attackKey or 16
-  @specialKey = options.specialKey or 17
+  @shieldKey = options.shieldKey or 17
 
-  @handleKeys = [@upKey, @downKey, @leftKey, @rightKey, @attackKey, @specialKey]
+  @handleKeys = [@upKey, @downKey, @leftKey, @rightKey, @attackKey, @shieldKey]
 
   handleKeyDown = (event)=>
     # Add if it's not in the array already
@@ -53,5 +53,5 @@ KeyboardController::update = ()->
   @joystick.normalize()
   
   @attack = if @attackKey in @keysDown then 1 else 0
-  @special = if @specialKey in @keysDown then 1 else 0
+  @shield = if @shieldKey in @keysDown then 1 else 0
   Controller::update.call(this)

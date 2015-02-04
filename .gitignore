@@ -1,4 +1,7 @@
-#Floobits
+# Sublime stuff
+*.sublime*
+
+# Floobits
 .floo
 .flooignore
 

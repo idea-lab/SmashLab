@@ -9,7 +9,7 @@ HurtMove = module.exports = (@fighter, options)->
 
 HurtMove:: = Object.create(Move::)
 HurtMove::constructor = HurtMove
-HurtMove::update = (deltaTime)->
+HurtMove::update = ()->
   # Can't move until last 40 frames
   if @duration - @currentTime < 40
     @movement = Move.DI_MOVEMENT

@@ -7,7 +7,7 @@ NeutralMove = module.exports = (@fighter, options)->
 
 NeutralMove:: = Object.create(GroundAttackMove::)
 NeutralMove::constructor = NeutralMove
-NeutralMove::update = (deltaTime)->
+NeutralMove::update = ()->
   GroundAttackMove::update.apply(this, arguments)
   if @fighter.controller.move & Controller.ATTACK
     # Retrigger again if spamming attack

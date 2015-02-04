@@ -4,10 +4,11 @@ GroundMove = module.exports = (@fighter, options)->
   Move.apply(this, arguments)
   @blendFrames = 10
   @triggerableMoves = @triggerableMoves.concat [
-    "neutral", 
-    "uptilt",
-    "downtilt",
-    "sidetilt",
+    "neutral"
+    "uptilt"
+    "downtilt"
+    "sidetilt"
+    "shield"
     "jump"
   ]
   @movement = Move.FULL_MOVEMENT
@@ -16,7 +17,7 @@ GroundMove = module.exports = (@fighter, options)->
 
 GroundMove:: = Object.create(Move::)
 GroundMove::constructor = GroundMove
-GroundMove::update = (deltaTime)->
+GroundMove::update = ()->
   Move::update.apply(this, arguments)
   if not @fighter.touchingGround
     @triggerMove("fall", 100) # Higher priority fall
