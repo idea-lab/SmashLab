@@ -92,8 +92,14 @@ Stage = module.exports = (@game) ->
   # TODO: Clean it up!
   loader = new THREE.JSONLoader()
   loader.load("models/Stage.json", (geometry)=>
-    mesh=new THREE.Mesh(geometry,new THREE.MeshNormalMaterial())
+    mesh=new THREE.Mesh(geometry,new THREE.MeshLambertMaterial(shading:THREE.FlatShading))
     @add(mesh)
+    directionalLight = new THREE.DirectionalLight(0xffffff, 2)
+    directionalLight.position.set(0, 1, 0.5)
+    @add(directionalLight)
+    hemisphereLight = new THREE.HemisphereLight(0xffffff, 1)
+    hemisphereLight.position.set(0, -1, -0.5)
+    @add(hemisphereLight)
   )
   #@orbitcontrols = new THREE.OrbitControls(@camera)
   return
@@ -220,6 +226,7 @@ Stage::resize = ->
 
 Stage::updateInactiveControllers = ()->
   for i in [0...@inactiveControllers.length]
+    # TODO: Please don't faint while trying to remove this code
     if i >= @inactiveControllers.length
       break
     controller = @inactiveControllers[i]
@@ -234,6 +241,7 @@ Stage::updateInactiveControllers = ()->
       @players.push(fighter)
       hudElement = $("<div class=\"damagepercent\"></div>")
       $(".bottombar").append(hudElement)
+      hudElement.css("border-bottom-color", "rgba("+Utils.colorToCSS(fighter.color)[4..-2]+", 0.5)")
       @playerHudElements.push(
         hudElement
       )
@@ -243,8 +251,8 @@ Stage::updateInactiveControllers = ()->
 Stage::updateHUD = ()->
   for i in [0...@players.length]
     @playerHudElements[i].text(Math.floor(@players[i].damage))
-      .css("border-bottom-color", Utils.colorToCSS(@players[i].color))
-
+      .css("color", Utils.damageToCSS(@players[i].damage))
+    console.log (Utils.damageToCSS(@players[i].damage))
 Stage::getPlayerColor = (index)->
   return switch index
     when 0 then new THREE.Color(0xff0000)

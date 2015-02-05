@@ -93,11 +93,7 @@ Move::preUpdateAnimation = ()->
 Move::updateAnimation = ()->
   if @animation?
     # TODO: Factorin animationDuration to prevent false times
-    newTime = ((@currentTime - 1) % @animationDuration) / 60
-    if newTime < @animation.currentTime
-      # Reset the animation during a loop
-      @animation.play(0, 0)
-    @animation.currentTime = newTime
+    @animation.currentTime = (@currentTime - 1) / 60
     @animation.weight = @weight
     @animation.update(0)
 

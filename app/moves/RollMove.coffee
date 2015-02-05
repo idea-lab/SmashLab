@@ -1,5 +1,6 @@
 # Rolling!
 Move = require("moves/Move")
+Fighter = require("Fighter")
 Event = require("Event")
 RollMove = module.exports = (@fighter, options)->
   Move.apply(this, arguments)
@@ -17,6 +18,6 @@ RollMove:: = Object.create(Move::)
 RollMove::constructor = RollMove
 RollMove::update = ()->
   if @currentTime < 10
-    @fighter.velocity.x = (if @fighter.facingRight then -1 else 1) * 0.15
+    @fighter.velocity.x = (if @fighter.facingRight then -1 else 1) * Fighter.ROLL_VELOCITY
   Move::update.apply(this, arguments)
 

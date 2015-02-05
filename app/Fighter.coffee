@@ -42,7 +42,7 @@ Fighter = module.exports = (fighterData = {}, @options)->
 
   # The fighterdata is expected to come with its own JSON. Be sure to load beforehand!
   parsedJSON = THREE.JSONLoader.prototype.parse(Utils.clone(fighterData.modelJSON))
-  @mesh=new THREE.SkinnedMesh(parsedJSON.geometry, new THREE.MeshBasicMaterial({skinning:true, color: (new THREE.Color()).copy(@color)}))
+  @mesh=new THREE.SkinnedMesh(parsedJSON.geometry, new THREE.MeshLambertMaterial({skinning:true, shading:THREE.FlatShading, color: (new THREE.Color()).copy(@color)}))
   @mesh.rotation.y=Math.PI/2
   @add(@mesh)
   # @mesh.sdebug=new THREE.SkeletonHelper(@mesh)
@@ -467,3 +467,4 @@ Fighter.SHIELD_DRAIN_RATE = 8/60
 Fighter.SHIELD_RECHARGE_RATE = 3/60
 Fighter.SHIELD_MAX_DAMAGE = 50
 Fighter.SHIELD_DAMAGE_REDUCTION = 0.7
+Fighter.ROLL_VELOCITY = 0.14

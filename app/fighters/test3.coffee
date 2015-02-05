@@ -105,7 +105,7 @@ module.exports = {
       animation: "Up Tilt"
       activeBoxes: [
         {
-          size: [0.6, 0.8]
+          size: [0.8, 0.8]
           angle: 1.3
           knockback: 5
           knockbackScaling: 12
@@ -121,12 +121,12 @@ module.exports = {
       animation: "Down Tilt"
       activeBoxes: [
         {
-          size: [0.8, 0.7]
+          size: [0.9, 0.7]
           angle: 1.2
           knockback: 2
           knockbackScaling: 15
           damage: 5
-          position: [0.6, 0.3]
+          position: [0.8, 0.3]
           startTime: 3
           endTime: 7
         }
@@ -137,12 +137,12 @@ module.exports = {
       animation: "Side Tilt"
       activeBoxes: [
         {
-          size: [0.8, 0.4]
+          size: [1.1, 0.6]
           angle: 1
           knockback: 4
           knockbackScaling: 10
           damage: 4
-          position: [0.35, 1.3]
+          position: [0.6, 1.3]
           startTime: 4
           endTime: 10
         }
@@ -157,7 +157,7 @@ module.exports = {
       animation: "Up Smash"
       activeBoxes: [
         {
-          size: [0.9, 0.9]
+          size: [0.8, 0.9]
           angle: 1.4
           knockback: 8
           knockbackScaling: 16
@@ -178,12 +178,12 @@ module.exports = {
       animation: "Side Smash"
       activeBoxes: [
         {
-          size: [1.0, 0.8]
+          size: [1.3, 0.8]
           angle: 0.8
           knockback: 4
           knockbackScaling: 23
           damage: 18
-          position: [0.5, 1.2]
+          position: [0.7, 1.2]
           startTime: 2
           endTime: 10
           freezeTime: 14
@@ -288,14 +288,14 @@ module.exports = {
       animation: "Knee of Fury"
       activeBoxes: [
         {
-          size: [0.85, 0.85]
+          size: [1.1, 0.85]
           angle: .8
           knockback: 2
           knockbackScaling: 13
           damage: 6
           # Used blender's 3D cursor.
           # How convenient!
-          position: [0.38, 0.67]
+          position: [0.6, 0.6]
           startTime: 10
           endTime: 20
         }
@@ -306,7 +306,7 @@ module.exports = {
           knockback: 4
           knockbackScaling: 26
           damage: 2
-          position: [0.28, 0.67]
+          position: [0.28, 0.64]
           startTime: 12
           endTime: 14
           freezeTime: 15
@@ -318,14 +318,14 @@ module.exports = {
       animation: "Back Aerial"
       activeBoxes: [
         {
-          size: [0.8, 0.5]
+          size: [1.0, 0.7]
           angle: 2.5
           knockback: 5
           knockbackScaling: 10
           damage: 6
           # Used blender's 3D cursor.
           # How convenient!
-          position: [-0.5, 0.4]
+          position: [-0.6, 0.4]
           startTime: 7
           endTime: 25
         }
