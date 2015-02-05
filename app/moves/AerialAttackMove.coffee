@@ -13,5 +13,5 @@ AerialAttackMove::constructor = AerialAttackMove
 AerialAttackMove::update = (deltaTime)->
   Move::update.apply(this, arguments)
   if @fighter.touchingGround
-    @triggerMove("land", 100) # Higher priority land
+    @request("land", 100) # Higher priority land
 

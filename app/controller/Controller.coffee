@@ -67,7 +67,7 @@ Controller::update = ()->
   # Copy values to previous variables
   @joystickPrevious.copy(@joystick)
   @attackPrevious = @attack
-  @specialPrevious = @shield
+  @shieldPrevious = @shield
   @jumpPrevious = @jump
 
 Controller::getJoystickDirection = ()->

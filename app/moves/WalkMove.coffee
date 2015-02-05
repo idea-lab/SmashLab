@@ -9,4 +9,4 @@ WalkMove::update = (deltaTime)->
   # Do the walk
   GroundMove::update.apply(this, arguments)
   if @fighter.controller.joystick.x is 0
-    @triggerMove("idle", 50)
+    @request("idle", 50)

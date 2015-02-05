@@ -69,6 +69,22 @@ module.exports = {
       animation: "Shield"
     }
     {
+      name: "roll"
+      animation: "Roll"
+    }
+    {
+      name: "dodge"
+      animation: "Dodge"
+    }
+    {
+      name: "airdodge"
+      animation: "Air Dodge"
+    }
+    {
+      name: "stun"
+      animation: "Stun"
+    }
+    {
       name: "neutral"
       animation: "Neutral"
       activeBoxes: [
@@ -194,25 +210,25 @@ module.exports = {
       animation: "Down Smash"
       activeBoxes: [
         {
-          size: [0.9, 0.9]
+          size: [0.6, 0.9]
           angle: 0.7
           knockback: 2
           knockbackScaling: 22
           damage: 14
-          position: [0.4, 0.4]
+          position: [0.6, 0.4]
           startTime: 4
           endTime: 12
           freezeTime: 13
         }
         {
-          size: [0.9, 0.9]
+          size: [0.6, 0.9]
           angle: Math.PI - 0.7
           knockback: 2
           knockbackScaling: 22
           damage: 14
-          position: [-0.4, 0.4]
-          startTime: 24
-          endTime: 30
+          position: [-0.6, 0.4]
+          startTime: 16
+          endTime: 25
           freezeTime: 13
         }
       ]
@@ -222,70 +238,48 @@ module.exports = {
       animation: "Neutral Aerial"
       activeBoxes: [
         {
-          size: [0.75, 0.4]
-          angle: Math.PI - 0.8
+          size: [1.5, 0.4]
+          angle: Math.PI - 0.2
           knockback: 2
           knockbackScaling: 4
-          damage: 2
-          position: [0.4, 1.4]
-          startTime: 5
-          endTime: 10
+          damage: 1.5
+          position: [0, 1.4]
+          startTime: 6
+          endTime: 9
           freezeTime: 6
         }
         {
-          size: [0.75, 0.4]
-          angle: 0.8
+          size: [1.5, 0.4]
+          angle: 0.2
           knockback: 2
           knockbackScaling: 4
-          damage: 2
-          position: [-0.4, 1.4]
-          startTime: 5
-          endTime: 10
+          damage: 1.5
+          position: [0, 1.4]
+          startTime: 9
+          endTime: 12
           freezeTime: 6
         }
         {
-          size: [0.75, 0.4]
-          angle: .8
-          knockback: 4
-          knockbackScaling: 8
-          damage: 2
-          position: [0.4, 1.4]
+          size: [1.5, 0.4]
+          angle: .2
+          knockback: 2
+          knockbackScaling: 4
+          damage: 1.5
+          position: [0, 1.4]
           startTime: 17
-          endTime: 25
+          endTime: 21
           freezeTime: 6
         }
         {
-          size: [0.75, 0.4]
+          size: [1.5, 0.4]
           angle: Math.PI - 0.8
-          knockback: 4
-          knockbackScaling: 8
+          knockback: 2.5
+          knockbackScaling: 12
           damage: 2
-          position: [-0.4, 1.4]
-          startTime: 17
+          position: [0, 1.4]
+          startTime: 21
           endTime: 25
-          freezeTime: 6
-        }
-        {
-          size: [0.3, 1.2]
-          angle: 1
-          knockback: 2
-          knockbackScaling: 6
-          damage: 2
-          position: [0.0, 0.6]
-          startTime: 4
-          endTime: 11
-          freezeTime: 2
-        }
-        {
-          size: [0.3, 1.2]
-          angle: Math.PI - 1
-          knockback: 2
-          knockbackScaling: 6
-          damage: 2
-          position: [0.0, 0.6]
-          startTime: 16
-          endTime: 26
-          freezeTime: 2
+          freezeTime: 10
         }
       ]
     }
@@ -342,19 +336,19 @@ module.exports = {
       animation: "Up Aerial"
       activeBoxes: [
         {
-          size: [0.8, 0.8]
+          size: [0.6, 0.6]
           angle: 1.5
           knockback: 4
           knockbackScaling: 15
           damage: 4
           # Used blender's 3D cursor.
           # How convenient!
-          position: [0.1, 1.6]
+          position: [0.1, 1.5]
           startTime: 11
           endTime: 16
         }
         {
-          size: [0.5, 1.0]
+          size: [0.6, 1.2]
           angle: 1.3
           knockback: 2
           knockbackScaling: 8
@@ -364,12 +358,12 @@ module.exports = {
           endTime: 10
         }
         {
-          size: [0.5, 1.2]
+          size: [0.5, 1.0]
           angle: Math.PI - 1.3
           knockback: 2
           knockbackScaling: 8
           damage: 2
-          position: [-0.5, 0.9]
+          position: [-0.4, 0.9]
           startTime: 12
           endTime: 20
         }
@@ -380,7 +374,7 @@ module.exports = {
       animation: "Down Aerial"
       activeBoxes: [
         {
-          size: [0.5, 0.8]
+          size: [0.6, 0.8]
           angle: -1.3
           knockback: 6
           knockbackScaling: 16

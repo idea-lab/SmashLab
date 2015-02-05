@@ -10,6 +10,7 @@ AerialMove = module.exports = (@fighter, options)->
     "forwardaerial"
     "backaerial"
     "jump"
+    "airdodge"
   ]
   @movement = Move.FULL_MOVEMENT
   @nextMove = null
@@ -20,4 +21,4 @@ AerialMove::constructor = AerialMove
 AerialMove::update = ()->
   Move::update.apply(this, arguments)
   if @fighter.touchingGround
-    @triggerMove("land", 100) # Higher priority fall
+    @request("land", 100) # Higher priority fall

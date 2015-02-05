@@ -16,4 +16,4 @@ IdleMove::update = ()->
   # Do the walk
   GroundMove::update.apply(this, arguments)
   if @fighter.controller.joystick.x isnt 0 and @fighter.controller.joystickSmashed is 0
-    @triggerMove("walk", 50)
+    @request("walk", 50)

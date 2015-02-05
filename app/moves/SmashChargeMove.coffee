@@ -2,6 +2,7 @@ GroundAttackMove = require("moves/GroundAttackMove")
 Utils = require("Utils")
 SmashChargeMove = module.exports = (@fighter, options)->
   GroundAttackMove.apply(this, arguments)
+  @duration = 60
   @nextMove = options.name[0..-7] # Remove that charge
   return
 
@@ -14,4 +15,4 @@ SmashChargeMove::update = ()->
   @fighter.smashCharge = smashCharge
   if not @fighter.controller.attack
     # Released the attack button, so smash now
-    @triggerMove(@nextMove, 50)
+    @request(@nextMove, 50)

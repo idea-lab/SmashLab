@@ -6,11 +6,6 @@ LedgeGrabMove = module.exports = (@fighter, options)->
   @blendFrames = 10
   @movement = Move.NO_MOVEMENT
   @triggerableMoves = @triggerableMoves.concat [
-    "neutralaerial"
-    "downaerial"
-    "upaerial"
-    "forwardaerial"
-    "backaerial"
     "jump"
     "fall"
   ]
@@ -43,9 +38,9 @@ LedgeGrabMove::update = ()->
   if @fighter.ledge?
     if @fighter.ledge.fighter isnt @fighter
       @fighter.ledge = null
-      @triggerMove("fall", 100)
+      @request("fall", 100)
   else
-    @triggerMove("fall", 100)
+    @request("fall", 100)
 LedgeGrabMove::trigger = (ledge)->
   Move::trigger.apply(this, arguments)
   @fighter.ledge = ledge

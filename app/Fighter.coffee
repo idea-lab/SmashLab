@@ -142,6 +142,10 @@ Fighter = module.exports = (fighterData = {}, @options)->
     new (require("moves/AerialAttackMove"))(this, Utils.findObjectByName(fighterData.moves, "backaerial"))
     new (require("moves/AerialAttackMove"))(this, Utils.findObjectByName(fighterData.moves, "forwardaerial"))
     new (require("moves/ShieldMove"))(this, Utils.findObjectByName(fighterData.moves, "shield"))
+    new (require("moves/RollMove"))(this, Utils.findObjectByName(fighterData.moves, "roll"))
+    new (require("moves/DodgeMove"))(this, Utils.findObjectByName(fighterData.moves, "dodge"))
+    new (require("moves/AirDodgeMove"))(this, Utils.findObjectByName(fighterData.moves, "airdodge"))
+    new (require("moves/StunMove"))(this, Utils.findObjectByName(fighterData.moves, "stun"))
   ]
 
   @respawn()
@@ -190,7 +194,6 @@ Fighter::hurt = (hitbox, otherfighter)->
     @velocity.add(velocityToAdd)
   else
     @velocity.copy(velocityToAdd)
-  console.log(launchSpeedFactor)
   velocityToAdd.normalize().multiplyScalar(launchSpeedFactor)
   @stage.cameraShake.sub(velocityToAdd)
   @stage.cameraShakeTime = 1
@@ -288,8 +291,12 @@ Fighter::respawn = ()->
 Fighter::trigger = (movename, options)->
   if @move
     @move.reset()
-  @move = Utils.findObjectByName(@moveset, movename)
-  @move.trigger(options)
+  move = Utils.findObjectByName(@moveset, movename)
+  if move?
+    @move = move
+    @move.trigger(options)
+  else
+    console.warn("Move #{movename} has not been added to the fighter.")
 
 # Triggers moves that the controller would like to
 Fighter::triggerFromController = ()->
@@ -344,8 +351,18 @@ Fighter::triggerFromController = ()->
 
   # Shield
   if (@controller.move & Controller.SHIELD)
-    if "shield" in @move.triggerableMoves
-      @trigger("shield")
+    if "airdodge" in @move.triggerableMoves
+      @trigger("airdodge")
+    else if (@controller.move & Controller.TILT) and (@controller.move & (Controller.LEFT | Controller.RIGHT))
+      @facingRight = not (@controller.move & Controller.RIGHT)
+      if "roll" in @move.triggerableMoves
+        @trigger("roll")
+    else if (@controller.move & Controller.TILT) and (@controller.move & (Controller.UP | Controller.DOWN))
+      if "dodge" in @move.triggerableMoves
+        @trigger("dodge")
+  else if (@controller.shield isnt 0 and not @controller.suspendedMove)
+      if "shield" in @move.triggerableMoves
+        @trigger("shield")
   # Fall from ledge
   if @move.name is "ledgegrab"
     if (@controller.move & Controller.DOWN) #or (@controller.move & (Controller.LEFT | Controller.RIGHT)) 
@@ -441,13 +458,12 @@ Fighter::updateShield = ()->
     if @shieldDamage is 0
       # TODO: Add a penalty
       @shieldDamage = 0.6 * Fighter.SHIELD_MAX_DAMAGE
-      @damage = 9001
-      @trigger("idle")
+      @trigger("stun")
   else
     @shieldDamage = Math.min(Fighter.SHIELD_MAX_DAMAGE, @shieldDamage + Fighter.SHIELD_RECHARGE_RATE)
     @shieldObject.visible = false
 
 Fighter.SHIELD_DRAIN_RATE = 8/60
-Fighter.SHIELD_RECHARGE_RATE = 2/60
+Fighter.SHIELD_RECHARGE_RATE = 3/60
 Fighter.SHIELD_MAX_DAMAGE = 50
 Fighter.SHIELD_DAMAGE_REDUCTION = 0.7

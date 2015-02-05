@@ -5,16 +5,26 @@ Utils = require("Utils")
 Box = require("Box")
 Move = module.exports = (@fighter, options)->
   # Link together fighter mesh animations and the move
+  if not options?
+    console.warn("A move does not appear in the character JSON.")
+    return
+
   @name = options.name
 
-  @animation = new THREE.Animation(
-    @fighter.mesh,
-    Utils.findObjectByName(@fighter.mesh.geometry.animations, options.animation)
-  )
+  animationObject = Utils.findObjectByName(@fighter.mesh.geometry.animations, options.animation)
+  if animationObject?
+    @animation = then new THREE.Animation(
+      @fighter.mesh,
+      animationObject
+    )
+  else
+    @animation = null
+    console.warn("#{@name} does not have an associated animation")
+
   # TODO: Eventually try to remove the clone, if possible.
 
   # Automatically transition into another move when completed. If null, the animation loops
-  @nextMove = "idle"
+  @nextMove = null
 
   # The next move that the current move would immediately like to trigger
   @triggerNextPriority = -Infinity
@@ -31,7 +41,7 @@ Move = module.exports = (@fighter, options)->
   # The maximum allowed fighter movement during the move
   @movement = Move.NO_MOVEMENT
 
-  @animationDuration = Math.round(@animation.data.length*60)
+  @animationDuration = if @animation? then Math.round(@animation.data.length*60) else 20
   # Number of frames
   @duration = options.duration or @animationDuration
   @currentTime = 1
@@ -69,10 +79,7 @@ Move::update = (deltaTime)->
       # Stay on ending frame to potentially blend into the next move
       @currentTime = @duration
       # DON'T DARE STOP THE MOVE - CAUSES WEIGHTS TO STOP WORKING
-      @triggerMove(@nextMove)
-    else
-      # Loop
-      # @animation.play(0, 0)
+      @request(@nextMove)
   # Continue moving
 
 # Syncs values in move to its associated animation
@@ -80,27 +87,35 @@ Move::update = (deltaTime)->
 # I finally found the solution: all blend weights need
 # to be reset BEFORE ANY are updated.
 Move::preUpdateAnimation = ()->
-  @animation.resetBlendWeights()
+  if @animation?
+    @animation.resetBlendWeights()
 
 Move::updateAnimation = ()->
-  # TODO: Factor in animationDuration to prevent false times
-  @animation.currentTime = ((@currentTime - 1) % @animationDuration) / 60
-  @animation.weight = @weight
-  @animation.update(0)
+  if @animation?
+    # TODO: Factorin animationDuration to prevent false times
+    newTime = ((@currentTime - 1) % @animationDuration) / 60
+    if newTime < @animation.currentTime
+      # Reset the animation during a loop
+      @animation.play(0, 0)
+    @animation.currentTime = newTime
+    @animation.weight = @weight
+    @animation.update(0)
 
 Move::trigger = ()->
   @triggerNext = null
   @triggerNextPriority = -Infinity
-  @animation.play(0, 0)
+  if @animation?
+    @animation.play(0, 0)
 
 # Request to trigger the next move with a given priority
-Move::triggerMove = (name, priority = 0)->
+Move::request = (name, priority = 0)->
   if priority > @triggerNextPriority
     @triggerNextPriority = priority
     @triggerNext = name
 
 Move::animationReset = ()->
-  @animation.reset()
+  if @animation?
+    @animation.reset()
 
 Move::reset = ()->
   @currentTime = 1

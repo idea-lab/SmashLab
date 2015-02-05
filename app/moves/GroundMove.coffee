@@ -9,6 +9,8 @@ GroundMove = module.exports = (@fighter, options)->
     "downtilt"
     "sidetilt"
     "shield"
+    "roll"
+    "dodge"
     "jump"
   ]
   @movement = Move.FULL_MOVEMENT
@@ -20,4 +22,4 @@ GroundMove::constructor = GroundMove
 GroundMove::update = ()->
   Move::update.apply(this, arguments)
   if not @fighter.touchingGround
-    @triggerMove("fall", 100) # Higher priority fall
+    @request("fall", 100) # Higher priority fall

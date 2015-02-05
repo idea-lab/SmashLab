@@ -6,7 +6,6 @@ ShieldMove = module.exports = (@fighter, options)->
   @blendFrames = 10
   @triggerableMoves = @triggerableMoves.concat [
     "idle"
-    #Add sidestepping later
   ]
   @eventSequence = [
     new Event({
@@ -25,4 +24,4 @@ ShieldMove::constructor = ShieldMove
 ShieldMove::update = ()->
   Move::update.apply(this, arguments)
   if @fighter.controller.shield is 0
-    @triggerMove("idle", 50)
+    @request("idle", 50)

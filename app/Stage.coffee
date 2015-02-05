@@ -46,52 +46,36 @@ Stage = module.exports = (@game) ->
   
   @inactiveControllers = [
     new KeyboardController({
-      upKey: 38
-      downKey: 40
-      leftKey: 37
-      rightKey: 39
-      attackKey: 188 #,
-      shieldKey: 190 #.
-    })
-    new KeyboardController({
       upKey: 87
       downKey: 83
       leftKey: 65
       rightKey: 68
-      attackKey: 81
-      shieldKey: 69
-      })
-    new KeyboardController({
-      upKey: 73
-      downKey: 75
-      leftKey: 74
-      rightKey: 76
-      attackKey: 85
-      shieldKey: 79
-      })
+      attackKey: 74 #,
+      shieldKey: 75 #.
+    })
     new KeyboardController({
       upKey: 84
       downKey: 71
       leftKey: 70
       rightKey: 72
-      attackKey: 82
-      shieldKey: 89
-    })
+      attackKey: 76
+      shieldKey: 186
+      })
+    new KeyboardController({
+      upKey: 38
+      downKey: 40
+      leftKey: 37
+      rightKey: 39
+      attackKey: 188
+      shieldKey: 190
+      })
     new KeyboardController({
       upKey: 36
       downKey: 35
       leftKey: 46
       rightKey: 34
-      attackKey: 45
-      shieldKey: 33
-    })
-    new KeyboardController({
-      upKey: 104
-      downKey: 101
-      leftKey: 100
-      rightKey: 102
-      attackKey: 103
-      shieldKey: 105
+      attackKey: 111
+      shieldKey: 106
     })
   ]
 
@@ -128,6 +112,17 @@ Stage::update = ->
   # - Apply velocities
   for fighter in @children when fighter instanceof Fighter
     fighter.applyVelocity()
+
+  # Soft player-player collision
+  for fighter in @children when fighter instanceof Fighter
+    for otherFighter in @children when otherFighter isnt fighter and otherFighter instanceof Fighter
+      if fighter.box.intersects(otherFighter.box)
+        if fighter.position.x > otherFighter.position.x
+          fighter.position.x += Stage.FIGHTER_SOFT_COLLISION_VELOCITY
+          otherFighter.position.x -= Stage.FIGHTER_SOFT_COLLISION_VELOCITY
+        else
+          fighter.position.x -= Stage.FIGHTER_SOFT_COLLISION_VELOCITY
+          otherFighter.position.x += Stage.FIGHTER_SOFT_COLLISION_VELOCITY
 
   # - Resolve player-stage collisions and players out of bounds, as well as ledge grab
   for fighter in @children when fighter instanceof Fighter
@@ -261,3 +256,5 @@ Stage::getPlayerColor = (index)->
     when 6 then new THREE.Color(0xff00ff)
     when 7 then new THREE.Color(0xaa00ff)
     else new THREE.Color(Math.round(Math.random() * 0xffffff))
+
+Stage.FIGHTER_SOFT_COLLISION_VELOCITY = 0.001

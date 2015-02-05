@@ -16,11 +16,11 @@ KeyboardController = module.exports = (options = {})->
 
   handleKeyDown = (event)=>
     # Add if it's not in the array already
+    # console.log(event.keyCode)
     if event.keyCode in @handleKeys
       @active = true
       if not (event.keyCode in @keysDown)
         @keysDown.push(event.keyCode)
-        #console.log(event.keyCode)
   
   handleKeyUp = (event)=>
     # Remove if it's in the array already
