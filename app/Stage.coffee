@@ -247,18 +247,17 @@ Stage::updateInactiveControllers = ()->
       )
       @inactiveControllers.splice(i, 1)
 
-      
 Stage::updateHUD = ()->
   for i in [0...@players.length]
     @playerHudElements[i].text(Math.floor(@players[i].damage))
       .css("color", Utils.damageToCSS(@players[i].damage))
-    console.log (Utils.damageToCSS(@players[i].damage))
+
 Stage::getPlayerColor = (index)->
   return switch index
     when 0 then new THREE.Color(0xff0000)
     when 1 then new THREE.Color(0x0000ff)
     when 2 then new THREE.Color(0xffff00)
-    when 3 then new THREE.Color(0x00ff00)
+    when 3 then new THREE.Color(0x00ee00)
     when 4 then new THREE.Color(0xffaa00)
     when 5 then new THREE.Color(0x00ffff)
     when 6 then new THREE.Color(0xff00ff)

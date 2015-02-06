@@ -12,7 +12,7 @@ Box = module.exports = (options)->
 
   Utils.setVectorByArray(@position, options.position)
 
-  @debugBox = new THREE.Mesh(new THREE.BoxGeometry(@size.x,@size.y,.1), new THREE.MeshNormalMaterial())
+  @debugBox = new THREE.Mesh(new THREE.BoxGeometry(@size.x,@size.y,.1), new THREE.MeshNormalMaterial(wireframe: true))
   @add(@debugBox)
 
   # 0 degrees is straight out, -90 is down, and 90 is up. Use radians.

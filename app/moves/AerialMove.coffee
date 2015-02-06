@@ -9,8 +9,8 @@ AerialMove = module.exports = (@fighter, options)->
     "upaerial"
     "forwardaerial"
     "backaerial"
-    "jump"
     "airdodge"
+    "jump"
   ]
   @movement = Move.FULL_MOVEMENT
   @nextMove = null

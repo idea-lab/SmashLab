@@ -6,6 +6,8 @@ ShieldMove = module.exports = (@fighter, options)->
   @blendFrames = 10
   @triggerableMoves = @triggerableMoves.concat [
     "idle"
+    "dodge"
+    "roll"
   ]
   @eventSequence = [
     new Event({

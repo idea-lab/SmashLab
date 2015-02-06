@@ -21,36 +21,32 @@ Controller = module.exports = ()->
 
   @active = false
 
-
-Controller.LEFT = 1
-Controller.RIGHT = 2
-Controller.UP = 4
-Controller.DOWN = 8
-Controller.ANY_DIRECTION = Controller.LEFT | Controller.RIGHT | Controller.UP | Controller.DOWN
-Controller.TILT = 16
-Controller.JUMP = 32
-Controller.ATTACK = 64
-Controller.SHIELD = 128
-Controller.ANY_BUTTON = Controller.ATTACK | Controller.SHIELD
-
-# Frames to suspend a move while looking for combos
-Controller.SUSPEND_FRAMES = 3
-
-Controller.TILT_DISTANCE_NEEDED = 0.8
+  # Counts down frames since last double tilt
+  @doubleTiltCounter = 0
+  @doubleTiltDirection = 0
 
 # Call this at the end of update() in child classes
 Controller::update = ()->
   move = @getJoystickDirection()
 
   # Detect tilts  
-  if @joystick.length() > Controller.TILT_DISTANCE_NEEDED and not @joystickPrevious.length()>Controller.TILT_DISTANCE_NEEDED
+  if @joystick.length() > Controller.TILT_DISTANCE_NEEDED and not @joystickPrevious.length() > Controller.TILT_DISTANCE_NEEDED
+    if @doubleTiltCounter > 0 and @doubleTiltDirection is (move & Controller.ANY_DIRECTION)
+      move |= Controller.DOUBLE_TILT
     move |= Controller.TILT
+    @doubleTiltCounter = Controller.DOUBLE_TILT_FRAMES
+    @doubleTiltDirection = (move & Controller.ANY_DIRECTION)
   if @jump and not @jumpPrevious
     move |= Controller.JUMP
   if @attack and not @attackPrevious
     move |= Controller.ATTACK
   if @shield and not @shieldPrevious
     move |= Controller.SHIELD
+
+  if @doubleTiltCounter > 0 
+    @doubleTiltCounter--
+  else
+    @doubleTiltDirection = 0
 
   if @suspendCounter > 0
     @move = 0
@@ -90,3 +86,22 @@ Controller::suspendMove = (move)->
     @suspendedMove = move
     @move = 0
     @suspendCounter = Controller.SUSPEND_FRAMES
+
+Controller.LEFT = 1
+Controller.RIGHT = 2
+Controller.UP = 4
+Controller.DOWN = 8
+Controller.ANY_DIRECTION = Controller.LEFT | Controller.RIGHT | Controller.UP | Controller.DOWN
+Controller.TILT = 16
+Controller.DOUBLE_TILT = 32
+Controller.JUMP = 64
+Controller.ATTACK = 128
+Controller.SHIELD = 256
+Controller.ANY_BUTTON = Controller.ATTACK | Controller.SHIELD
+
+# Frames to suspend a move while looking for combos
+Controller.SUSPEND_FRAMES = 3
+
+Controller.TILT_DISTANCE_NEEDED = 0.8
+
+Controller.DOUBLE_TILT_FRAMES = 15

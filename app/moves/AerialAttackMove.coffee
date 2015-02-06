@@ -3,7 +3,7 @@ Move = require("moves/Move")
 AerialAttackMove = module.exports = (@fighter, options)->
   Move.apply(this, arguments)
   @blendFrames = 0
-  @triggerableMoves = []
+  @triggerableMoves = ["ledgegrab"]
   @movement = Move.DI_MOVEMENT
   @nextMove = "fall"
   return

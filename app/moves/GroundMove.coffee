@@ -12,6 +12,7 @@ GroundMove = module.exports = (@fighter, options)->
     "roll"
     "dodge"
     "jump"
+    "dash"
   ]
   @movement = Move.FULL_MOVEMENT
   @nextMove = null

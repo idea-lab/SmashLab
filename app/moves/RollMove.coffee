@@ -5,6 +5,7 @@ Event = require("Event")
 RollMove = module.exports = (@fighter, options)->
   Move.apply(this, arguments)
   @movement = Move.NO_MOVEMENT
+  @allowAnimatedMovement = true
   @eventSequence = [
     new Event({
       start: @fighter.makeInvulnerable, startTime: 2,
@@ -17,7 +18,5 @@ RollMove = module.exports = (@fighter, options)->
 RollMove:: = Object.create(Move::)
 RollMove::constructor = RollMove
 RollMove::update = ()->
-  if @currentTime < 10
-    @fighter.velocity.x = (if @fighter.facingRight then -1 else 1) * Fighter.ROLL_VELOCITY
   Move::update.apply(this, arguments)
 

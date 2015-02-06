@@ -17,8 +17,10 @@ module.exports = {
   airFriction: 0.002
 
   groundAccel: 0.015
-  groundSpeed: 0.15
+  groundSpeed: 0.12
   groundFriction: 0.01
+
+  dashSpeed: 0.21
 
   # The main hitbox
   box: {
@@ -85,6 +87,60 @@ module.exports = {
       animation: "Stun"
     }
     {
+      name: "dash"
+      animation: "Dash"
+    }
+    {
+      name: "dashattack"
+      animation: "Dolphin"
+      activeBoxes: [
+        {
+          size: [1.2, 0.5]
+          angle: 0.6
+          knockback: 5
+          knockbackScaling: 0
+          damage: 1
+          position: [0.2, 0.25]
+          startTime: 10
+          endTime: 13
+          freezeTime: 8
+        }
+        {
+          size: [1.2, 0.6]
+          angle: 0.8
+          knockback: 5
+          knockbackScaling: 0
+          damage: 2
+          position: [0.5, 0.25]
+          startTime: 13
+          endTime: 16
+          freezeTime: 8
+        }
+        {
+          size: [0.7, 0.7]
+          angle: 1
+          knockback: 3
+          knockbackScaling: 0
+          damage: 3
+          position: [0.4, 0.7]
+          startTime: 16
+          endTime: 19
+          freezeTime: 8
+        }
+        {
+          size: [0.7, 0.5]
+          angle: 1.2
+          knockback: 5
+          knockbackScaling: 15
+          damage: 2
+          position: [0.3, 1.2]
+          startTime: 19
+          endTime: 22
+          freezeTime: 15
+        }
+      ]
+    }
+    {
       name: "neutral"
       animation: "Neutral"
       activeBoxes: [
@@ -137,8 +193,8 @@ module.exports = {
       animation: "Side Tilt"
       activeBoxes: [
         {
-          size: [1.1, 0.6]
-          angle: 1
+          size: [0.9, 0.6]
+          angle: 0.8
           knockback: 4
           knockbackScaling: 10
           damage: 4
@@ -210,7 +266,7 @@ module.exports = {
       animation: "Down Smash"
       activeBoxes: [
         {
-          size: [0.6, 0.9]
+          size: [0.8, 0.9]
           angle: 0.7
           knockback: 2
           knockbackScaling: 22
@@ -221,7 +277,7 @@ module.exports = {
           freezeTime: 13
         }
         {
-          size: [0.6, 0.9]
+          size: [0.8, 0.9]
           angle: Math.PI - 0.7
           knockback: 2
           knockbackScaling: 22
@@ -239,9 +295,9 @@ module.exports = {
       activeBoxes: [
         {
           size: [1.5, 0.4]
-          angle: Math.PI - 0.2
-          knockback: 2
-          knockbackScaling: 4
+          angle: Math.PI - 0.5
+          knockback: 1
+          knockbackScaling: 0
           damage: 1.5
           position: [0, 1.4]
           startTime: 6
@@ -250,9 +306,9 @@ module.exports = {
         }
         {
           size: [1.5, 0.4]
-          angle: 0.2
-          knockback: 2
-          knockbackScaling: 4
+          angle: 0.5
+          knockback: 1
+          knockbackScaling: 0
           damage: 1.5
           position: [0, 1.4]
           startTime: 9
@@ -261,9 +317,9 @@ module.exports = {
         }
         {
           size: [1.5, 0.4]
-          angle: .2
-          knockback: 2
-          knockbackScaling: 4
+          angle: 0.5
+          knockback: 1
+          knockbackScaling: 0
           damage: 1.5
           position: [0, 1.4]
           startTime: 17
@@ -273,7 +329,7 @@ module.exports = {
         {
           size: [1.5, 0.4]
           angle: Math.PI - 0.8
-          knockback: 2.5
+          knockback: 6
           knockbackScaling: 12
           damage: 2
           position: [0, 1.4]
@@ -296,8 +352,8 @@ module.exports = {
           # Used blender's 3D cursor.
           # How convenient!
           position: [0.6, 0.6]
-          startTime: 10
-          endTime: 20
+          startTime: 5
+          endTime: 15
         }
         # Sweet! spot
         {
@@ -307,8 +363,8 @@ module.exports = {
           knockbackScaling: 26
           damage: 2
           position: [0.28, 0.64]
-          startTime: 12
-          endTime: 14
+          startTime: 7
+          endTime: 9
           freezeTime: 15
         }
       ]
@@ -379,7 +435,7 @@ module.exports = {
           knockback: 6
           knockbackScaling: 16
           damage: 7
-          position: [-0.1, 0.25]
+          position: [0.1, 0.25]
           startTime: 8
           endTime: 16
         }

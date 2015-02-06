@@ -17,10 +17,14 @@ Move = module.exports = (@fighter, options)->
       @fighter.mesh,
       animationObject
     )
+    @duration = Math.round(@animation.data.length*60)
   else
     @animation = null
     console.warn("#{@name} does not have an associated animation")
+    @duration = null
 
+  @lastBonePosition = 0
+  @changeInPosition = 0
   # TODO: Eventually try to remove the clone, if possible.
 
   # Automatically transition into another move when completed. If null, the animation loops
@@ -41,10 +45,14 @@ Move = module.exports = (@fighter, options)->
   # The maximum allowed fighter movement during the move
   @movement = Move.NO_MOVEMENT
 
-  @animationDuration = if @animation? then Math.round(@animation.data.length*60) else 20
+  # Whether or not the fighter's movement during the animation will actually move the fighter
+  # E.g. Rolling, dash attacking
+  @allowAnimatedMovement = false
+
   # Number of frames
-  @duration = options.duration or @animationDuration
+  @duration = options.duration or @duration or 20
   @currentTime = 1
+  @active = false
 
   # In order for a hitbox to register, it needs to 1. be a member of activeBoxes and
   # 2. be activated by an event in the eventSequence.
@@ -92,12 +100,24 @@ Move::preUpdateAnimation = ()->
 
 Move::updateAnimation = ()->
   if @animation?
-    # TODO: Factorin animationDuration to prevent false times
+    # Sync those values
     @animation.currentTime = (@currentTime - 1) / 60
     @animation.weight = @weight
+    baseBone = @animation.root.children[0]
+    beforeBonePosition = baseBone.position.z
     @animation.update(0)
+    # This is quite important for animated rolling and dash attacks - moves the fighter based on the movement
+    # of the root bone.
+    if @allowAnimatedMovement
+      if @active
+        changeInPosition = baseBone.position.z - @lastBonePosition
+        @lastBonePosition = baseBone.position.z
+        @fighter.position.x += if @fighter.facingRight then changeInPosition else -changeInPosition
+      # As if the update didn't touch the bone position at all.
+      baseBone.position.z = beforeBonePosition
 
 Move::trigger = ()->
+  @active = true
   @triggerNext = null
   @triggerNextPriority = -Infinity
   if @animation?
@@ -114,6 +134,8 @@ Move::animationReset = ()->
     @animation.reset()
 
 Move::reset = ()->
+  @active = false
+  @lastBonePosition = 0
   @currentTime = 1
   for box in @activeBoxes
     box.alreadyHit = [] # TODO: more efficient?

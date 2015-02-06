@@ -29,6 +29,8 @@ Fighter = module.exports = (fighterData = {}, @options)->
   @groundSpeed = fighterData.groundSpeed
   @groundFriction = fighterData.groundFriction
 
+  @dashSpeed = fighterData.dashSpeed
+
   @diAccel = 0.008
   @diSpeed = 0.05
 
@@ -146,6 +148,8 @@ Fighter = module.exports = (fighterData = {}, @options)->
     new (require("moves/DodgeMove"))(this, Utils.findObjectByName(fighterData.moves, "dodge"))
     new (require("moves/AirDodgeMove"))(this, Utils.findObjectByName(fighterData.moves, "airdodge"))
     new (require("moves/StunMove"))(this, Utils.findObjectByName(fighterData.moves, "stun"))
+    new (require("moves/DashMove"))(this, Utils.findObjectByName(fighterData.moves, "dash"))
+    new (require("moves/DashAttackMove"))(this, Utils.findObjectByName(fighterData.moves, "dashattack"))
   ]
 
   @respawn()
@@ -179,7 +183,8 @@ Fighter::hurt = (hitbox, otherfighter)->
     @damage += damage
 
     # Change facing based on velocity
-    @facingRight = hitbox.matrixWorld.elements[0] < 0
+    if velocityToAdd.x isnt 0
+      @facingRight = velocityToAdd.x < 0
 
     # Gain another jump
     @jumpRemaining = true
@@ -243,8 +248,7 @@ Fighter::resolveStageCollisions = (stage)->
   for ledge in stage.children when ledge instanceof Ledge
     if @ledgeBox.contains(ledge.position)
       ledgeAvailable = true
-      if @canGrabLedge and not (@controller.move & Controller.DOWN)
-        @trigger("ledgegrab", ledge)
+      if @canGrabLedge and @request("ledgegrab", ledge)
         @canGrabLedge = false
       break
   if not ledgeAvailable
@@ -298,6 +302,14 @@ Fighter::trigger = (movename, options)->
   else
     console.warn("Move #{movename} has not been added to the fighter.")
 
+# Requests a move to be triggered if the current move allows
+Fighter::request = (movename, options)->
+  if movename in @move.triggerableMoves
+    @trigger(movename, options)
+    return true
+  else
+    return false
+
 # Triggers moves that the controller would like to
 Fighter::triggerFromController = ()->
   # TODO: Triggerables (is this the right place?)
@@ -305,71 +317,67 @@ Fighter::triggerFromController = ()->
     if @controller.move and not @controller.suspendedMove
       @controller.suspendMove(@controller.move)
 
+  # Dashing
+  if (@controller.move & Controller.DOUBLE_TILT)
+    if (@controller.move & (Controller.LEFT | Controller.RIGHT))
+      if @touchingGround
+        @request("dash")
+      if not @touchingGround
+        # Air turn
+        if @move.movement is Move.FULL_MOVEMENT
+          @facingRight = not (@controller.move & Controller.LEFT)
+
   if (@controller.move & Controller.ATTACK) and (@controller.move & Controller.TILT)
     if (@controller.move & Controller.UP)
-      if "upsmashcharge" in @move.triggerableMoves
-        @trigger("upsmashcharge")
+      @request("upsmashcharge")
     else if (@controller.move & Controller.DOWN)
-      if "downsmashcharge" in @move.triggerableMoves
-        @trigger("downsmashcharge")
+      @request("downsmashcharge")
     else if (@controller.move & (Controller.LEFT | Controller.RIGHT))
       if "sidesmashcharge" in @move.triggerableMoves
-        @facingRight = not (@controller.move & Controller.LEFT)
-        @trigger("sidesmashcharge")
+        if @request("sidesmashcharge")
+          @facingRight = not (@controller.move & Controller.LEFT)
   if (@controller.move & Controller.ATTACK)
+    @request("dashattack")
     if (@controller.move & Controller.UP)
-      if "uptilt" in @move.triggerableMoves
-        @trigger("uptilt")
-      if "upaerial" in @move.triggerableMoves
-        @trigger("upaerial")
+      @request("uptilt")
+      @request("upaerial")
     else if (@controller.move & Controller.DOWN)
-      if "downtilt" in @move.triggerableMoves
-        @trigger("downtilt")
-      if "downaerial" in @move.triggerableMoves
-        @trigger("downaerial")
+      @request("downtilt")
+      @request("downaerial")
     else if (@controller.move & (Controller.RIGHT | Controller.LEFT))
       # Side/tilt
-      if "sidetilt" in @move.triggerableMoves
+      if @request("sidetilt")
         @facingRight = not (@controller.move & Controller.LEFT)
-        @trigger("sidetilt")
       else
         # Forward/back Aerial
         forward = @facingRight and (@controller.move & Controller.RIGHT) or
           not @facingRight and (@controller.move & Controller.LEFT)
         if forward
-          if "forwardaerial" in @move.triggerableMoves
-            @trigger("forwardaerial")
+          @request("forwardaerial")
         else
-          if "backaerial" in @move.triggerableMoves
-            @trigger("backaerial")
+          @request("backaerial")
     else
       # Side
-      if "neutral" in @move.triggerableMoves
-        @trigger("neutral")
-      if "neutralaerial" in @move.triggerableMoves
-        @trigger("neutralaerial")
+      @request("neutral")
+      @request("neutralaerial")
 
   # Shield
   if (@controller.move & Controller.SHIELD)
-    if "airdodge" in @move.triggerableMoves
-      @trigger("airdodge")
-    else if (@controller.move & Controller.TILT) and (@controller.move & (Controller.LEFT | Controller.RIGHT))
-      @facingRight = not (@controller.move & Controller.RIGHT)
-      if "roll" in @move.triggerableMoves
-        @trigger("roll")
-    else if (@controller.move & Controller.TILT) and (@controller.move & (Controller.UP | Controller.DOWN))
-      if "dodge" in @move.triggerableMoves
-        @trigger("dodge")
+    @request("airdodge")
+  if ((@controller.move & Controller.SHIELD) or @move.name is "shield") and (@controller.move & Controller.TILT)
+    if (@controller.move & (Controller.LEFT | Controller.RIGHT))
+      if @request("roll")
+        @facingRight = not (@controller.move & Controller.RIGHT)
+    if (@controller.move & (Controller.UP | Controller.DOWN))
+      @request("dodge")
   else if (@controller.shield isnt 0 and not @controller.suspendedMove)
-      if "shield" in @move.triggerableMoves
-        @trigger("shield")
+    @request("shield")
   # Fall from ledge
   if @move.name is "ledgegrab"
     if (@controller.move & Controller.DOWN) #or (@controller.move & (Controller.LEFT | Controller.RIGHT)) 
-      if "fall" in @move.triggerableMoves
+      if @request("fall")
         @ledge.fighter = null
         @ledge = null
-        @trigger("fall")
 
 
 
@@ -394,30 +402,31 @@ Fighter::updateMesh = ()->
     move.updateAnimation()
   
   if @facingRight
-    @rotation.y = 0
+    @rotation.y = Math.max(@rotation.y - Fighter.ROTATION_SPEED, 0)
   else
-    @rotation.y = Math.PI 
+    @rotation.y = Math.min(@rotation.y + Fighter.ROTATION_SPEED, Math.PI )
 
 Fighter::updatePhysics = ()->
   ## Physics
   # Jump
   # TODO: Hmmm... Is this the right place to trigger jump?
-  if "jump" in @move.triggerableMoves and
-      @jumpRemaining and ((@controller.move & Controller.JUMP) or (@controller.move & Controller.UP) and (@controller.move & Controller.TILT))
-    @trigger("jump")
+  if @jumpRemaining and ((@controller.move & Controller.JUMP) or (@controller.move & Controller.UP) and (@controller.move & Controller.TILT))
+    @request("jump")
 
   sign = Math.sign(@controller.joystick.x)
 
   # Lateral Movement
-  if (@controller.move & (Controller.ANY_DIRECTION)) and (@move.movement is Move.FULL_MOVEMENT or (@move.movement is Move.DI_MOVEMENT and not @touchingGround))
+  if (@controller.move & (Controller.ANY_DIRECTION)) and sign isnt 0 and (@move.movement is Move.FULL_MOVEMENT or (@move.movement is Move.DI_MOVEMENT and not @touchingGround))
       # Even if movement is disabled during a move,
       # still allow DI if in the air.
       maxSpeed = if @move.movement is Move.DI_MOVEMENT then @diSpeed else
         if @touchingGround then @groundSpeed else @airSpeed
       acceleration = if @move.movement is Move.DI_MOVEMENT then @diAccel+@airFriction else
         if @touchingGround then @groundAccel+@groundFriction else @airAccel+@airFriction
-      if "walk" in @move.triggerableMoves
-        @trigger("walk")
+      if @move.name is "dash"
+        maxSpeed = @dashSpeed
+      else
+        @request("walk")
       # Don't allow the velocity to exceed the maximum speed
       @velocity.x += sign *
         Math.max(0,
@@ -464,7 +473,7 @@ Fighter::updateShield = ()->
     @shieldObject.visible = false
 
 Fighter.SHIELD_DRAIN_RATE = 8/60
-Fighter.SHIELD_RECHARGE_RATE = 3/60
+Fighter.SHIELD_RECHARGE_RATE = 2/60
 Fighter.SHIELD_MAX_DAMAGE = 50
 Fighter.SHIELD_DAMAGE_REDUCTION = 0.7
-Fighter.ROLL_VELOCITY = 0.14
+Fighter.ROTATION_SPEED = 0.3
