@@ -1,6 +1,6 @@
-GroundMove = require("moves/GroundMove")
+WalkMove = require("moves/WalkMove")
 DashMove = module.exports = (@fighter, options)->
-  GroundMove.apply(this, arguments)
+  WalkMove.apply(this, arguments)
   @triggerableMoves = [
     "dashattack"
     "jump"
@@ -8,10 +8,8 @@ DashMove = module.exports = (@fighter, options)->
   ]
   return
 
-DashMove:: = Object.create(GroundMove::)
+DashMove:: = Object.create(WalkMove::)
 DashMove::constructor = DashMove
 DashMove::update = (deltaTime)->
   # Do the walk
-  GroundMove::update.apply(this, arguments)
-  if @fighter.controller.joystick.x is 0
-    @request("idle", 50)
+  WalkMove::update.apply(this, arguments)

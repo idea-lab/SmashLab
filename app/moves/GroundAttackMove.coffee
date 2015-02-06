@@ -15,4 +15,3 @@ GroundAttackMove::update = (deltaTime)->
   # I don't think we'll even get here:
   if not @fighter.touchingGround
     @request("fall", 100) # Higher priority fall
-

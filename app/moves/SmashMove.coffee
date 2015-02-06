@@ -8,5 +8,3 @@ SmashMove:: = Object.create(GroundAttackMove::)
 SmashMove::constructor = SmashMove
 SmashMove::update = ()->
   GroundAttackMove::update.apply(this, arguments)
-
-

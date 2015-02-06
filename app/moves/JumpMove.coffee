@@ -19,7 +19,7 @@ JumpMove::trigger = ()->
   @fighter.touchingGround = false
 
 JumpMove::update = ()->
-  if @canShortHop and @currentTime <= 6 and not @fighter.controller.jump
+  if @canShortHop and @currentTime <= 8 and not @fighter.controller.jump
     # Short hop
     @fighter.velocity.y = 4 * @fighter.shortHopHeight / @fighter.airTime
   AerialMove::update.apply(this, arguments)

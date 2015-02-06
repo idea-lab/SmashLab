@@ -9,7 +9,7 @@ module.exports = {
   # Physics properties
   airTime: 60 # in frames
   jumpHeight: 3 # in world units (meters)
-  shortHopHeight: 1.5 # in world units (meters)
+  shortHopHeight: 1.3 # in world units (meters)
   maxFallSpeed: 0.12
 
   airAccel: 0.01
@@ -21,6 +21,7 @@ module.exports = {
   groundFriction: 0.01
 
   dashSpeed: 0.21
+  crawlSpeed: 0.06
 
   # The main hitbox
   box: {
@@ -46,7 +47,7 @@ module.exports = {
       name: "walk"
       animation: "Walk"
     }
-    {
+    {      
       name: "jump"
       animation: "Jump"
     }
@@ -96,8 +97,8 @@ module.exports = {
       activeBoxes: [
         {
           size: [1.2, 0.5]
-          angle: 0.6
-          knockback: 5
+          angle: 0
+          knockback: 8
           knockbackScaling: 0
           damage: 1
           position: [0.2, 0.25]
@@ -106,20 +107,20 @@ module.exports = {
           freezeTime: 8
         }
         {
-          size: [1.2, 0.6]
-          angle: 0.8
-          knockback: 5
+          size: [1.0, 0.6]
+          angle: 0.5
+          knockback: 8
           knockbackScaling: 0
           damage: 2
-          position: [0.5, 0.25]
+          position: [0.4, 0.25]
           startTime: 13
           endTime: 16
           freezeTime: 8
         }
         {
           size: [0.7, 0.7]
-          angle: 1
-          knockback: 3
+          angle: 1.0
+          knockback: 8
           knockbackScaling: 0
           damage: 3
           position: [0.4, 0.7]
@@ -196,7 +197,7 @@ module.exports = {
           size: [0.9, 0.6]
           angle: 0.8
           knockback: 4
-          knockbackScaling: 10
+          knockbackScaling: 7
           damage: 4
           position: [0.6, 1.3]
           startTime: 4
@@ -345,7 +346,7 @@ module.exports = {
       activeBoxes: [
         {
           size: [1.1, 0.85]
-          angle: .8
+          angle: 0.8
           knockback: 2
           knockbackScaling: 13
           damage: 6
@@ -358,7 +359,7 @@ module.exports = {
         # Sweet! spot
         {
           size: [0.2, 0.2]
-          angle: 1
+          angle: 0.7
           knockback: 4
           knockbackScaling: 26
           damage: 2
@@ -377,12 +378,24 @@ module.exports = {
           size: [1.0, 0.7]
           angle: 2.5
           knockback: 5
-          knockbackScaling: 10
+          knockbackScaling: 0
           damage: 6
           # Used blender's 3D cursor.
           # How convenient!
           position: [-0.6, 0.4]
           startTime: 7
+          endTime: 10
+        }
+        {
+          size: [1.0, 0.7]
+          angle: 2.5
+          knockback: 5
+          knockbackScaling: 10
+          damage: 3
+          # Used blender's 3D cursor.
+          # How convenient!
+          position: [-0.6, 0.4]
+          startTime: 10
           endTime: 25
         }
       ]
@@ -440,6 +453,14 @@ module.exports = {
           endTime: 16
         }
       ]
+    }
+    {
+      name: "crouch"
+      animation: "Crouch"
+    }
+    {
+      name: "crawl"
+      animation: "Crawl"
     }
   ]
 }

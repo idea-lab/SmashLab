@@ -30,6 +30,7 @@ Fighter = module.exports = (fighterData = {}, @options)->
   @groundFriction = fighterData.groundFriction
 
   @dashSpeed = fighterData.dashSpeed
+  @crawlSpeed = fighterData.crawlSpeed
 
   @diAccel = 0.008
   @diSpeed = 0.05
@@ -150,6 +151,8 @@ Fighter = module.exports = (fighterData = {}, @options)->
     new (require("moves/StunMove"))(this, Utils.findObjectByName(fighterData.moves, "stun"))
     new (require("moves/DashMove"))(this, Utils.findObjectByName(fighterData.moves, "dash"))
     new (require("moves/DashAttackMove"))(this, Utils.findObjectByName(fighterData.moves, "dashattack"))
+    new (require("moves/CrouchMove"))(this, Utils.findObjectByName(fighterData.moves, "crouch"))
+    new (require("moves/CrawlMove"))(this, Utils.findObjectByName(fighterData.moves, "crawl"))
   ]
 
   @respawn()
@@ -206,10 +209,12 @@ Fighter::hurt = (hitbox, otherfighter)->
     @trigger("hurt", launchSpeed)
   
 # Plenty of these methods are explained in Stage.update()
-Fighter::applyVelocity = ->
+Fighter::applyVelocity = (deltaTime)->
   if @frozen > 0
     return
-  @position.add(@velocity)
+  tempVector.copy(@velocity)
+  tempVector.multiplyScalar(deltaTime)
+  @position.add(tempVector)
   @updateMatrixWorld()
   @box.updateMatrixWorld()
 
@@ -254,14 +259,14 @@ Fighter::resolveStageCollisions = (stage)->
   if not ledgeAvailable
     @canGrabLedge = true
 
-Fighter::update = ->
-  @controller.update()
+Fighter::update = (deltaTime)->
+  @controller.update(deltaTime)
   
   if @frozen > 0
-    @frozen = Math.max(0, @frozen - 1)
+    @frozen = Math.max(0, @frozen - deltaTime)
   else
     # Complete the current move
-    @move.update(1)
+    @move.update(deltaTime)
 
     # Handle automatic endings of moves
     if @move.triggerNext?
@@ -269,10 +274,10 @@ Fighter::update = ->
 
     @triggerFromController()
 
-    @updatePhysics()
+    @updatePhysics(deltaTime)
 
-  @updateShield()
-  @updateMesh()
+  @updateShield(deltaTime)
+  @updateMesh(deltaTime)
 
   #@mesh.sdebug.update()
 
@@ -372,6 +377,14 @@ Fighter::triggerFromController = ()->
       @request("dodge")
   else if (@controller.shield isnt 0 and not @controller.suspendedMove)
     @request("shield")
+
+  # Deferred triggering from Idle
+  if @move.name is "idle" and (@controller.move & Controller.ANY_DIRECTION)
+    if (@controller.move & Controller.DOWN)
+      @request("crouch")
+    else if @controller.joystick.x isnt 0 
+      @request("walk")
+
   # Fall from ledge
   if @move.name is "ledgegrab"
     if (@controller.move & Controller.DOWN) #or (@controller.move & (Controller.LEFT | Controller.RIGHT)) 
@@ -381,9 +394,9 @@ Fighter::triggerFromController = ()->
 
 
 
-Fighter::updateMesh = ()->
+Fighter::updateMesh = (deltaTime)->
   # Handle fading of weights to new move
-  @move.weight = Math.min(1, @move.weight + 1/(@move.blendFrames+1))
+  @move.weight = Math.min(1, @move.weight + 1/(@move.blendFrames / deltaTime + 1))
   # Compute sum of existing weights
   sum = 0
   for move in @moveset when move isnt @move
@@ -401,12 +414,26 @@ Fighter::updateMesh = ()->
   for move in @moveset when move.weight isnt 0
     move.updateAnimation()
   
-  if @facingRight
-    @rotation.y = Math.max(@rotation.y - Fighter.ROTATION_SPEED, 0)
+  # Turn around
+  if @move.blendFrames isnt 0
+    if @facingRight
+      if @rotation.y > Math.PI
+        @rotation.y += deltaTime * Fighter.ROTATION_SPEED
+      else if @rotation.y > 0
+        @rotation.y -= deltaTime * Fighter.ROTATION_SPEED
+      if @rotation.y < 0 or @rotation.y > Math.PI * 2
+        @rotation.y = 0
+    else
+      if @rotation.y is 0
+        @rotation.y = Math.PI * 2
+      if @rotation.y > Math.PI
+        @rotation.y = Math.max(Math.PI, @rotation.y - deltaTime * Fighter.ROTATION_SPEED)
+      else if @rotation.y < Math.PI
+        @rotation.y = Math.min(Math.PI, @rotation.y + deltaTime * Fighter.ROTATION_SPEED)
   else
-    @rotation.y = Math.min(@rotation.y + Fighter.ROTATION_SPEED, Math.PI )
+    @rotation.y = if @facingRight then 0 else Math.PI
 
-Fighter::updatePhysics = ()->
+Fighter::updatePhysics = (deltaTime)->
   ## Physics
   # Jump
   # TODO: Hmmm... Is this the right place to trigger jump?
@@ -419,19 +446,24 @@ Fighter::updatePhysics = ()->
   if (@controller.move & (Controller.ANY_DIRECTION)) and sign isnt 0 and (@move.movement is Move.FULL_MOVEMENT or (@move.movement is Move.DI_MOVEMENT and not @touchingGround))
       # Even if movement is disabled during a move,
       # still allow DI if in the air.
-      maxSpeed = if @move.movement is Move.DI_MOVEMENT then @diSpeed else
-        if @touchingGround then @groundSpeed else @airSpeed
-      acceleration = if @move.movement is Move.DI_MOVEMENT then @diAccel+@airFriction else
-        if @touchingGround then @groundAccel+@groundFriction else @airAccel+@airFriction
       if @move.name is "dash"
         maxSpeed = @dashSpeed
+        acceleration = deltaTime * (@groundAccel + @groundFriction)
+        # Don't allow the velocity to exceed the maximum speed
+        @velocity.x += sign *
+          Math.max(0,
+          Math.min(acceleration,
+          maxSpeed - sign*@velocity.x))
       else
-        @request("walk")
-      # Don't allow the velocity to exceed the maximum speed
-      @velocity.x += sign *
-        Math.max(0,
-        Math.min(Math.abs(@controller.joystick.x*acceleration),
-        maxSpeed - sign*@velocity.x))
+        maxSpeed = if @move.movement is Move.DI_MOVEMENT then @diSpeed else
+          if @touchingGround then (if @move.name is "crawl" then @crawlSpeed else @groundSpeed) else @airSpeed
+        acceleration = deltaTime * (if @move.movement is Move.DI_MOVEMENT then @diAccel + @airFriction else
+          if @touchingGround then @groundAccel + @groundFriction else @airAccel + @airFriction)
+        # Don't allow the velocity to exceed the maximum speed
+        @velocity.x += sign *
+          Math.max(0,
+          Math.min(Math.abs(@controller.joystick.x*acceleration),
+          maxSpeed - sign*@velocity.x))
 
   # Facing
   if @move.movement is Move.FULL_MOVEMENT and @touchingGround
@@ -441,11 +473,11 @@ Fighter::updatePhysics = ()->
       @facingRight = false
 
   # Friction
-  friction = if @touchingGround then @groundFriction else @airFriction
+  friction = deltaTime * (if @touchingGround then @groundFriction else @airFriction)
   @velocity.x = Math.sign(@velocity.x) * Math.max(0, Math.abs(@velocity.x) - friction)
 
   # Gotta get that gravity
-  @velocity.y -= Math.max(0, Math.min(8 * @jumpHeight / @airTime / @airTime, @velocity.y + @maxFallSpeed))
+  @velocity.y -= Math.max(0, Math.min(8 * deltaTime * @jumpHeight / @airTime / @airTime, @velocity.y + @maxFallSpeed))
 
   # Ledge Grab
   if @move.name is "ledgegrab" and @ledge?
@@ -457,9 +489,9 @@ Fighter::updatePhysics = ()->
     factor = 1 / Math.max(1, 10 - @move.currentTime)
     @velocity.normalize().multiplyScalar(length * factor)
 
-Fighter::updateShield = ()->
+Fighter::updateShield = (deltaTime)->
   if @shielding
-    @shieldDamage = Math.max(0, @shieldDamage - Fighter.SHIELD_DRAIN_RATE)
+    @shieldDamage = Math.max(0, @shieldDamage - deltaTime * Fighter.SHIELD_DRAIN_RATE)
     @shieldObject.visible = true
     size = @shieldScale * (0.3 + 0.7 * @shieldDamage / Fighter.SHIELD_MAX_DAMAGE)
     @shieldObject.scale.set(size, size, size)
@@ -469,7 +501,7 @@ Fighter::updateShield = ()->
       @shieldDamage = 0.6 * Fighter.SHIELD_MAX_DAMAGE
       @trigger("stun")
   else
-    @shieldDamage = Math.min(Fighter.SHIELD_MAX_DAMAGE, @shieldDamage + Fighter.SHIELD_RECHARGE_RATE)
+    @shieldDamage = Math.min(Fighter.SHIELD_MAX_DAMAGE, @shieldDamage + deltaTime * Fighter.SHIELD_RECHARGE_RATE)
     @shieldObject.visible = false
 
 Fighter.SHIELD_DRAIN_RATE = 8/60

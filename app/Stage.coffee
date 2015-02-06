@@ -19,7 +19,7 @@ Stage = module.exports = (@game) ->
   @cameraShake = new THREE.Vector3()
 
   # Add hitboxes
-  box=new Box(size: new THREE.Vector3(14, 0.3, 0), position: new THREE.Vector3(0, -0.15, 0))
+  box = new Box(size: new THREE.Vector3(14, 0.3, 0), position: new THREE.Vector3(0, -0.15, 0))
   @add(box)
   @activeBoxes = [box]
 
@@ -45,38 +45,60 @@ Stage = module.exports = (@game) ->
   @loaded = false
   
   @inactiveControllers = [
-    new KeyboardController({
-      upKey: 87
-      downKey: 83
-      leftKey: 65
-      rightKey: 68
-      attackKey: 74 #,
-      shieldKey: 75 #.
-    })
-    new KeyboardController({
-      upKey: 84
-      downKey: 71
-      leftKey: 70
-      rightKey: 72
-      attackKey: 76
-      shieldKey: 186
-      })
+    # Arrow Keys ZX
     new KeyboardController({
       upKey: 38
       downKey: 40
       leftKey: 37
       rightKey: 39
-      attackKey: 188
-      shieldKey: 190
-      })
+      attackKey: 90
+      shieldKey: 88
+    })
+    # WASDY7
+    new KeyboardController({
+      upKey: 87
+      downKey: 83
+      leftKey: 65
+      rightKey: 68
+      attackKey: 89
+      shieldKey: 55
+    })
+    # TFGHO0
+    new KeyboardController({
+      upKey: 84
+      downKey: 71
+      leftKey: 70
+      rightKey: 72
+      attackKey: 79
+      shieldKey: 48
+    })
+    # IJKL']
+    new KeyboardController({
+      upKey: 73
+      downKey: 75
+      leftKey: 74
+      rightKey: 76
+      attackKey: 222
+      shieldKey: 221
+    })
+    # HomeEndDeletePageDownNumpad7Slash
     new KeyboardController({
       upKey: 36
       downKey: 35
       leftKey: 46
       rightKey: 34
-      attackKey: 111
-      shieldKey: 106
+      attackKey: 103
+      shieldKey: 111
     })
+    # Numpad8456
+  #   new KeyboardController({
+  #     upKey: 
+  #     downKey: 
+  #     leftKey: 
+  #     rightKey: 
+  #     attackKey: 
+  #     shieldKey: 
+  #   })
   ]
 
   @players = []
@@ -101,6 +123,11 @@ Stage = module.exports = (@game) ->
     hemisphereLight.position.set(0, -1, -0.5)
     @add(hemisphereLight)
   )
+  @deltaTime = 1
+  $(window).on "keydown", (event)=>
+    switch event.keyCode
+      when 189 then @deltaTime *= 0.9
+      when 187 then @deltaTime /= 0.9
   #@orbitcontrols = new THREE.OrbitControls(@camera)
   return
 
@@ -117,18 +144,18 @@ Stage::update = ->
   # Update cycle has these events in order:
   # - Apply velocities
   for fighter in @children when fighter instanceof Fighter
-    fighter.applyVelocity()
+    fighter.applyVelocity(@deltaTime)
 
   # Soft player-player collision
   for fighter in @children when fighter instanceof Fighter
     for otherFighter in @children when otherFighter isnt fighter and otherFighter instanceof Fighter
       if fighter.box.intersects(otherFighter.box)
         if fighter.position.x > otherFighter.position.x
-          fighter.position.x += Stage.FIGHTER_SOFT_COLLISION_VELOCITY
-          otherFighter.position.x -= Stage.FIGHTER_SOFT_COLLISION_VELOCITY
+          fighter.position.x += Stage.FIGHTER_SOFT_COLLISION_VELOCITY * @deltaTime
+          otherFighter.position.x -= Stage.FIGHTER_SOFT_COLLISION_VELOCITY * @deltaTime
         else
-          fighter.position.x -= Stage.FIGHTER_SOFT_COLLISION_VELOCITY
-          otherFighter.position.x += Stage.FIGHTER_SOFT_COLLISION_VELOCITY
+          fighter.position.x -= Stage.FIGHTER_SOFT_COLLISION_VELOCITY * @deltaTime
+          otherFighter.position.x += Stage.FIGHTER_SOFT_COLLISION_VELOCITY * @deltaTime
 
   # - Resolve player-stage collisions and players out of bounds, as well as ledge grab
   for fighter in @children when fighter instanceof Fighter
@@ -137,7 +164,7 @@ Stage::update = ->
   # - Update hitboxes and moves, player input, set movement velocity,
   #   controllers, gravity, and the rest of the good stuff
   for fighter in @children when fighter instanceof Fighter
-    fighter.update()
+    fighter.update(@deltaTime)
   
   # - Detect hitbox-player collision, set velocities for colliding hitboxes
   #   (velocities will be applied next render)
@@ -214,10 +241,10 @@ Stage::updateCamera = ->
   # Lerp the camera to the averagePosition
   @camera.position.lerp(averagePosition, 0.1)
   shake = tempVector.copy(@cameraShake)
-  @cameraShakeTime++
+  @cameraShakeTime+= @deltaTime
   shake.multiplyScalar(0.7 * Math.sin(@cameraShakeTime * 0.5))
   @camera.position.add(shake)
-  @cameraShake.multiplyScalar(.8)
+  @cameraShake.multiplyScalar(0.8)
 
 Stage::resize = ->
   @camera.aspect = @game.width/@game.height

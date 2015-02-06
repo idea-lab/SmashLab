@@ -14,4 +14,3 @@ AerialAttackMove::update = (deltaTime)->
   Move::update.apply(this, arguments)
   if @fighter.touchingGround
     @request("land", 100) # Higher priority land
-
