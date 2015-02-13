@@ -13,6 +13,7 @@ RollMove = module.exports = (@fighter, options)->
     })
   ]
   @nextMove = "idle"
+  @preventFall = true
   return
 
 RollMove:: = Object.create(Move::)

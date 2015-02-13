@@ -181,6 +181,8 @@ Fighter::hurt = (hitbox, otherfighter)->
 
   damage = hitbox.damage * smashChargeFactor
   if @shielding
+    # Nullify upwards knockback
+    velocityToAdd.y = -0.01
     @shieldDamage = Math.max(0, @shieldDamage - damage * Fighter.SHIELD_DAMAGE_REDUCTION)
   else
     @damage += damage
@@ -248,6 +250,14 @@ Fighter::resolveStageCollisions = (stage)->
           if @velocity.y < 0
             @velocity.y = 0
   
+  #Don't fall off the stage
+  if @move.preventFall
+    for ledgeBox in stage.ledgeBoxes when ledgeBox instanceof Box
+      if @box.intersects(ledgeBox)
+        #Touching the stage
+        resolutionVector = @box.resolveCollision(ledgeBox)
+        @position.add(resolutionVector)
+
   #Ledge grab
   ledgeAvailable = false
   for ledge in stage.children when ledge instanceof Ledge
@@ -266,7 +276,10 @@ Fighter::update = (deltaTime)->
     @frozen = Math.max(0, @frozen - deltaTime)
   else
     # Complete the current move
-    @move.update(deltaTime)
+    if @move.name is "walk"
+      @move.update(Math.abs(@controller.joystick.x)*deltaTime)
+    else
+      @move.update(deltaTime)
 
     # Handle automatic endings of moves
     if @move.triggerNext?
@@ -322,15 +335,6 @@ Fighter::triggerFromController = ()->
     if @controller.move and not @controller.suspendedMove
       @controller.suspendMove(@controller.move)
 
-  # Dashing
-  if (@controller.move & Controller.DOUBLE_TILT)
-    if (@controller.move & (Controller.LEFT | Controller.RIGHT))
-      if @touchingGround
-        @request("dash")
-      if not @touchingGround
-        # Air turn
-        if @move.movement is Move.FULL_MOVEMENT
-          @facingRight = not (@controller.move & Controller.LEFT)
 
   if (@controller.move & Controller.ATTACK) and (@controller.move & Controller.TILT)
     if (@controller.move & Controller.UP)
@@ -378,6 +382,16 @@ Fighter::triggerFromController = ()->
   else if (@controller.shield isnt 0 and not @controller.suspendedMove)
     @request("shield")
 
+  # Dashing
+  if (@controller.move & Controller.DOUBLE_TILT)
+    if (@controller.move & (Controller.LEFT | Controller.RIGHT))
+      if @touchingGround
+        @request("dash")
+      if not @touchingGround
+        # Air turn
+        if @move.movement is Move.FULL_MOVEMENT
+          @facingRight = not (@controller.move & Controller.LEFT)
+  
   # Deferred triggering from Idle
   if @move.name is "idle" and (@controller.move & Controller.ANY_DIRECTION)
     if (@controller.move & Controller.DOWN)
@@ -442,6 +456,8 @@ Fighter::updatePhysics = (deltaTime)->
 
   sign = Math.sign(@controller.joystick.x)
 
+  # Friction
+  friction = deltaTime * (if @touchingGround then @groundFriction else @airFriction)
   # Lateral Movement
   if (@controller.move & (Controller.ANY_DIRECTION)) and sign isnt 0 and (@move.movement is Move.FULL_MOVEMENT or (@move.movement is Move.DI_MOVEMENT and not @touchingGround))
       # Even if movement is disabled during a move,
@@ -457,12 +473,14 @@ Fighter::updatePhysics = (deltaTime)->
       else
         maxSpeed = if @move.movement is Move.DI_MOVEMENT then @diSpeed else
           if @touchingGround then (if @move.name is "crawl" then @crawlSpeed else @groundSpeed) else @airSpeed
+        maxSpeed *= Math.abs(@controller.joystick.x)
         acceleration = deltaTime * (if @move.movement is Move.DI_MOVEMENT then @diAccel + @airFriction else
-          if @touchingGround then @groundAccel + @groundFriction else @airAccel + @airFriction)
+          if @touchingGround then @groundAccel else @airAccel + @airFriction)
+        acceleration *= Math.abs(@controller.joystick.x)
         # Don't allow the velocity to exceed the maximum speed
         @velocity.x += sign *
           Math.max(0,
-          Math.min(Math.abs(@controller.joystick.x*acceleration),
+          Math.min(Math.abs(acceleration) + friction,
           maxSpeed - sign*@velocity.x))
 
   # Facing
@@ -472,8 +490,6 @@ Fighter::updatePhysics = (deltaTime)->
     else if sign < 0
       @facingRight = false
 
-  # Friction
-  friction = deltaTime * (if @touchingGround then @groundFriction else @airFriction)
   @velocity.x = Math.sign(@velocity.x) * Math.max(0, Math.abs(@velocity.x) - friction)
 
   # Gotta get that gravity

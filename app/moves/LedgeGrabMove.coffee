@@ -25,7 +25,8 @@ LedgeGrabMove = module.exports = (@fighter, options)->
       , endTime: 20
     })
   ]
-  @nextMove = null
+  @duration = 300
+  @nextMove = "fall"
   return
 
 LedgeGrabMove:: = Object.create(Move::)

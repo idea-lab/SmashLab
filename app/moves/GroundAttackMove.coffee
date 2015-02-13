@@ -3,7 +3,9 @@ Move = require("moves/Move")
 GroundAttackMove = module.exports = (@fighter, options)->
   Move.apply(this, arguments)
   @blendFrames = 0
-  @triggerableMoves = []
+  @triggerableMoves = [
+    "fall"
+  ]
   @movement = Move.NO_MOVEMENT
   @nextMove = "idle"
   return

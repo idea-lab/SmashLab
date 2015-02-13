@@ -72,6 +72,9 @@ Move = module.exports = (@fighter, options)->
         endTime: boxOptions.endTime
       }))
 
+  # Stop the character from falling off the stage
+  @preventFall = false
+
   @reset()
   return
 

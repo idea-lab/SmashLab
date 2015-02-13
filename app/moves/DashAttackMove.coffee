@@ -3,6 +3,7 @@ DashAttackMove = module.exports = (@fighter, options)->
   GroundAttackMove.apply(this, arguments)
   @blendFrames = 10
   @allowAnimatedMovement = true
+  @preventFall = true
   return
 
 DashAttackMove:: = Object.create(GroundAttackMove::)

@@ -18,7 +18,6 @@ KeyboardController = module.exports = (options = {})->
     # Add if it's not in the array already
     # console.log(event.keyCode)
     if event.keyCode in @handleKeys
-      @active = true
       if not (event.keyCode in @keysDown)
         @keysDown.push(event.keyCode)
   
@@ -41,9 +40,9 @@ KeyboardController::update = ()->
   @joystick.set(0, 0)
   if @upKey in @keysDown
     @joystick.y++
-    @jump = true
+    @jump = 1
   else
-    @jump = false
+    @jump = 0
   if @downKey in @keysDown
     @joystick.y--
   if @leftKey in @keysDown
@@ -54,4 +53,4 @@ KeyboardController::update = ()->
   
   @attack = if @attackKey in @keysDown then 1 else 0
   @shield = if @shieldKey in @keysDown then 1 else 0
-  Controller::update.call(this)
+  Controller::update.apply(this, arguments)

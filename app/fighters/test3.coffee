@@ -238,22 +238,22 @@ module.exports = {
           size: [1.3, 0.8]
           angle: 0.8
           knockback: 4
-          knockbackScaling: 23
+          knockbackScaling: 20
           damage: 18
           position: [0.7, 1.2]
-          startTime: 2
-          endTime: 10
+          startTime: 9
+          endTime: 17
           freezeTime: 14
         }
         {
           size: [0.2, 0.2]
           angle: 0.8
           knockback: 6
-          knockbackScaling: 25
+          knockbackScaling: 23
           damage: 2
           position: [0.4, 1.2]
-          startTime: 3
-          endTime: 6
+          startTime: 11
+          endTime: 13
           freezeTime: 4
         }
       ]

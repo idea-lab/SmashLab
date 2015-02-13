@@ -23,12 +23,28 @@ Stage = module.exports = (@game) ->
   @add(box)
   @activeBoxes = [box]
 
+  #Boxes to collide with to avoid falling off the edge
+  @ledgeBoxes = []
+  ledgeBox = new Box(size: new THREE.Vector3(1, 1 ,0), position: (new THREE.Vector3()).copy(box.getVertex(true)))
+  ledgeBox.position.x += 0.5
+  ledgeBox.position.y += 0.5
+  @ledgeBoxes.push(ledgeBox)
+  @add(ledgeBox)
+
+  ledgeBox = new Box(size: new THREE.Vector3(1, 1 ,0), position: (new THREE.Vector3()).copy(box.getVertex(false)))
+  ledgeBox.position.x -= 0.5
+  ledgeBox.position.y += 0.5
+  @ledgeBoxes.push(ledgeBox)
+  @add(ledgeBox)
+
   # Makes it so the ledges work
   box.updateMatrixWorld()
   ledge1 = new Ledge(position: (new THREE.Vector3()).copy(box.getVertex(true)), facingRight: false)
   @add(ledge1)
   ledge2 = new Ledge(position: (new THREE.Vector3()).copy(box.getVertex(false)), facingRight: true)
   @add(ledge2)
+
+
 
   # Safe box - the box in which you aren't immediately KO'ed
   @safebox = new Box(size: new THREE.Vector3(34,20))
@@ -108,7 +124,7 @@ Stage = module.exports = (@game) ->
     testFighterData.modelJSON = data
     @loaded = true
 
-  window.addEventListener "gamepadconnected", (event)->
+  window.addEventListener "gamepadconnected", (event)=>
     @inactiveControllers.push(new GamepadController(gamepad: event.gamepad))
 
   # TODO: Clean it up!
@@ -126,8 +142,8 @@ Stage = module.exports = (@game) ->
   @deltaTime = 1
   $(window).on "keydown", (event)=>
     switch event.keyCode
-      when 189 then @deltaTime *= 0.9
-      when 187 then @deltaTime /= 0.9
+      when 189, 173 then @deltaTime = Math.max(0.1, @deltaTime * 0.9)
+      when 187, 61 then @deltaTime = Math.min(2, @deltaTime / 0.9)
   #@orbitcontrols = new THREE.OrbitControls(@camera)
   return
 
@@ -257,7 +273,7 @@ Stage::updateInactiveControllers = ()->
     if i >= @inactiveControllers.length
       break
     controller = @inactiveControllers[i]
-    controller.update()
+    controller.update(0)
     if controller.active
       fighter = new Fighter(testFighterData, {
         stage: this,
@@ -284,11 +300,11 @@ Stage::getPlayerColor = (index)->
     when 0 then new THREE.Color(0xff0000)
     when 1 then new THREE.Color(0x0000ff)
     when 2 then new THREE.Color(0xffff00)
-    when 3 then new THREE.Color(0x00ee00)
-    when 4 then new THREE.Color(0xffaa00)
+    when 3 then new THREE.Color(0x00bb00)
+    when 4 then new THREE.Color(0xff8800)
     when 5 then new THREE.Color(0x00ffff)
     when 6 then new THREE.Color(0xff00ff)
-    when 7 then new THREE.Color(0xaa00ff)
+    when 7 then new THREE.Color(0x8800ff)
     else new THREE.Color(Math.round(Math.random() * 0xffffff))
 
 Stage.FIGHTER_SOFT_COLLISION_VELOCITY = 0.001

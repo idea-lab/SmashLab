@@ -8,6 +8,7 @@ ShieldMove = module.exports = (@fighter, options)->
     "idle"
     "dodge"
     "roll"
+    "fall"
   ]
   @eventSequence = [
     new Event({
@@ -27,3 +28,5 @@ ShieldMove::update = ()->
   Move::update.apply(this, arguments)
   if @fighter.controller.shield is 0
     @request("idle", 50)
+  if not @fighter.touchingGround
+    @request("fall", 100) # Higher priority fall
