@@ -20,7 +20,7 @@ module.exports = {
   groundSpeed: 0.12
   groundFriction: 0.01
 
-  dashSpeed: 0.21
+  dashSpeed: 0.17
   crawlSpeed: 0.06
 
   # The main hitbox
@@ -178,11 +178,11 @@ module.exports = {
       animation: "Down Tilt"
       activeBoxes: [
         {
-          size: [0.9, 0.7]
+          size: [0.8, 0.5]
           angle: 1.2
           knockback: 2
           knockbackScaling: 15
-          damage: 5
+          damage: 4
           position: [0.8, 0.3]
           startTime: 3
           endTime: 7

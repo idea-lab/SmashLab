@@ -17,7 +17,8 @@ Move = module.exports = (@fighter, options)->
       @fighter.mesh,
       animationObject
     )
-    @duration = Math.round(@animation.data.length*60)
+    @duration = Math.round(@animation.data.length * 60) + 1
+
   else
     @animation = null
     console.warn("#{@name} does not have an associated animation")
@@ -123,6 +124,8 @@ Move::trigger = ()->
   @active = true
   @triggerNext = null
   @triggerNextPriority = -Infinity
+  @currentTime = 1
+  @lastBonePosition = 0
   if @animation?
     @animation.play(0, 0)
 
@@ -138,8 +141,6 @@ Move::animationReset = ()->
 
 Move::reset = ()->
   @active = false
-  @lastBonePosition = 0
-  @currentTime = 1
   for box in @activeBoxes
     box.alreadyHit = [] # TODO: more efficient?
   for event in @eventSequence

@@ -117,15 +117,18 @@ Stage = module.exports = (@game) ->
   #   })
   ]
 
+  @inactiveControllers.push(new GamepadController(gamepadIndex: 0))
+  @inactiveControllers.push(new GamepadController(gamepadIndex: 1))
+  @inactiveControllers.push(new GamepadController(gamepadIndex: 2))
+  @inactiveControllers.push(new GamepadController(gamepadIndex: 3))
+
+
   @players = []
   @playerHudElements = [] # TODO: Remove!
   
   $.ajax(testFighterData.modelSrc).done (data)=>
     testFighterData.modelJSON = data
     @loaded = true
-
-  window.addEventListener "gamepadconnected", (event)=>
-    @inactiveControllers.push(new GamepadController(gamepad: event.gamepad))
 
   # TODO: Clean it up!
   loader = new THREE.JSONLoader()
@@ -142,9 +145,9 @@ Stage = module.exports = (@game) ->
   @deltaTime = 1
   $(window).on "keydown", (event)=>
     switch event.keyCode
-      when 189, 173 then @deltaTime = Math.max(0.1, @deltaTime * 0.9)
-      when 187, 61 then @deltaTime = Math.min(2, @deltaTime / 0.9)
-  #@orbitcontrols = new THREE.OrbitControls(@camera)
+      when 189 then @deltaTime = Math.max(0.1, @deltaTime * 0.9)
+      when 187 then @deltaTime = Math.min(2, @deltaTime / 0.9)
+  @orbitcontrols = new THREE.OrbitControls(@camera)
   return
 
 Stage:: = Object.create(THREE.Scene::)
@@ -284,7 +287,7 @@ Stage::updateInactiveControllers = ()->
       @players.push(fighter)
       hudElement = $("<div class=\"damagepercent\"></div>")
       $(".bottombar").append(hudElement)
-      hudElement.css("border-bottom-color", "rgba("+Utils.colorToCSS(fighter.color)[4..-2]+", 0.5)")
+      hudElement.css("border-bottom-color", "rgba("+Utils.colorToCSS(fighter.color)[4..-2]+", 0.8)")
       @playerHudElements.push(
         hudElement
       )

@@ -3,7 +3,7 @@ Controller = require("controller/Controller")
 GamepadController = module.exports = (options = {})->
   Controller.call(this, options)
   @doubleTiltAnalog = options.doubleTiltAnalog or true
-  @gamepad = options.gamepad
+  @gamepadIndex = options.gamepadIndex
 
   @horizontalAxis = options.horizontalAxis or 0
   @verticalAxis = options.verticalAxis or 1
@@ -17,12 +17,15 @@ GamepadController:: = Object.create(Controller::)
 GamepadController::constructor = GamepadController
 
 GamepadController::update = ()->
-  # TODO: This is empty!
-  @attack = @gamepad.buttons[@attackButton]?.value or 0
-  @shield = @gamepad.buttons[@shieldButton]?.value or 0
-  @jump = @gamepad.buttons[@jumpButton]?.value or 0
-  @joystick.x = deadZone(@gamepad.axes[@horizontalAxis] or 0)
-  @joystick.y = deadZone(-@gamepad.axes[@verticalAxis] or 0)
+  if @gamepadIndex?
+    gamepad = navigator.getGamepads()[@gamepadIndex]
+    if gamepad?
+      # TODO: This is empty!
+      @attack = gamepad.buttons[@attackButton]?.value or 0
+      @shield = gamepad.buttons[@shieldButton]?.value or 0
+      @jump = gamepad.buttons[@jumpButton]?.value or 0
+      @joystick.x = deadZone(gamepad.axes[@horizontalAxis] or 0)
+      @joystick.y = deadZone(-gamepad.axes[@verticalAxis] or 0)
 
   # console.log ("#{i}:#{button.value}" for button,i in @gamepad.buttons).join(", ")
 

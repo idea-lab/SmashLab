@@ -1,7 +1,7 @@
 GroundMove = require("moves/GroundMove")
 LandMove = module.exports = (@fighter, options)->
   GroundMove.apply(this, arguments)
-  #@triggerableMoves = []
+  @triggerableMoves = []
   @duration = 8
   @blendFrames = 3
   @nextMove = "idle"
