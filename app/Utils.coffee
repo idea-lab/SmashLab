@@ -1,7 +1,7 @@
-Utils = module.exports =
+module.exports = class Utils
   # Sets the THREE.Vector3 by a two or three element [x, y, z] array.
   # Also works if array happens to be a THREE.Vector3 as well.
-  setVectorByArray: (vector, array)->
+  @setVectorByArray: (vector, array)->
     if array instanceof THREE.Vector3
       vector.copy(array)
     else if array instanceof Array
@@ -9,19 +9,19 @@ Utils = module.exports =
     return vector
 
   # Finds the object in the given array by matching the name property
-  findObjectByName: (array, name)->
+  @findObjectByName: (array, name)->
     for item in array when item.name is name
       return item
     return null
-  clone: (object)->
+  @clone: (object)->
     JSON.parse(JSON.stringify(object))
 
   # Converts a THREE.js color to a CSS color
-  colorToCSS: (color)->
+  @colorToCSS: (color)->
     return "rgb(#{Math.floor(color.r*256)}, #{Math.floor(color.g*256)}, #{Math.floor(color.b*256)})"
 
   # Converts a damage to a CSS color
-  damageToCSS: (damage)->
+  @damageToCSS: (damage)->
     index = damageStops.length - 1
     # No negative damages, please
     for stop, i in damageStops
@@ -34,7 +34,7 @@ Utils = module.exports =
       Utils.lerpColorRGB(tempColor, colorStops[index + 1], progression)
     return Utils.colorToCSS(tempColor)
 
-  lerpColorRGB: (colorA, colorB, amount)->
+  @lerpColorRGB: (colorA, colorB, amount)->
     colorA.r = colorA.r * (1 - amount) + colorB.r * amount
     colorA.g = colorA.g * (1 - amount) + colorB.g * amount
     colorA.b = colorA.b * (1 - amount) + colorB.b * amount

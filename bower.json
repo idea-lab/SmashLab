@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "main": "public/app.js",
   "dependencies": {
-    "three": "https://raw.githubusercontent.com/mrdoob/three.js/master/build/three.js",
+    "three": "https://raw.githubusercontent.com/mrdoob/three.js/dev/build/three.js",
     "jquery": "~2.1.3"
   },
   "overrides": {}

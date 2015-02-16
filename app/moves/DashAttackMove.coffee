@@ -1,10 +1,7 @@
 GroundAttackMove = require("moves/GroundAttackMove")
-DashAttackMove = module.exports = (@fighter, options)->
-  GroundAttackMove.apply(this, arguments)
-  @blendFrames = 10
-  @allowAnimatedMovement = true
-  @preventFall = true
-  return
-
-DashAttackMove:: = Object.create(GroundAttackMove::)
-DashAttackMove::constructor = DashAttackMove
+module.exports = class DashAttackMove extends GroundAttackMove
+  constructor: (@fighter, options)->
+    super
+    @blendFrames = 10
+    @allowAnimatedMovement = true
+    @preventFall = true

@@ -1,23 +1,17 @@
 # Rolling!
-Move = require("moves/Move")
-Fighter = require("Fighter")
 Event = require("Event")
-RollMove = module.exports = (@fighter, options)->
-  Move.apply(this, arguments)
-  @movement = Move.NO_MOVEMENT
-  @allowAnimatedMovement = true
-  @eventSequence = [
-    new Event({
-      start: @fighter.makeInvulnerable, startTime: 2,
-      end: @fighter.makeVulnerable, endTime: 18
-    })
-  ]
-  @nextMove = "idle"
-  @preventFall = true
-  return
-
-RollMove:: = Object.create(Move::)
-RollMove::constructor = RollMove
-RollMove::update = ()->
-  Move::update.apply(this, arguments)
-
+Fighter = require("Fighter")
+Move = require("moves/Move")
+module.exports = class RollMove extends Move
+  constructor: (@fighter, options)->
+    super
+    @movement = Move.NO_MOVEMENT
+    @allowAnimatedMovement = true
+    @eventSequence = [
+      new Event({
+        start: @fighter.makeInvulnerable, startTime: 2,
+        end: @fighter.makeVulnerable, endTime: 18
+      })
+    ]
+    @nextMove = "idle"
+    @preventFall = true
