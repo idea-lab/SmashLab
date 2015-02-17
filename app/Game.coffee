@@ -1,8 +1,10 @@
 # Manages and renders the entire game, menus, and stages.
 Stage = require("Stage")
-stageData = require("stages/GridWalk")
+finalTestData = require("stages/FinalTest")
+gridWalkData = require("stages/GridWalk")
 module.exports = class Game
   constructor: (@element) ->
+    stageData = if confirm("Choose your stage") then finalTestData else gridWalkData
     @renderer= new THREE.WebGLRenderer({preserveDrawingBuffer: true})
     # @cyclicalbuffer = window.buffer = []
     # @record = true
