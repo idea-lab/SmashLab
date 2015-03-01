@@ -7,7 +7,6 @@ KeyboardController = require("controller/KeyboardController")
 GamepadController = require("controller/GamepadController")
 tempVector = new THREE.Vector3()
 test3Data = require("fighters/test3")
-personThingData = require("fighters/PersonThing")
 
 module.exports = class Stage extends THREE.Scene
   constructor: (@stageData, @game) ->
@@ -128,11 +127,9 @@ module.exports = class Stage extends THREE.Scene
     @players = []
     @playerHudElements = [] # TODO: Remove!
     
-    $.ajax(personThingData.modelSrc).done (data)=>
-      personThingData.modelJSON = data
-      $.ajax(test3Data.modelSrc).done (data)=>
-        test3Data.modelJSON = data
-        @loaded = true
+    $.ajax(test3Data.modelSrc).done (data)=>
+      test3Data.modelJSON = data
+      @loaded = true
 
     # TODO: Clean it up!
     directionalLight = new THREE.DirectionalLight(0xffffff, 2)
@@ -274,7 +271,7 @@ module.exports = class Stage extends THREE.Scene
       controller = @inactiveControllers[i]
       controller.update(0)
       if controller.active
-        fighter = new Fighter((if @players.length%2 is 1 then personThingData else test3Data), {
+        fighter = new Fighter(test3Data, {
           stage: this,
           color: @getPlayerColor(@players.length),
           controller: controller
