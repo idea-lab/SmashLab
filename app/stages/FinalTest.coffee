@@ -8,13 +8,13 @@ module.exports = class StageData
 
   # The camera boundaries
   @cameraBox: {
-    size: [24, 18]
+    size: [26, 20]
     position: [0, 2]
   }
 
   # The KO Boundaries
   @safeBox: {
-    size: [34, 20]
+    size: [36, 22]
     position: [0, 4]
   }
 

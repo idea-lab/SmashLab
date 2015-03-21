@@ -1,5 +1,6 @@
 module.exports = {
   name: "Test player"
+  id: "test3"
 
   # The exported model's source code URI
   modelSrc: "models/Test 3.json"
@@ -98,7 +99,7 @@ module.exports = {
         {
           size: [1.2, 0.5]
           angle: 0
-          knockback: 8
+          knockback: 1
           knockbackScaling: 0
           damage: 1
           position: [0.2, 0.25]
@@ -109,7 +110,7 @@ module.exports = {
         {
           size: [1.0, 0.6]
           angle: 0.5
-          knockback: 8
+          knockback: 1
           knockbackScaling: 0
           damage: 2
           position: [0.4, 0.25]
@@ -120,7 +121,7 @@ module.exports = {
         {
           size: [0.7, 0.7]
           angle: 1.0
-          knockback: 8
+          knockback: 1
           knockbackScaling: 0
           damage: 3
           position: [0.4, 0.7]
@@ -461,6 +462,39 @@ module.exports = {
     {
       name: "crawl"
       animation: "Crawl"
+    }
+    {
+      name: "upspecial"
+      animation: "Up Special"
+      custom: "TestRecoveryMove"
+      activeBoxes: [
+        {
+          size: [0.8, 1.8]
+          position: [0, 0.9]
+          angle: Math.PI/2
+          knockback: 5
+          knockbackScaling: 3
+          damage: 8
+          startTime: 40
+          endTime: 60
+          freezeTime: 6
+        }
+        {
+          size: [0.5, 1.5]
+          position: [0, 0.9]
+          angle: Math.PI/2
+          knockback: 6
+          knockbackScaling: 7
+          damage: 3
+          startTime: 55
+          endTime: 60
+          freezeTime: 10
+        }
+      ]
+    }
+    {
+      name: "disabledfall"
+      animation: "Disabled Fall"
     }
   ]
 }

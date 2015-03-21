@@ -12,6 +12,10 @@ module.exports = class AerialMove extends Move
       "backaerial"
       "airdodge"
       "jump"
+      "upspecial"
+      "downspecial"
+      "sidespecial"
+      "neutralspecial"
     ]
     @movement = Move.FULL_MOVEMENT
     @nextMove = null

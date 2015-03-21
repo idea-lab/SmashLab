@@ -14,6 +14,10 @@ module.exports = class GroundMove extends Move
       "dodge"
       "jump"
       "dash"
+      "upspecial"
+      "downspecial"
+      "sidespecial"
+      "neutralspecial"
     ]
     @movement = Move.FULL_MOVEMENT
     @nextMove = null

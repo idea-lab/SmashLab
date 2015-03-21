@@ -38,6 +38,7 @@ module.exports = class Fighter extends THREE.Object3D
     @controller = options.controller
     @stage = options.stage
     @color = options.color or new THREE.Color(Math.floor(Math.random()*0xffffff))
+
     # Hitbox
     @box = new Box(fighterData.box)
     # @box.debugBox.visible = true
@@ -88,7 +89,7 @@ module.exports = class Fighter extends THREE.Object3D
     @facingRight = true
 
     # TODO: This is spaghetti code. Please clean this up.
-    @shieldDamage = @SHIELD_MAX_DAMAGE
+    @shieldDamage = Fighter.SHIELD_MAX_DAMAGE
     @shielding = false
     @shieldScale = 1.5
     @shieldBox = new Box(position: @box.position)
@@ -118,42 +119,46 @@ module.exports = class Fighter extends THREE.Object3D
 
     @deactivateShield = ()=>
       @shielding = false
-  
 
-    # Set up moves
-    @moveset = [
-      new (require("moves/IdleMove"))(this, Utils.findObjectByName(fighterData.moves, "idle"))
-      new (require("moves/WalkMove"))(this, Utils.findObjectByName(fighterData.moves, "walk"))
-      new (require("moves/JumpMove"))(this, Utils.findObjectByName(fighterData.moves, "jump"))
-      new (require("moves/FallMove"))(this, Utils.findObjectByName(fighterData.moves, "fall"))
-      new (require("moves/LandMove"))(this, Utils.findObjectByName(fighterData.moves, "land"))
-      new (require("moves/HurtMove"))(this, Utils.findObjectByName(fighterData.moves, "hurt"))
-      new (require("moves/LedgeGrabMove"))(this, Utils.findObjectByName(fighterData.moves, "ledgegrab"))
-      new (require("moves/NeutralMove"))(this, Utils.findObjectByName(fighterData.moves, "neutral"))
-      new (require("moves/GroundAttackMove"))(this, Utils.findObjectByName(fighterData.moves, "uptilt"))
-      new (require("moves/GroundAttackMove"))(this, Utils.findObjectByName(fighterData.moves, "downtilt"))
-      new (require("moves/GroundAttackMove"))(this, Utils.findObjectByName(fighterData.moves, "sidetilt"))
-      new (require("moves/SmashChargeMove"))(this, Utils.findObjectByName(fighterData.moves, "sidesmashcharge"))
-      new (require("moves/SmashMove"))(this, Utils.findObjectByName(fighterData.moves, "sidesmash"))
-      new (require("moves/SmashChargeMove"))(this, Utils.findObjectByName(fighterData.moves, "upsmashcharge"))
-      new (require("moves/SmashMove"))(this, Utils.findObjectByName(fighterData.moves, "upsmash"))
-      new (require("moves/SmashChargeMove"))(this, Utils.findObjectByName(fighterData.moves, "downsmashcharge"))
-      new (require("moves/SmashMove"))(this, Utils.findObjectByName(fighterData.moves, "downsmash"))
-      new (require("moves/AerialAttackMove"))(this, Utils.findObjectByName(fighterData.moves, "neutralaerial"))
-      new (require("moves/AerialAttackMove"))(this, Utils.findObjectByName(fighterData.moves, "downaerial"))
-      new (require("moves/AerialAttackMove"))(this, Utils.findObjectByName(fighterData.moves, "upaerial"))
-      new (require("moves/AerialAttackMove"))(this, Utils.findObjectByName(fighterData.moves, "backaerial"))
-      new (require("moves/AerialAttackMove"))(this, Utils.findObjectByName(fighterData.moves, "forwardaerial"))
-      new (require("moves/ShieldMove"))(this, Utils.findObjectByName(fighterData.moves, "shield"))
-      new (require("moves/RollMove"))(this, Utils.findObjectByName(fighterData.moves, "roll"))
-      new (require("moves/DodgeMove"))(this, Utils.findObjectByName(fighterData.moves, "dodge"))
-      new (require("moves/AirDodgeMove"))(this, Utils.findObjectByName(fighterData.moves, "airdodge"))
-      new (require("moves/StunMove"))(this, Utils.findObjectByName(fighterData.moves, "stun"))
-      new (require("moves/DashMove"))(this, Utils.findObjectByName(fighterData.moves, "dash"))
-      new (require("moves/DashAttackMove"))(this, Utils.findObjectByName(fighterData.moves, "dashattack"))
-      new (require("moves/CrouchMove"))(this, Utils.findObjectByName(fighterData.moves, "crouch"))
-      new (require("moves/CrawlMove"))(this, Utils.findObjectByName(fighterData.moves, "crawl"))
-    ]
+    # Build that moveset!
+    movetemplate = {
+      "idle" : "IdleMove"
+      "walk" : "WalkMove"
+      "jump" : "JumpMove"
+      "fall" : "FallMove"
+      "land" : "LandMove"
+      "hurt" : "HurtMove"
+      "ledgegrab" : "LedgeGrabMove"
+      "neutral" : "NeutralMove"
+      "uptilt" : "GroundAttackMove"
+      "downtilt" : "GroundAttackMove"
+      "sidetilt" : "GroundAttackMove"
+      "sidesmashcharge" : "SmashChargeMove"
+      "sidesmash" : "SmashMove"
+      "upsmashcharge" : "SmashChargeMove"
+      "upsmash" : "SmashMove"
+      "downsmashcharge" : "SmashChargeMove"
+      "downsmash" : "SmashMove"
+      "neutralaerial" : "AerialAttackMove"
+      "downaerial" : "AerialAttackMove"
+      "upaerial" : "AerialAttackMove"
+      "backaerial" : "AerialAttackMove"
+      "forwardaerial" : "AerialAttackMove"
+      "shield" : "ShieldMove"
+      "roll" : "RollMove"
+      "dodge" : "DodgeMove"
+      "airdodge" : "AirDodgeMove"
+      "stun" : "StunMove"
+      "dash" : "DashMove"
+      "dashattack" : "DashAttackMove"
+      "crouch" : "CrouchMove"
+      "crawl" : "CrawlMove"
+      "upspecial" : "SpecialAttackMove"
+      "disabledfall" : "DisabledFallMove"
+    }
+    @moveset = for move of movetemplate
+      moveObject = Utils.findObjectByName(fighterData.moves, move)
+      new (require(if moveObject?.custom? then "moves/#{fighterData.id}/#{moveObject.custom}" else "moves/#{movetemplate[move]}"))(this, moveObject)
 
     @respawn()
 
@@ -179,7 +184,7 @@ module.exports = class Fighter extends THREE.Object3D
     if @shielding
       # Nullify upwards knockback
       velocityToAdd.y = -0.01
-      @shieldDamage = Math.max(0, @shieldDamage - damage * @SHIELD_DAMAGE_REDUCTION)
+      @shieldDamage = Math.max(0, @shieldDamage - damage * Fighter.SHIELD_DAMAGE_REDUCTION)
     else
       @damage += damage
 
@@ -196,10 +201,10 @@ module.exports = class Fighter extends THREE.Object3D
     @frozen = otherFighter.frozen = freeze
 
     # Multiple hitboxes compound velocities
-    if not @shielding and @move.name is "hurt" and @move.currentTime is 1
-      @velocity.add(velocityToAdd)
-    else
-      @velocity.copy(velocityToAdd)
+    # if not @shielding and @move.name is "hurt" and @move.currentTime is 1
+    @velocity.add(velocityToAdd)
+    # else
+    #   @velocity.copy(velocityToAdd)
     velocityToAdd.normalize().multiplyScalar(launchSpeedFactor)
     @stage.cameraShake.sub(velocityToAdd)
     @stage.cameraShakeTime = 1
@@ -210,7 +215,7 @@ module.exports = class Fighter extends THREE.Object3D
   applyVelocity: (deltaTime)->
     if @frozen > 0
       return
-    tempVector.copy(@velocity)
+    tempVector.copy(@velocity).normalize().multiplyScalar(Math.min(@velocity.length(), Fighter.MAX_VELOCITY))
     tempVector.multiplyScalar(deltaTime)
     @position.add(tempVector)
     @updateMatrixWorld()
@@ -295,7 +300,7 @@ module.exports = class Fighter extends THREE.Object3D
     @position.set(0, 0, 0)
     @velocity.set(0, 0, 0)
     @damage = 0
-    @shieldDamage = @SHIELD_MAX_DAMAGE
+    @shieldDamage = Fighter.SHIELD_MAX_DAMAGE
     @touchingGround = true
     @jumpRemaining = true
     @ledge = null
@@ -332,6 +337,16 @@ module.exports = class Fighter extends THREE.Object3D
       if @controller.move and not @controller.suspendedMove
         @controller.suspendMove(@controller.move)
 
+    if (@controller.move & Controller.SPECIAL)
+      if (@controller.move & Controller.UP)
+        @request("upspecial")
+      else if (@controller.move & Controller.DOWN)
+        @request("downspecial")
+      else if (@controller.move & (Controller.RIGHT | Controller.LEFT))
+        @facingRight = not (@controller.move & Controller.LEFT)
+        @request("sidespecial")
+      else
+        @request("neutralspecial")
     if (@controller.move & Controller.ATTACK) and (@controller.move & Controller.TILT)
       if (@controller.move & Controller.UP)
         @request("upsmashcharge")
@@ -426,18 +441,18 @@ module.exports = class Fighter extends THREE.Object3D
     if @move.blendFrames isnt 0
       if @facingRight
         if @rotation.y > Math.PI
-          @rotation.y += deltaTime * @ROTATION_SPEED
+          @rotation.y += deltaTime * Fighter.ROTATION_SPEED
         else if @rotation.y > 0
-          @rotation.y -= deltaTime * @ROTATION_SPEED
+          @rotation.y -= deltaTime * Fighter.ROTATION_SPEED
         if @rotation.y < 0 or @rotation.y > Math.PI * 2
           @rotation.y = 0
       else
         if @rotation.y is 0
           @rotation.y = Math.PI * 2
         if @rotation.y > Math.PI
-          @rotation.y = Math.max(Math.PI, @rotation.y - deltaTime * @ROTATION_SPEED)
+          @rotation.y = Math.max(Math.PI, @rotation.y - deltaTime * Fighter.ROTATION_SPEED)
         else if @rotation.y < Math.PI
-          @rotation.y = Math.min(Math.PI, @rotation.y + deltaTime * @ROTATION_SPEED)
+          @rotation.y = Math.min(Math.PI, @rotation.y + deltaTime * Fighter.ROTATION_SPEED)
     else
       @rotation.y = if @facingRight then 0 else Math.PI
 
@@ -501,21 +516,22 @@ module.exports = class Fighter extends THREE.Object3D
 
   updateShield: (deltaTime)->
     if @shielding
-      @shieldDamage = Math.max(0, @shieldDamage - deltaTime * @SHIELD_DRAIN_RATE)
+      @shieldDamage = Math.max(0, @shieldDamage - deltaTime * Fighter.SHIELD_DRAIN_RATE)
       @shieldObject.visible = true
-      size = @shieldScale * (0.3 + 0.7 * @shieldDamage / @SHIELD_MAX_DAMAGE)
+      size = @shieldScale * (0.3 + 0.7 * @shieldDamage / Fighter.SHIELD_MAX_DAMAGE)
       @shieldObject.scale.set(size, size, size)
       @shieldBox.size.set(0.8 * size, 0.8 * size, 0)
       if @shieldDamage is 0
         # TODO: Add a penalty
-        @shieldDamage = 0.6 * @SHIELD_MAX_DAMAGE
+        @shieldDamage = 0.6 * Fighter.SHIELD_MAX_DAMAGE
         @trigger("stun")
     else
-      @shieldDamage = Math.min(@SHIELD_MAX_DAMAGE, @shieldDamage + deltaTime * @SHIELD_RECHARGE_RATE)
+      @shieldDamage = Math.min(Fighter.SHIELD_MAX_DAMAGE, @shieldDamage + deltaTime * Fighter.SHIELD_RECHARGE_RATE)
       @shieldObject.visible = false
 
-  SHIELD_DRAIN_RATE: 8/60
-  SHIELD_RECHARGE_RATE: 2/60
-  SHIELD_MAX_DAMAGE: 50
-  SHIELD_DAMAGE_REDUCTION: 0.7
-  ROTATION_SPEED: 0.3
+  @SHIELD_DRAIN_RATE: 8/60
+  @SHIELD_RECHARGE_RATE: 2/60
+  @SHIELD_MAX_DAMAGE: 50
+  @SHIELD_DAMAGE_REDUCTION: 0.7
+  @ROTATION_SPEED: 0.3
+  @MAX_VELOCITY: 0.4

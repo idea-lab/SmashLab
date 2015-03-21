@@ -8,10 +8,12 @@ GamepadController = module.exports = (options = {})->
   @horizontalAxis = options.horizontalAxis or 0
   @verticalAxis = options.verticalAxis or 1
 
-  @attackButton = options.attackButton or 1
+  @attackButton = options.attackButton or 0
+  @specialButton = options.specialButton or 1
   @shieldButton = options.shieldButton or 5
 
-  @jumpButton = options.jumpButton or 0
+  @jumpButton = options.jumpButton or 2
+  @jumpButton2 = options.jumpButton2 or 3
 
 GamepadController:: = Object.create(Controller::)
 GamepadController::constructor = GamepadController
@@ -22,8 +24,9 @@ GamepadController::update = ()->
     if gamepad?
       # TODO: This is empty!
       @attack = gamepad.buttons[@attackButton]?.value or 0
+      @special = gamepad.buttons[@specialButton]?.value or 0
       @shield = gamepad.buttons[@shieldButton]?.value or 0
-      @jump = gamepad.buttons[@jumpButton]?.value or 0
+      @jump = gamepad.buttons[@jumpButton]?.value or gamepad.buttons[@jumpButton2]?.value or 0
       @joystick.x = deadZone(gamepad.axes[@horizontalAxis] or 0)
       @joystick.y = deadZone(-gamepad.axes[@verticalAxis] or 0)
 

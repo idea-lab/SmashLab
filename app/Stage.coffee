@@ -31,7 +31,7 @@ module.exports = class Stage extends THREE.Scene
       # along with the ledges
       if activeBox.leftLedge?
         # Makes it so the ledges work
-        leftLedge = new Ledge(position: (new THREE.Vector3()).copy(box.getVertex(true)), facingRight: false)
+        leftLedge = new Ledge(position: (new THREE.Vector3()).copy(box.getVertex(false)), facingRight: true)
         @add(leftLedge)
         ledgeBox = new Box(size: new THREE.Vector3(1, 1 ,0), position: (new THREE.Vector3()).copy(box.getVertex(true)))
         ledgeBox.position.x += 0.5
@@ -62,32 +62,35 @@ module.exports = class Stage extends THREE.Scene
     @loaded = false
     
     @inactiveControllers = [
-      # Arrow Keys ZX
+      # Arrow Keys ZXC
       new KeyboardController({
         upKey: 38
         downKey: 40
         leftKey: 37
         rightKey: 39
         attackKey: 90
-        shieldKey: 88
+        specialKey: 88
+        shieldKey: 67
       })
-      # WASDY7
+      # WASDY78
       new KeyboardController({
         upKey: 87
         downKey: 83
         leftKey: 65
         rightKey: 68
         attackKey: 89
-        shieldKey: 55
+        specialKey: 55
+        shieldKey: 56 #FIGURE ME OUT
       })
-      # TFGHO0
+      # TFGHO0-
       new KeyboardController({
         upKey: 84
         downKey: 71
         leftKey: 70
         rightKey: 72
         attackKey: 79
-        shieldKey: 48
+        specialKey: 48
+        shieldKey: 189 #FIGURE ME OUT
       })
       # IJKL']
       new KeyboardController({
@@ -96,16 +99,18 @@ module.exports = class Stage extends THREE.Scene
         leftKey: 74
         rightKey: 76
         attackKey: 222
-        shieldKey: 221
+        specialKey: 221
+        shieldKey: 220 #FIGURE ME OUT
       })
-      # HomeEndDeletePageDownNumpad7Slash
+      # HomeEndDeletePageDownNumpad7SlashStar
       new KeyboardController({
         upKey: 36
         downKey: 35
         leftKey: 46
         rightKey: 34
         attackKey: 103
-        shieldKey: 111
+        specialKey: 111
+        shieldKey: 106 #FIGURE ME OUT
       })
       # Numpad8456
     #   new KeyboardController({
@@ -142,8 +147,8 @@ module.exports = class Stage extends THREE.Scene
     @deltaTime = 1
     $(window).on "keydown", (event)=>
       switch event.keyCode
-        when 189 then @deltaTime = Math.max(0.1, @deltaTime * 0.9)
-        when 187 then @deltaTime = Math.min(2, @deltaTime / 0.9)
+        when 192 then @deltaTime = Math.max(0.1, @deltaTime * 0.9)
+        when 49 then @deltaTime = Math.min(2, @deltaTime / 0.9)
     #@orbitcontrols = new THREE.OrbitControls(@camera)
 
   # Updates the entire fight.
