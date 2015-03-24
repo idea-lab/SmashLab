@@ -12,16 +12,16 @@ module.exports = class Event
   update: (currentTime)->
     if not @startOccurred
       if @startTime <= currentTime
-        @start()
+        @start?()
         @startOccurred = true
     else if @end? and not @endOccurred
       if @endTime <= currentTime
-        @end()
+        @end?()
         @endOccurred = true
 
   reset: ()->
     # Clean up!
     if @startOccurred and not @endOccurred
-      @end()
+      @end?()
     @startOccurred = false
     @endOccurred = false

@@ -36,6 +36,7 @@ module.exports = class Move
     # The next move that the current move would immediately like to trigger
     @triggerNextPriority = -Infinity
     @triggerNext = null
+    @triggerArguments = []
 
     # The number of frames the previous animation will blend into the current one
     @blendFrames = 0
@@ -57,17 +58,18 @@ module.exports = class Move
     @currentTime = 1
     @active = false
 
-    # In order for a hitbox to register, it needs to 1. be a member of activeBoxes and
+    # In order for a hitbox to register, it needs to 1. be a member of hitBoxes and
     # 2. be activated by an event in the eventSequence.
     # Take care that a move is only created with options from fighterData.
     # That means all boxes are initialized with arrays instead of Vector3's, etc.
     @eventSequence = []
-    @activeBoxes = []
-    if options.activeBoxes?
-      for boxOptions in options.activeBoxes
+    @hitBoxes = []
+    if options.hitBoxes?
+      for boxOptions in options.hitBoxes
         box = new Box(boxOptions)
+        box.owner = @fighter
         @fighter.add(box)
-        @activeBoxes.push(box)
+        @hitBoxes.push(box)
         @eventSequence.push(new Event({
           start: box.activate
           startTime: boxOptions.startTime
@@ -132,10 +134,11 @@ module.exports = class Move
       @animation.play(0, 0)
 
   # Request to trigger the next move with a given priority
-  request: (name, priority = 0)->
+  request: (name, priority = 0, args...)->
     if priority > @triggerNextPriority
       @triggerNextPriority = priority
       @triggerNext = name
+      @triggerArguments = args or []
 
   animationReset: ()->
     if @animation?
@@ -143,7 +146,7 @@ module.exports = class Move
 
   reset: ()->
     @active = false
-    for box in @activeBoxes
+    for box in @hitBoxes
       box.alreadyHit = [] # TODO: more efficient?
     for event in @eventSequence
       event.reset()

@@ -1,58 +1,49 @@
 # Controller for keyboard
 Controller = require("controller/Controller")
-KeyboardController = module.exports = (options = {})->
-  Controller.call(this, options)
+module.exports = class KeyboardController extends Controller
+  constructor: (options = {})->
+    super
+    @upKey = options.upKey or 38
+    @downKey = options.downKey or 40
+    @leftKey = options.leftKey or 37
+    @rightKey = options.rightKey or 39
+    @attackKey = options.attackKey or 16
+    @specialKey = options.specialKey or 18
+    @shieldKey = options.shieldKey or 17
 
-  @keysDown = []
+  update: ()->
+    # TODO: Clean up jump, move into Controller
+    # Joystick
+    @joystick.set(0, 0)
+    if @upKey in KeyboardController.keysDown
+      @joystick.y++
+      @jump = 1
+    else
+      @jump = 0
+    if @downKey in KeyboardController.keysDown
+      @joystick.y--
+    if @leftKey in KeyboardController.keysDown
+      @joystick.x--
+    if @rightKey in KeyboardController.keysDown
+      @joystick.x++
+    @joystick.normalize()
+    
+    @attack = if @attackKey in KeyboardController.keysDown then 1 else 0
+    @special = if @specialKey in KeyboardController.keysDown then 1 else 0
+    @shield = if @shieldKey in KeyboardController.keysDown then 1 else 0
+    super
 
-  @upKey = options.upKey or 38
-  @downKey = options.downKey or 40
-  @leftKey = options.leftKey or 37
-  @rightKey = options.rightKey or 39
-  @attackKey = options.attackKey or 16
-  @specialKey = options.specialKey or 18
-  @shieldKey = options.shieldKey or 17
-
-  @handleKeys = [@upKey, @downKey, @leftKey, @rightKey, @attackKey, @shieldKey, @specialKey]
-
-  handleKeyDown = (event)=>
+  @keysDown: []
+  @handleKeyDown: (event)=>
     # Add if it's not in the array already
-    console.log(event.keyCode)
-    if event.keyCode in @handleKeys
-      if not (event.keyCode in @keysDown)
-        @keysDown.push(event.keyCode)
+    #console.log(event.keyCode)
+    if not (event.keyCode in KeyboardController.keysDown)
+      KeyboardController.keysDown.push(event.keyCode)
   
-  handleKeyUp = (event)=>
+  @handleKeyUp: (event)=>
     # Remove if it's in the array already
-    if event.keyCode in @handleKeys
-      if event.keyCode in @keysDown
-        @keysDown.splice(@keysDown.indexOf(event.keyCode),1)
+    if event.keyCode in KeyboardController.keysDown
+      KeyboardController.keysDown.splice(KeyboardController.keysDown.indexOf(event.keyCode),1)
 
-  window.addEventListener("keydown", handleKeyDown, false)
-  window.addEventListener("keyup", handleKeyUp, false)
-
-KeyboardController:: = Object.create(Controller::)
-KeyboardController::constructor = KeyboardController
-
-
-KeyboardController::update = ()->
-  # TODO: Clean up jump, move into Controller
-  # Joystick
-  @joystick.set(0, 0)
-  if @upKey in @keysDown
-    @joystick.y++
-    @jump = 1
-  else
-    @jump = 0
-  if @downKey in @keysDown
-    @joystick.y--
-  if @leftKey in @keysDown
-    @joystick.x--
-  if @rightKey in @keysDown
-    @joystick.x++
-  @joystick.normalize()
-  
-  @attack = if @attackKey in @keysDown then 1 else 0
-  @special = if @specialKey in @keysDown then 1 else 0
-  @shield = if @shieldKey in @keysDown then 1 else 0
-  Controller::update.apply(this, arguments)
+window.addEventListener("keydown", KeyboardController.handleKeyDown, false)
+window.addEventListener("keyup", KeyboardController.handleKeyUp, false)

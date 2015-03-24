@@ -35,7 +35,7 @@ GamepadController::update = ()->
   Controller::update.apply(this, arguments)
 
 deadZone = (value)->
-  if Math.abs(value) < 0.1
+  if Math.abs(value) < 0.2
     return 0
   else
     return value

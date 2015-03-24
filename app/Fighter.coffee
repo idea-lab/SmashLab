@@ -5,10 +5,10 @@ Utils = require("Utils")
 Controller = require("controller/Controller")
 Ledge = require("Ledge")
 tempVector = new THREE.Vector3()
-module.exports = class Fighter extends THREE.Object3D
-  constructor: (fighterData = {}, @options)->
-    super()
-    @velocity = new THREE.Vector3()
+Entity = require("Entity")
+module.exports = class Fighter extends Entity
+  constructor: (options, fighterData = {})->
+    super
     @touchingGround = true
     @jumpRemaining = true
 
@@ -41,6 +41,7 @@ module.exports = class Fighter extends THREE.Object3D
 
     # Hitbox
     @box = new Box(fighterData.box)
+    @collisionBoxes = [@box]
     # @box.debugBox.visible = true
     @add(@box)
 
@@ -83,7 +84,10 @@ module.exports = class Fighter extends THREE.Object3D
     @damage = 0
 
     # How much the current player has been charged by a smash
-    @smashCharge = 0
+    @smashCharge = 0 # TODO: Eventually remove this to have it passed to the hurt target
+
+    # Contains all hitBoxes that can hurt
+    @hitBoxes = []
 
     # True if right, false if left
     @facingRight = true
@@ -156,18 +160,17 @@ module.exports = class Fighter extends THREE.Object3D
       "upspecial" : "SpecialAttackMove"
       "disabledfall" : "DisabledFallMove"
     }
-    @moveset = for move of movetemplate
-      moveObject = Utils.findObjectByName(fighterData.moves, move)
-      new (require(if moveObject?.custom? then "moves/#{fighterData.id}/#{moveObject.custom}" else "moves/#{movetemplate[move]}"))(this, moveObject)
+    @moveset = for move in fighterData.moves
+      new (require(if move?.custom? then "fighters/#{fighterData.id}/moves/#{move.custom}" else "moves/#{movetemplate[move.name]}"))(this, move)
 
     @respawn()
 
   # When the fighter is hit by a hit box
-  hurt: (hitbox, otherFighter)->
+  takeDamage: (hitbox, otherFighter)->
     if @invulnerable
       return
 
-    if otherFighter?
+    if otherFighter?.smashChargeFactor?
       smashChargeFactor = 1 + otherFighter.smashCharge*.2
     else
       smashChargeFactor = 1
@@ -198,9 +201,11 @@ module.exports = class Fighter extends THREE.Object3D
     # Freeze Time
     launchSpeedFactor = Math.max(Math.min(launchSpeed * 3 - .4, 1), 0.01)
     freeze = Math.max(hitbox.freezeTime, 3) * launchSpeedFactor
-    @frozen = otherFighter.frozen = freeze
+    if otherFighter?
+      otherFighter.frozen = freeze
+    @frozen = freeze
 
-    # Multiple hitboxes compound velocities
+    # Multiple hitBoxes compound velocities
     # if not @shielding and @move.name is "hurt" and @move.currentTime is 1
     @velocity.add(velocityToAdd)
     # else
@@ -218,58 +223,32 @@ module.exports = class Fighter extends THREE.Object3D
     tempVector.copy(@velocity).normalize().multiplyScalar(Math.min(@velocity.length(), Fighter.MAX_VELOCITY))
     tempVector.multiplyScalar(deltaTime)
     @position.add(tempVector)
-    @updateMatrixWorld()
-    @box.updateMatrixWorld()
-
-  resolveStageCollisions: (stage)->
-    if @frozen > 0
-      # Let it go, let it go
-      return
-
-    #Detect out of bounds
-    if not @box.intersects(stage.safeBox)
-      @respawn()
-      @makeVulnerable()
-      @position.set(0, 1, 0)
-      return
-
-    # Grond collision
     @touchingGround = false
-    for stageBox in stage.activeBoxes when stageBox instanceof Box
-      if @box.intersects(stageBox)
-        #Touching the stage
-        resolutionVector = @box.resolveCollision(stageBox)
-        @position.add(resolutionVector)
-        if resolutionVector.y > 0
-          # Just landing. Engage your flaps and reverse your jets
-          # because ground control needs to know your heading.
-          if @move.name is "hurt"
-            # Bounce!
-            @velocity.y = 0.8 * Math.abs(@velocity.y)
-          else
-            @touchingGround = true
-            @jumpRemaining = true
-            if @velocity.y < 0
-              @velocity.y = 0
-    
-    #Don't fall off the stage
-    if @move.preventFall
-      for ledgeBox in stage.ledgeBoxes when ledgeBox instanceof Box
-        if @box.intersects(ledgeBox)
-          #Touching the stage
-          resolutionVector = @box.resolveCollision(ledgeBox)
-          @position.add(resolutionVector)
 
-    #Ledge grab
-    ledgeAvailable = false
-    for ledge in stage.children when ledge instanceof Ledge
-      if @ledgeBox.contains(ledge.position)
-        ledgeAvailable = true
-        if @canGrabLedge and @request("ledgegrab", ledge)
-          @canGrabLedge = false
-        break
-    if not ledgeAvailable
-      @canGrabLedge = true
+  resolveCollision: (otherBox, entity, deltaTime)->
+    if entity is @stage
+      # Ground collision - Touching the stage
+      resolutionVector = @box.resolveCollision(otherBox)
+      @position.add(resolutionVector)
+      if resolutionVector.y > 0
+        # Just landing. Engage your flaps and reverse your jets
+        # because ground control needs to know your heading.
+        if @move.name is "hurt"
+          # Bounce!
+          @velocity.y = 0.8 * Math.abs(@velocity.y)
+        else
+          @touchingGround = true
+          @jumpRemaining = true
+          if @velocity.y < 0
+            @velocity.y = 0
+    else if entity instanceof Fighter
+      # Soft fighter-fighter collision
+      if @position.x > entity.position.x
+        @position.x += Fighter.SOFT_COLLISION_VELOCITY * deltaTime
+        entity.position.x -= Fighter.SOFT_COLLISION_VELOCITY * deltaTime
+      else
+        @position.x -= Fighter.SOFT_COLLISION_VELOCITY * deltaTime
+        entity.position.x += Fighter.SOFT_COLLISION_VELOCITY * deltaTime
 
   update: (deltaTime)->
     @controller.update(deltaTime)
@@ -285,7 +264,7 @@ module.exports = class Fighter extends THREE.Object3D
 
       # Handle automatic endings of moves
       if @move.triggerNext?
-        @trigger(@move.triggerNext)
+        @trigger(@move.triggerNext, @move.triggerArguments...)
 
       @triggerFromController()
 
@@ -312,20 +291,22 @@ module.exports = class Fighter extends THREE.Object3D
     # TODO: Reset moves
 
   # Triggers a move
-  trigger: (movename, options)->
+  trigger: (movename, options...)->
     if @move
       @move.reset()
     move = Utils.findObjectByName(@moveset, movename)
     if move?
       @move = move
-      @move.trigger(options)
+      @hitBoxes = move.hitBoxes
+      @move.trigger(options...)
     else
-      console.warn("Move #{movename} has not been added to the @")
+      console.warn("Move #{movename} has not been added to the moveset")
+      @hitBoxes = []
 
   # Requests a move to be triggered if the current move allows
-  request: (movename, options)->
+  request: (movename, options...)->
     if movename in @move.triggerableMoves
-      @trigger(movename, options)
+      @trigger(movename, options...)
       return true
     else
       return false
@@ -458,6 +439,33 @@ module.exports = class Fighter extends THREE.Object3D
 
   updatePhysics: (deltaTime)->
     ## Physics
+
+    #Detect out of bounds
+    if not @box.intersects(@stage.safeBox)
+      @respawn()
+      @makeVulnerable()
+      @position.set(0, 1, 0)
+      return
+    
+    #Don't fall off the stage
+    if @move.preventFall
+      for ledgeBox in @stage.ledgeBoxes when ledgeBox instanceof Box
+        if @box.intersects(ledgeBox)
+          #Touching the stage
+          resolutionVector = @box.resolveCollision(ledgeBox)
+          @position.add(resolutionVector)
+
+    #Ledge grab
+    ledgeAvailable = false
+    for ledge in @stage.children when ledge instanceof Ledge
+      if @ledgeBox.contains(ledge.position)
+        ledgeAvailable = true
+        if @canGrabLedge and @request("ledgegrab", ledge)
+          @canGrabLedge = false
+        break
+    if not ledgeAvailable
+      @canGrabLedge = true
+
     # Jump
     # TODO: Hmmm... Is this the right place to trigger jump?
     if @jumpRemaining and ((@controller.move & Controller.JUMP) or (@controller.move & Controller.UP) and (@controller.move & Controller.TILT))
@@ -535,3 +543,4 @@ module.exports = class Fighter extends THREE.Object3D
   @SHIELD_DAMAGE_REDUCTION: 0.7
   @ROTATION_SPEED: 0.3
   @MAX_VELOCITY: 0.4
+  @SOFT_COLLISION_VELOCITY: 0.001

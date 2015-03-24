@@ -24,7 +24,7 @@ module.exports = {
   dashSpeed: 0.17
   crawlSpeed: 0.06
 
-  # The main hitbox
+  # The main hurtbox
   box: {
     size: [0.5, 1.86]
     position: [0, 0.93]
@@ -95,7 +95,7 @@ module.exports = {
     {
       name: "dashattack"
       animation: "Dolphin"
-      activeBoxes: [
+      hitBoxes: [
         {
           size: [1.2, 0.5]
           angle: 0
@@ -145,7 +145,7 @@ module.exports = {
     {
       name: "neutral"
       animation: "Neutral"
-      activeBoxes: [
+      hitBoxes: [
         {
           size: [0.6, 0.4]
           angle: .7
@@ -161,7 +161,7 @@ module.exports = {
     {
       name: "uptilt"
       animation: "Up Tilt"
-      activeBoxes: [
+      hitBoxes: [
         {
           size: [0.8, 0.8]
           angle: 1.3
@@ -177,7 +177,7 @@ module.exports = {
     {
       name: "downtilt"
       animation: "Down Tilt"
-      activeBoxes: [
+      hitBoxes: [
         {
           size: [0.8, 0.5]
           angle: 1.2
@@ -193,7 +193,7 @@ module.exports = {
     {
       name: "sidetilt"
       animation: "Side Tilt"
-      activeBoxes: [
+      hitBoxes: [
         {
           size: [0.9, 0.6]
           angle: 0.8
@@ -213,7 +213,7 @@ module.exports = {
     {
       name: "upsmash"
       animation: "Up Smash"
-      activeBoxes: [
+      hitBoxes: [
         {
           size: [0.8, 0.9]
           angle: 1.4
@@ -234,7 +234,7 @@ module.exports = {
     {
       name: "sidesmash"
       animation: "Side Smash"
-      activeBoxes: [
+      hitBoxes: [
         {
           size: [1.3, 0.8]
           angle: 0.8
@@ -266,7 +266,7 @@ module.exports = {
     {
       name: "downsmash"
       animation: "Down Smash"
-      activeBoxes: [
+      hitBoxes: [
         {
           size: [0.8, 0.9]
           angle: 0.7
@@ -294,7 +294,7 @@ module.exports = {
     {
       name: "neutralaerial"
       animation: "Neutral Aerial"
-      activeBoxes: [
+      hitBoxes: [
         {
           size: [1.5, 0.4]
           angle: Math.PI - 0.5
@@ -344,7 +344,7 @@ module.exports = {
     {
       name: "forwardaerial"
       animation: "Knee of Fury"
-      activeBoxes: [
+      hitBoxes: [
         {
           size: [1.1, 0.85]
           angle: 0.8
@@ -374,7 +374,7 @@ module.exports = {
     {
       name: "backaerial"
       animation: "Back Aerial"
-      activeBoxes: [
+      hitBoxes: [
         {
           size: [1.0, 0.7]
           angle: 2.5
@@ -404,7 +404,7 @@ module.exports = {
     {
       name: "upaerial"
       animation: "Up Aerial"
-      activeBoxes: [
+      hitBoxes: [
         {
           size: [0.6, 0.6]
           angle: 1.5
@@ -442,7 +442,7 @@ module.exports = {
     {
       name: "downaerial"
       animation: "Down Aerial"
-      activeBoxes: [
+      hitBoxes: [
         {
           size: [0.6, 0.8]
           angle: -1.3
@@ -467,7 +467,7 @@ module.exports = {
       name: "upspecial"
       animation: "Up Special"
       custom: "TestRecoveryMove"
-      activeBoxes: [
+      hitBoxes: [
         {
           size: [0.8, 1.8]
           position: [0, 0.9]
@@ -495,6 +495,16 @@ module.exports = {
     {
       name: "disabledfall"
       animation: "Disabled Fall"
+    }
+    {
+      name: "neutralspecial"
+      custom: "TestNeutralSpecialMove"
+      animation: "Neutral Special"
+    }
+    {
+      name: "test3fire"
+      custom: "TestFireMove"
+      animation: "Fire"
     }
   ]
 }

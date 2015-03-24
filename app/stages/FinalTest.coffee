@@ -19,7 +19,7 @@ module.exports = class StageData
   }
 
   # The main hitboxes
-  @activeBoxes: [
+  @collisionBoxes: [
     {
       size: [14, 0.3]
       position: [0, -0.15]

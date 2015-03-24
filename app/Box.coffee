@@ -21,26 +21,30 @@ module.exports = class Box extends THREE.Object3D
 
     # Knockback is in m/s. Why not Newtons? Weight shouldn't make much of a difference.
     @knockback = options.knockback or 0
-    # How much additional knockback the move does at 100%.
+    # How   much additional knockback the move does at 100%.
     @knockbackScaling = options.knockbackScaling or 0
 
     # How much damage the box does, if you get hit
     @damage = options.damage or 0
 
+    @owner = options.owner or null
+
     @alreadyHit = []
+
+    @collides = true
     # Can this box actively cause damage?
-    @active = false
+    @active = options.active or false
 
     @freezeTime = options.freezeTime or 0
 
     @debugBox.visible = options.debug? or false
 
     @activate = ()=>
-      @active = true
+      @active = @collides = true
       @debugBox.visible = true
 
     @deactivate = ()=>
-      @active = false
+      @active = @collides = false
       @debugBox.visible = false
 
   # Gets the top left/right vertex of the box.

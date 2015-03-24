@@ -1,12 +1,13 @@
 # Contains the stage and fighters, and updates the fight.
 Fighter = require("Fighter")
+Entity = require("Entity")
 Box = require("Box")
 Utils = require("Utils")
 Ledge = require("Ledge")
 KeyboardController = require("controller/KeyboardController")
 GamepadController = require("controller/GamepadController")
 tempVector = new THREE.Vector3()
-test3Data = require("fighters/test3")
+test3Data = require("fighters/test3/test3")
 
 module.exports = class Stage extends THREE.Scene
   constructor: (@stageData, @game) ->
@@ -20,12 +21,12 @@ module.exports = class Stage extends THREE.Scene
     @cameraShake = new THREE.Vector3()
 
     # Add hitboxes
-    @activeBoxes = []
+    @collisionBoxes = []
     @ledgeBoxes = []
-    for activeBox in @stageData.activeBoxes
+    for activeBox in @stageData.collisionBoxes
       box = new Box(activeBox)
       box.updateMatrixWorld()
-      @activeBoxes.push(box)
+      @collisionBoxes.push(box)
       @add(box)
       # Add boxes to collide with to avoid falling off the edge
       # along with the ledges
@@ -160,41 +161,59 @@ module.exports = class Stage extends THREE.Scene
 
     # Update cycle has these events in order:
     # - Apply velocities
-    for fighter in @children when fighter instanceof Fighter
-      fighter.applyVelocity(@deltaTime)
+    for entity in @children when entity instanceof Entity
+      entity.applyVelocity(@deltaTime)
+      entity.updateMatrixWorld()
+      for box in entity.collisionBoxes when box.collides
+          box.updateMatrixWorld()
 
-    # Soft player-player collision
-    for fighter in @children when fighter instanceof Fighter
-      for otherFighter in @children when otherFighter isnt fighter and otherFighter instanceof Fighter
-        if fighter.box.intersects(otherFighter.box)
-          if fighter.position.x > otherFighter.position.x
-            fighter.position.x += Stage.FIGHTER_SOFT_COLLISION_VELOCITY * @deltaTime
-            otherFighter.position.x -= Stage.FIGHTER_SOFT_COLLISION_VELOCITY * @deltaTime
-          else
-            fighter.position.x -= Stage.FIGHTER_SOFT_COLLISION_VELOCITY * @deltaTime
-            otherFighter.position.x += Stage.FIGHTER_SOFT_COLLISION_VELOCITY * @deltaTime
+    # - Detect and resolve collisions between physics (collision) boxes and entities
+    #   Includes fighter-stage, fighter-fighter, and projectile-stage
 
-    # - Resolve player-stage collisions and players out of bounds, as well as ledge grab
-    for fighter in @children when fighter instanceof Fighter
-      fighter.resolveStageCollisions(this)
+    for e in [0...@children.length]
+      entity = @children[e]
+      if entity instanceof Entity
+        for box in entity.collisionBoxes when box.collides
+          for otherBox in @collisionBoxes when box.collides
+              if box.intersects(otherBox)
+                entity.resolveCollision(otherBox, this, @deltaTime)            
+        for f in [e + 1...@children.length]
+          secondEntity = @children[f]
+          if secondEntity instanceof Entity
+            for otherBox in secondEntity.collisionBoxes when box.collides
+              if box.intersects(otherBox)
+                entity.resolveCollision(otherBox, secondEntity, @deltaTime)
+                secondEntity.resolveCollision(box, entity, @deltaTime)
 
     # - Update hitboxes and moves, player input, set movement velocity,
     #   controllers, gravity, and the rest of the good stuff
-    for fighter in @children when fighter instanceof Fighter
-      fighter.update(@deltaTime)
+    for entity in @children when entity instanceof Entity
+      entity.update(@deltaTime)
     
     # - Detect hitbox-player collision, set velocities for colliding hitboxes
     #   (velocities will be applied next render)
-    for fighter in @children when fighter instanceof Fighter
-      if fighter.move
-        for hitbox in fighter.move.activeBoxes when hitbox.active
-          # Update hitbox
-          hitbox.updateMatrixWorld()
-          # Go through hitboxes
-          for target in @children when target isnt fighter and target instanceof Fighter
-            if hitbox.intersects(if target.shielding then target.shieldBox else target.box) and not (target in hitbox.alreadyHit)
-              target.hurt(hitbox, fighter)
+    for entity in @children when entity instanceof Entity
+      for hitbox in entity.hitBoxes when hitbox.active
+        hitbox.updateMatrixWorld()
+        # Go through potential targets
+        for target in @children when target isnt entity and target instanceof Entity and hitbox.owner isnt target
+          if not (target in hitbox.alreadyHit)
+            # TODO: Account for multiple collision boxes?
+            if target.collisionBoxes.length > 0 and hitbox.intersects(target.collisionBoxes[0]) or target.shielding and hitbox.intersects(target.shieldBox)
+              console.log(entity, target)
+              target.takeDamage(hitbox, entity)
+              entity.giveDamage(hitbox, target)
               hitbox.alreadyHit.push(target)
+
+    # Remove dead projectiles
+    i = 0
+    while i < @children.length
+      entity = @children[i]
+      if entity instanceof Entity
+        if entity.lifetime? and entity.lifetime <= 0
+          @children.splice(i, 1)
+          i--
+      i++
 
     @updateHUD()
     @updateCamera()
@@ -276,11 +295,11 @@ module.exports = class Stage extends THREE.Scene
       controller = @inactiveControllers[i]
       controller.update(0)
       if controller.active
-        fighter = new Fighter(test3Data, {
+        fighter = new Fighter({
           stage: this,
           color: @getPlayerColor(@players.length),
           controller: controller
-        })
+        }, test3Data)
         @add(fighter)
         @players.push(fighter)
         hudElement = $("<div class=\"damagepercent\"></div>")
@@ -307,5 +326,3 @@ module.exports = class Stage extends THREE.Scene
       when 6 then new THREE.Color(0xff00ff)
       when 7 then new THREE.Color(0x8800ff)
       else new THREE.Color(Math.round(Math.random() * 0xffffff))
-
-  @FIGHTER_SOFT_COLLISION_VELOCITY: 0.001
