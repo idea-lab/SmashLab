@@ -14,24 +14,6 @@ module.exports = class Fighter extends Entity
 
     ## Start initializing everything based on the fighter data. ##
 
-    # These two parameters control the jump. Very handy!
-    @airTime = fighterData.airTime # in frames
-    @jumpHeight = fighterData.jumpHeight # in world units (meters)
-    @shortHopHeight = fighterData.shortHopHeight
-    @maxFallSpeed = fighterData.maxFallSpeed
-
-    # Here are velocities
-    @airAccel = fighterData.airAccel
-    @airSpeed = fighterData.airSpeed
-    @airFriction = fighterData.airFriction
-
-    @groundAccel = fighterData.groundAccel
-    @groundSpeed = fighterData.groundSpeed
-    @groundFriction = fighterData.groundFriction
-
-    @dashSpeed = fighterData.dashSpeed
-    @crawlSpeed = fighterData.crawlSpeed
-
     @diAccel = 0.008
     @diSpeed = 0.05
 
@@ -133,54 +115,83 @@ module.exports = class Fighter extends Entity
     @deactivateShield = ()=>
       @shielding = false
 
-    # Build that moveset!
-    movetemplate = {
-      "idle" : "IdleMove"
-      "walk" : "WalkMove"
-      "jump" : "JumpMove"
-      "fall" : "FallMove"
-      "land" : "LandMove"
-      "hurt" : "HurtMove"
-      "ledgegrab" : "LedgeGrabMove"
-      "neutral" : "NeutralMove"
-      "uptilt" : "GroundAttackMove"
-      "downtilt" : "GroundAttackMove"
-      "sidetilt" : "GroundAttackMove"
-      "sidesmashcharge" : "SmashChargeMove"
-      "sidesmash" : "SmashMove"
-      "upsmashcharge" : "SmashChargeMove"
-      "upsmash" : "SmashMove"
-      "downsmashcharge" : "SmashChargeMove"
-      "downsmash" : "SmashMove"
-      "neutralaerial" : "AerialAttackMove"
-      "downaerial" : "AerialAttackMove"
-      "upaerial" : "AerialAttackMove"
-      "backaerial" : "AerialAttackMove"
-      "forwardaerial" : "AerialAttackMove"
-      "shield" : "ShieldMove"
-      "roll" : "RollMove"
-      "dodge" : "DodgeMove"
-      "airdodge" : "AirDodgeMove"
-      "stun" : "StunMove"
-      "dash" : "DashMove"
-      "dashattack" : "DashAttackMove"
-      "crouch" : "CrouchMove"
-      "crawl" : "CrawlMove"
-      "upspecial" : "SpecialAttackMove"
-      "disabledfall" : "DisabledFallMove"
-    }
-    @moveset = for move in fighterData.moves
-      new (require(if move?.custom? then "fighters/#{fighterData.id}/moves/#{move.custom}" else "moves/#{movetemplate[move.name]}"))(this, move)
+    @moveset = []
 
-    @moveset.push(new (require("moves/DeadMove"))(this, {name: "dead"}))
+    @moveset.push(new (require("moves/DeadMove"))(this, {name: "dead", animation: false}))
+
+    @copyFighterData(fighterData)
+
     @respawn()
+  # Build that moveset!
+  @movetemplate: {
+    "idle" : "IdleMove"
+    "walk" : "WalkMove"
+    "jump" : "JumpMove"
+    "fall" : "FallMove"
+    "land" : "LandMove"
+    "hurt" : "HurtMove"
+    "ledgegrab" : "LedgeGrabMove"
+    "neutral" : "NeutralMove"
+    "uptilt" : "GroundAttackMove"
+    "downtilt" : "GroundAttackMove"
+    "sidetilt" : "GroundAttackMove"
+    "sidesmashcharge" : "SmashChargeMove"
+    "sidesmash" : "SmashMove"
+    "upsmashcharge" : "SmashChargeMove"
+    "upsmash" : "SmashMove"
+    "downsmashcharge" : "SmashChargeMove"
+    "downsmash" : "SmashMove"
+    "neutralaerial" : "AerialAttackMove"
+    "downaerial" : "AerialAttackMove"
+    "upaerial" : "AerialAttackMove"
+    "backaerial" : "AerialAttackMove"
+    "forwardaerial" : "AerialAttackMove"
+    "shield" : "ShieldMove"
+    "roll" : "RollMove"
+    "dodge" : "DodgeMove"
+    "airdodge" : "AirDodgeMove"
+    "stun" : "StunMove"
+    "dash" : "DashMove"
+    "dashattack" : "DashAttackMove"
+    "crouch" : "CrouchMove"
+    "crawl" : "CrawlMove"
+    "upspecial" : "SpecialAttackMove"
+    "disabledfall" : "DisabledFallMove"
+  }
+
+  copyFighterData: (fighterData)->
+    # These two parameters control the jump. Very handy!
+    @airTime = fighterData.airTime # in frames
+    @jumpHeight = fighterData.jumpHeight # in world units (meters)
+    @shortHopHeight = fighterData.shortHopHeight
+    @maxFallSpeed = fighterData.maxFallSpeed
+
+    # Here are velocities
+    @airAccel = fighterData.airAccel
+    @airSpeed = fighterData.airSpeed
+    @airFriction = fighterData.airFriction
+
+    @groundAccel = fighterData.groundAccel
+    @groundSpeed = fighterData.groundSpeed
+    @groundFriction = fighterData.groundFriction
+
+    @dashSpeed = fighterData.dashSpeed
+    @crawlSpeed = fighterData.crawlSpeed
+
+    # Add/update moves
+    for move in fighterData.moves
+      moveObject = Utils.findObjectByName(@moveset, move.name)
+      if moveObject
+        moveObject.copyFromOptions(move)
+      else
+        @moveset.push(new (require(if move?.custom? then "fighters/#{fighterData.id}/moves/#{move.custom}" else "moves/#{Fighter.movetemplate[move.name]}"))(this, move))
 
   # When the fighter is hit by a hit box
   takeDamage: (hitbox, otherFighter)->
     if @invulnerable
       return
 
-    if otherFighter?.smashChargeFactor?
+    if otherFighter?.smashCharge?
       smashChargeFactor = 1 + otherFighter.smashCharge*.2
     else
       smashChargeFactor = 1
@@ -300,7 +311,6 @@ module.exports = class Fighter extends Entity
     #@mesh.sdebug.update()
 
   respawn: ()->
-    console.log "REEESPAWNNNN"
     @position.set(0, 1, 0)
     @updateMatrixWorld()
     @box.updateMatrixWorld()

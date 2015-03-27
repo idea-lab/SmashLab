@@ -7,7 +7,17 @@ Ledge = require("Ledge")
 KeyboardController = require("controller/KeyboardController")
 GamepadController = require("controller/GamepadController")
 tempVector = new THREE.Vector3()
-test3Data = require("fighters/test3/test3")
+
+Editor = require("Editor")
+editor = new Editor(document.getElementById("editor"), "test3data")
+
+editor.loadText()
+test3Data = editor.getJSON()
+if not test3Data
+  test3Data = require("fighters/test3/test3")
+if not editor.getText()
+  editor.setJSON(test3Data)
+  
 
 module.exports = class Stage extends THREE.Scene
   constructor: (@stageData, @game) ->
@@ -131,6 +141,12 @@ module.exports = class Stage extends THREE.Scene
 
 
     @players = []
+
+    #Editor binding
+    editor.onupdate = (data)=>
+      for player in @players
+        player.copyFighterData(data)
+
     @playerHudElements = [] # TODO: Remove!
     
     $.ajax(test3Data.modelSrc).done (data)=>
@@ -148,8 +164,8 @@ module.exports = class Stage extends THREE.Scene
     @deltaTime = 1
     $(window).on "keydown", (event)=>
       switch event.keyCode
-        when 192 then @deltaTime = Math.max(0.1, @deltaTime * 0.9)
-        when 49 then @deltaTime = Math.min(2, @deltaTime / 0.9)
+        when 49 then @deltaTime = Math.max(0.1, @deltaTime * 0.9)
+        when 50 then @deltaTime = Math.min(2, @deltaTime / 0.9)
     #@orbitcontrols = new THREE.OrbitControls(@camera)
 
   # Updates the entire fight.
@@ -200,7 +216,6 @@ module.exports = class Stage extends THREE.Scene
           if not (target in hitbox.alreadyHit)
             # TODO: Account for multiple collision boxes?
             if target.collisionBoxes.length > 0 and hitbox.intersects(target.collisionBoxes[0]) or target.shielding and hitbox.intersects(target.shieldBox)
-              console.log(entity, target)
               if not target.dodging
                 target.takeDamage(hitbox, entity)
                 entity.giveDamage(hitbox, target)

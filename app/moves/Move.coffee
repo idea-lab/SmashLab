@@ -18,13 +18,13 @@ module.exports = class Move
         @fighter.mesh,
         animationObject
       )
-      @duration = Math.round(@animation.data.length * 60)
+      @animationDuration = Math.round(@animation.data.length * 60)
       #console.log(@name, @duration)
 
-    else
+    else if options.animation isnt false
       @animation = null
       console.warn("#{@name} does not have an associated animation")
-      @duration = null
+      @animationDuration = null
 
     @lastBonePosition = 0
     @changeInPosition = 0
@@ -53,17 +53,30 @@ module.exports = class Move
     # E.g. Rolling, dash attacking
     @allowAnimatedMovement = false
 
+    @eventSequence = []
+    @hitBoxes = []
     # Number of frames
-    @duration = options.duration or @duration or 20
     @currentTime = 1
     @active = false
+
+    @copyFromOptions(options)
+    # Stop the character from falling off the stage
+    @preventFall = false
+
+    @reset()
+
+  copyFromOptions: (options)->
 
     # In order for a hitbox to register, it needs to 1. be a member of hitBoxes and
     # 2. be activated by an event in the eventSequence.
     # Take care that a move is only created with options from fighterData.
     # That means all boxes are initialized with arrays instead of Vector3's, etc.
-    @eventSequence = []
+    @duration = options.duration or @animationDuration or 20
+    for removeBox in @hitBoxes
+      @fighter.remove(@hitBoxes)
     @hitBoxes = []
+    @eventSequence = []
+
     if options.hitBoxes?
       for boxOptions in options.hitBoxes
         box = new Box(boxOptions)
@@ -77,12 +90,6 @@ module.exports = class Move
           endTime: boxOptions.endTime
         }))
 
-    # Stop the character from falling off the stage
-    @preventFall = false
-
-    @reset()
-
-  #module.exports:: = THREE.Object3D
 
   # Note: does not update the animation!
   update: (deltaTime)->

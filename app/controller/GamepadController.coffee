@@ -11,7 +11,9 @@ module.exports = class GamepadController extends Controller
 
     @attackButton = options.attackButton or 0
     @specialButton = options.specialButton or 1
-    @shieldButton = options.shieldButton or 5
+    
+    @shieldButton = options.shieldButton or 4
+    @shieldButton2 = options.shieldButton2 or 5
 
     @jumpButton = options.jumpButton or 2
     @jumpButton2 = options.jumpButton2 or 3
@@ -29,7 +31,7 @@ module.exports = class GamepadController extends Controller
         # TODO: This is empty!
         @attack = gamepad.buttons[@attackButton]?.value or 0
         @special = gamepad.buttons[@specialButton]?.value or 0
-        @shield = gamepad.buttons[@shieldButton]?.value or 0
+        @shield = gamepad.buttons[@shieldButton]?.value or gamepad.buttons[@shieldButton2]?.value or 0
         @jump = gamepad.buttons[@jumpButton]?.value or gamepad.buttons[@jumpButton2]?.value or 0
         @joystick.x = GamepadController.deadZone(gamepad.axes[@horizontalAxis] or 0)
         @joystick.y = GamepadController.deadZone(-gamepad.axes[@verticalAxis] or 0)

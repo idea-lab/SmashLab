@@ -39,11 +39,13 @@ module.exports = class KeyboardController extends Controller
     #console.log(event.keyCode)
     if not (event.keyCode in KeyboardController.keysDown)
       KeyboardController.keysDown.push(event.keyCode)
+    return
   
   @handleKeyUp: (event)=>
     # Remove if it's in the array already
     if event.keyCode in KeyboardController.keysDown
       KeyboardController.keysDown.splice(KeyboardController.keysDown.indexOf(event.keyCode),1)
+    return
 
 window.addEventListener("keydown", KeyboardController.handleKeyDown, false)
 window.addEventListener("keyup", KeyboardController.handleKeyUp, false)

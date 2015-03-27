@@ -19,10 +19,8 @@ module.exports = class JumpMove extends AerialMove
     # Turn during jump
     if (@fighter.controller.joystick.x < -0.5)
       @fighter.facingRight = false
-      console.log(false)
     else if (@fighter.controller.joystick.x > 0.5)
       @fighter.facingRight = true
-      console.log(true)
   
   update: ()->
     if @canShortHop and @currentTime <= 8 and not @fighter.controller.jump
