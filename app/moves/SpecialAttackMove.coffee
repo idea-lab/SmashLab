@@ -10,3 +10,4 @@ module.exports = class SpecialAttackMove extends Move
 
   update: (deltaTime)->
     super
+    @fighter.velocity.y = Math.max(@fighter.velocity.y, -0.002*@currentTime)

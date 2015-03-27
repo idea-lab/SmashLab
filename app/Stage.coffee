@@ -57,7 +57,7 @@ module.exports = class Stage extends THREE.Scene
     @add(@cameraBox)
 
     # Let the stage do its thing
-    @stageData.init(this)
+    @stageObject = new @stageData(this)
 
     # TODO: Remove this eventually
     @loaded = false
@@ -201,8 +201,9 @@ module.exports = class Stage extends THREE.Scene
             # TODO: Account for multiple collision boxes?
             if target.collisionBoxes.length > 0 and hitbox.intersects(target.collisionBoxes[0]) or target.shielding and hitbox.intersects(target.shieldBox)
               console.log(entity, target)
-              target.takeDamage(hitbox, entity)
-              entity.giveDamage(hitbox, target)
+              if not target.dodging
+                target.takeDamage(hitbox, entity)
+                entity.giveDamage(hitbox, target)
               hitbox.alreadyHit.push(target)
 
     # Remove dead projectiles
@@ -214,6 +215,8 @@ module.exports = class Stage extends THREE.Scene
           @children.splice(i, 1)
           i--
       i++
+
+    @stageObject.update?(@deltaTime)
 
     @updateHUD()
     @updateCamera()
@@ -312,7 +315,7 @@ module.exports = class Stage extends THREE.Scene
 
   updateHUD: ()->
     for i in [0...@players.length]
-      @playerHudElements[i].text(Math.floor(@players[i].damage))
+      @playerHudElements[i].text(Math.floor(@players[i].damage)+"%")
         .css("color", Utils.damageToCSS(@players[i].damage))
 
   getPlayerColor: (index)->

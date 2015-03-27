@@ -1,4 +1,4 @@
-module.exports = class StageData
+module.exports = class GridWalk
   @name: "GridWalk"
 
   # The exported model's source code URI
@@ -36,18 +36,18 @@ module.exports = class StageData
     }
   ]
 
-  @init: (stage)->
+  constructor: (@stage)->
     geometry = THREE.JSONLoader.prototype.parse(@modelJSON).geometry
     mesh = new THREE.Mesh(geometry, new THREE.MeshNormalMaterial(shading:THREE.FlatShading))
     mesh.scale.multiplyScalar(1.5)
     mesh.position.set(0, 1, -4).multiply(mesh.scale)
-    stage.add(mesh)
+    @stage.add(mesh)
 
     #create THE GRID
     texture = new THREE.ImageUtils.loadTexture("images/TRON_Tile.png");
     texture.wrapS=texture.wrapT=THREE.RepeatWrapping;
     texture.repeat.set(50,50);
-    texture.anisotropy=stage.game.renderer.getMaxAnisotropy();
+    texture.anisotropy=@stage.game.renderer.getMaxAnisotropy();
     plane = new THREE.Mesh( new THREE.PlaneBufferGeometry(100, 100), new THREE.MeshBasicMaterial(
         
         {
@@ -58,7 +58,7 @@ module.exports = class StageData
     ));
     plane.position.set(0, 0, 0)
     plane.rotation.x=-Math.PI/2
-    stage.add(plane)
+    @stage.add(plane)
 ###    
     
     
@@ -73,7 +73,7 @@ module.exports = class StageData
         nexus = new THREE.Mesh( geometry, new THREE.MeshNormalMaterial() );
         nexus.scale.set( 1000, 1000, 1000 );
         nexus.position.set(0,1000,-1000);
-        stage.add(nexus);
+        @stage.add(nexus);
         
     }
     
@@ -81,7 +81,7 @@ module.exports = class StageData
         monkey = new THREE.Mesh( geometry, new THREE.MeshNormalMaterial() );
         monkey.scale.set( 1000, 1000, 1000 );
         monkey.position.set(0,1000,0);
-        stage.add(monkey);
+        @stage.add(monkey);
         
     }
     

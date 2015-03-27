@@ -9,8 +9,8 @@ module.exports = class RollMove extends Move
     @allowAnimatedMovement = true
     @eventSequence = [
       new Event({
-        start: @fighter.makeInvulnerable, startTime: 2,
-        end: @fighter.makeVulnerable, endTime: 18
+        start: @fighter.startDodge, startTime: 2,
+        end: @fighter.endDodge, endTime: 18
       })
     ]
     @nextMove = "idle"

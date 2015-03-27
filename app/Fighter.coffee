@@ -66,7 +66,9 @@ module.exports = class Fighter extends Entity
     @add(@ledgeBox)
 
     # Whether or not the player is INVICIBLE
-    @invulnerable = false
+    @invulnerable = true
+    @initialInvulnerability = Fighter.INITIAL_INVULNERABILITY
+    @dodging = false
     @makeInvulnerable = ()=>
       @invulnerable = true
       @mesh.material.color.copy(@color)
@@ -77,11 +79,18 @@ module.exports = class Fighter extends Entity
     @makeVulnerable = ()=>
       @invulnerable = false
       @mesh.material.color.copy(@color)
+    @startDodge = ()=>
+      @makeInvulnerable()
+      @dodging = true
+    @endDodge = ()=>
+      @makeVulnerable()
+      @dodging = false
 
     # Current move
     @move = null
 
     @damage = 0
+    @dying = 0
 
     # How much the current player has been charged by a smash
     @smashCharge = 0 # TODO: Eventually remove this to have it passed to the hurt target
@@ -163,6 +172,7 @@ module.exports = class Fighter extends Entity
     @moveset = for move in fighterData.moves
       new (require(if move?.custom? then "fighters/#{fighterData.id}/moves/#{move.custom}" else "moves/#{movetemplate[move.name]}"))(this, move)
 
+    @moveset.push(new (require("moves/DeadMove"))(this, {name: "dead"}))
     @respawn()
 
   # When the fighter is hit by a hit box
@@ -252,10 +262,23 @@ module.exports = class Fighter extends Entity
 
   update: (deltaTime)->
     @controller.update(deltaTime)
-    
+
+    #console.log @move.name
     if @frozen > 0
       @frozen = Math.max(0, @frozen - deltaTime)
     else
+      if @dying > 0
+        @dying = Math.max(0, @dying - deltaTime)
+        if @dying is 0
+          @respawn()
+      else
+        if @initialInvulnerability > 0 and @initialInvulnerability - deltaTime <= 0
+          @makeVulnerable()
+        @initialInvulnerability = Math.max(@initialInvulnerability - deltaTime, 0)
+
+        # Gotta get that gravity (goes here because the move can mess with it)
+        @velocity.y -= Math.max(0, Math.min(8 * deltaTime * @jumpHeight / @airTime / @airTime, @velocity.y + @maxFallSpeed))
+
       # Complete the current move
       if @move.name is "walk"
         @move.update(Math.abs(@controller.joystick.x)*deltaTime)
@@ -270,13 +293,18 @@ module.exports = class Fighter extends Entity
 
       @updatePhysics(deltaTime)
 
-    @updateShield(deltaTime)
-    @updateMesh(deltaTime)
+    if @dying is 0
+      @updateShield(deltaTime)
+      @updateMesh(deltaTime)
 
     #@mesh.sdebug.update()
 
   respawn: ()->
-    @position.set(0, 0, 0)
+    console.log "REEESPAWNNNN"
+    @position.set(0, 1, 0)
+    @updateMatrixWorld()
+    @box.updateMatrixWorld()
+    #@position.set(0, 0, 0)
     @velocity.set(0, 0, 0)
     @damage = 0
     @shieldDamage = Fighter.SHIELD_MAX_DAMAGE
@@ -284,10 +312,13 @@ module.exports = class Fighter extends Entity
     @jumpRemaining = true
     @ledge = null
     @canGrabLedge = true
+    @dying = 0
     @trigger("idle")
     @move.animationReset()
     @move.reset()
     @move.weight = 1
+    @makeInvulnerable() 
+    @initialInvulnerability = Fighter.INITIAL_INVULNERABILITY
     # TODO: Reset moves
 
   # Triggers a move
@@ -369,7 +400,7 @@ module.exports = class Fighter extends Entity
       if (@controller.move & (Controller.LEFT | Controller.RIGHT))
         if @request("roll")
           @facingRight = not (@controller.move & Controller.RIGHT)
-      if (@controller.move & (Controller.UP | Controller.DOWN))
+      if (@controller.move & Controller.DOWN)
         @request("dodge")
     else if (@controller.shield isnt 0 and not @controller.suspendedMove)
       @request("shield")
@@ -379,10 +410,10 @@ module.exports = class Fighter extends Entity
       if (@controller.move & (Controller.LEFT | Controller.RIGHT))
         if @touchingGround
           @request("dash")
-        if not @touchingGround
-          # Air turn
-          if @move.movement is Move.FULL_MOVEMENT
-            @facingRight = not (@controller.move & Controller.LEFT)
+        # if not @touchingGround
+        #   # Air turn
+        #   if @move.movement is Move.FULL_MOVEMENT
+        #     @facingRight = not (@controller.move & Controller.LEFT)
     
     # Deferred triggering from Idle
     if @move.name is "idle" and (@controller.move & Controller.ANY_DIRECTION)
@@ -442,9 +473,9 @@ module.exports = class Fighter extends Entity
 
     #Detect out of bounds
     if not @box.intersects(@stage.safeBox)
-      @respawn()
-      @makeVulnerable()
-      @position.set(0, 1, 0)
+      if @dying is 0
+        @trigger("dead")
+        @dying = Fighter.DEAD_TIME
       return
     
     #Don't fall off the stage
@@ -509,9 +540,6 @@ module.exports = class Fighter extends Entity
 
     @velocity.x = Math.sign(@velocity.x) * Math.max(0, Math.abs(@velocity.x) - friction)
 
-    # Gotta get that gravity
-    @velocity.y -= Math.max(0, Math.min(8 * deltaTime * @jumpHeight / @airTime / @airTime, @velocity.y + @maxFallSpeed))
-
     # Ledge Grab
     if @move.name is "ledgegrab" and @ledge?
       @facingRight = @ledge.facingRight
@@ -544,3 +572,5 @@ module.exports = class Fighter extends Entity
   @ROTATION_SPEED: 0.3
   @MAX_VELOCITY: 0.4
   @SOFT_COLLISION_VELOCITY: 0.001
+  @INITIAL_INVULNERABILITY: 180
+  @DEAD_TIME: 60

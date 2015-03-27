@@ -14,7 +14,7 @@ module.exports = class LedgeGrabMove extends Move
     @eventSequence = [
       new Event({
         start: @fighter.makeInvulnerable, startTime: 0,
-        end: @fighter.makeVulnerable, endTime: 20
+        end: @fighter.makeVulnerable, endTime: 60
       })
       # Disable event triggerring while invincible
       new Event({
@@ -23,7 +23,7 @@ module.exports = class LedgeGrabMove extends Move
         , startTime: 0,
         end: ()=>
           @triggerableMoves = @triggerableMovesBackup
-        , endTime: 20
+        , endTime: 15
       })
     ]
     @duration = 300

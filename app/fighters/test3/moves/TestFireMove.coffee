@@ -4,7 +4,7 @@ TestProjectile = require("../projectiles/TestProjectile")
 module.exports = class TestFireMove extends Move
   constructor: (@fighter, options)->
     super
-    @duration = 30
+    @duration = 50
     @nextMove = "idle"
     @projectileCharge = 0
     @eventSequence = @eventSequence.concat [

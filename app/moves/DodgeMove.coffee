@@ -11,8 +11,10 @@ module.exports = class DodgeMove extends Move
     @duration = 20
     @eventSequence = [
       new Event({
-        start: @fighter.makeInvulnerable, startTime: 2,
-        end: @fighter.makeVulnerable, endTime: 18
+        start: @fighter.startDodge
+        startTime: 2
+        end: @fighter.endDodge
+        endTime: 18
       })
     ]
     @nextMove = "idle"

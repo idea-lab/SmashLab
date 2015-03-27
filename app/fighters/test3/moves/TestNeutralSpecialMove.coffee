@@ -5,7 +5,7 @@ Event = require("Event")
 tempVec = new THREE.Vector3()
 module.exports = class TestNeutralSpecialMove extends SpecialAttackMove
 
-  @CHARGE_TIME: 200
+  @CHARGE_TIME: 180
   constructor: (@fighter, options)->
     super
     @duration = TestNeutralSpecialMove.CHARGE_TIME

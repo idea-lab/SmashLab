@@ -10,6 +10,7 @@ module.exports = class ShieldMove extends Move
       "dodge"
       "roll"
       "fall"
+      "jump"
     ]
     @eventSequence = [
       new Event({

@@ -7,8 +7,8 @@ module.exports = class AirDodgeMove extends Move
     @movement = Move.DI_MOVEMENT
     @eventSequence = [
       new Event({
-        start: @fighter.makeInvulnerable, startTime: 2,
-        end: @fighter.makeVulnerable, endTime: 18
+        start: @fighter.startDodge, startTime: 2,
+        end: @fighter.endDodge, endTime: 18
       })
     ]
     @nextMove = "fall"
