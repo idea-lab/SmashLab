@@ -1,7 +1,7 @@
 module.exports = {
   "name": "Test player",
   "id": "test3",
-  "modelSrc": "models\/Test 3.json",
+  "modelSrc": "models/Test 3.json",
   "modelJSON": null,
   "airTime": 60,
   "jumpHeight": 3,
@@ -194,9 +194,9 @@ module.exports = {
             0.8
           ],
           "angle": 1.3,
-          "knockback": 5,
-          "knockbackScaling": 12,
-          "damage": 4,
+          "knockback": 4,
+          "knockbackScaling": 6,
+          "damage": 10,
           "position": [
             0.1,
             1.7
@@ -217,8 +217,8 @@ module.exports = {
           ],
           "angle": 1.2,
           "knockback": 2,
-          "knockbackScaling": 15,
-          "damage": 4,
+          "knockbackScaling": 6,
+          "damage": 8,
           "position": [
             0.8,
             0.3
@@ -238,9 +238,9 @@ module.exports = {
             0.6
           ],
           "angle": 0.8,
-          "knockback": 4,
-          "knockbackScaling": 7,
-          "damage": 4,
+          "knockback": 3,
+          "knockbackScaling": 8,
+          "damage": 11,
           "position": [
             0.6,
             1.3
@@ -264,9 +264,9 @@ module.exports = {
             0.9
           ],
           "angle": 1.4,
-          "knockback": 8,
-          "knockbackScaling": 16,
-          "damage": 15,
+          "knockback": 10,
+          "knockbackScaling": 20,
+          "damage": 16,
           "position": [
             0,
             1.5
@@ -291,7 +291,7 @@ module.exports = {
             0.8
           ],
           "angle": 0.8,
-          "knockback": 4,
+          "knockback": 5,
           "knockbackScaling": 20,
           "damage": 18,
           "position": [
@@ -335,8 +335,8 @@ module.exports = {
             0.9
           ],
           "angle": 0.7,
-          "knockback": 2,
-          "knockbackScaling": 22,
+          "knockback": 6,
+          "knockbackScaling": 19,
           "damage": 14,
           "position": [
             0.6,
@@ -465,8 +465,8 @@ module.exports = {
             0.2
           ],
           "angle": 0.7,
-          "knockback": 4,
-          "knockbackScaling": 26,
+          "knockback": 2,
+          "knockbackScaling": 13,
           "damage": 2,
           "position": [
             0.28,
@@ -527,7 +527,7 @@ module.exports = {
           ],
           "angle": 1.5,
           "knockback": 4,
-          "knockbackScaling": 15,
+          "knockbackScaling": 10,
           "damage": 4,
           "position": [
             0.1,
