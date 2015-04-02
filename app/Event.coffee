@@ -2,18 +2,22 @@
 # Typically, the turning on or off of hitboxes.
 module.exports = class Event
   constructor: (options)->
+    @startOccurred = false
+    @endOccurred = false
+    @copyFromOptions(options)
+
+  copyFromOptions: (options)->
     @start = options.start
     @startTime = options.startTime
-    @startOccurred = false
     @end = options.end or null
     @endTime = options.endTime or 0
-    @endOccurred = false
 
   update: (currentTime)->
     if not @startOccurred
       if @startTime <= currentTime
         @start?()
         @startOccurred = true
+        @endOccurred = false
     else if @end? and not @endOccurred
       if @endTime <= currentTime
         @end?()
@@ -24,4 +28,3 @@ module.exports = class Event
     if @startOccurred and not @endOccurred
       @end?()
     @startOccurred = false
-    @endOccurred = false

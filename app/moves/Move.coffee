@@ -72,23 +72,28 @@ module.exports = class Move
     # Take care that a move is only created with options from fighterData.
     # That means all boxes are initialized with arrays instead of Vector3's, etc.
     @duration = options.duration or @animationDuration or 20
-    for removeBox in @hitBoxes
-      @fighter.remove(@hitBoxes)
-    @hitBoxes = []
-    @eventSequence = []
 
     if options.hitBoxes?
-      for boxOptions in options.hitBoxes
-        box = new Box(boxOptions)
-        box.owner = @fighter
-        @fighter.add(box)
-        @hitBoxes.push(box)
-        @eventSequence.push(new Event({
+      for i in [0...options.hitBoxes.length]
+        boxOptions = options.hitBoxes[i]
+        if @hitBoxes[i]?
+          box = @hitBoxes[i]
+          box.copyFromOptions(boxOptions)
+        else
+          box = new Box(boxOptions)
+          @fighter.add(box)
+          box.owner = @fighter
+          @hitBoxes.push(box)
+        eventOptions = {
           start: box.activate
           startTime: boxOptions.startTime
           end: box.deactivate
           endTime: boxOptions.endTime
-        }))
+        }
+        if @eventSequence[i]?
+          @eventSequence[i].copyFromOptions(eventOptions)
+        else
+          @eventSequence.push(new Event(eventOptions))
 
 
   # Note: does not update the animation!
@@ -152,11 +157,12 @@ module.exports = class Move
       @animation.reset()
 
   reset: ()->
-    @active = false
-    for box in @hitBoxes
-      box.alreadyHit = [] # TODO: more efficient?
-    for event in @eventSequence
-      event.reset()
+    if @active
+      @active = false
+      for box in @hitBoxes
+        box.alreadyHit = [] # TODO: more efficient?
+      for event in @eventSequence
+        event.reset()
 
   @NO_MOVEMENT: 0
   @DI_MOVEMENT: 1

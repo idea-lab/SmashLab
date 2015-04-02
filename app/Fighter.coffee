@@ -1,4 +1,4 @@
-# A moving, figting, controllable character
+# A moving, fighting, controllable character
 Box = require("Box")
 Move = require("moves/Move")
 Utils = require("Utils")
@@ -72,7 +72,6 @@ module.exports = class Fighter extends Entity
     @move = null
 
     @damage = 0
-    @dying = 0
 
     # How much the current player has been charged by a smash
     @smashCharge = 0 # TODO: Eventually remove this to have it passed to the hurt target
@@ -222,6 +221,7 @@ module.exports = class Fighter extends Entity
     # Freeze Time
     launchSpeedFactor = Math.max(Math.min(launchSpeed * 3 - .4, 1), 0.01)
     freeze = Math.max(hitbox.freezeTime, 3) * launchSpeedFactor
+    console.log launchSpeedFactor
     if otherFighter?
       otherFighter.frozen = freeze
     @frozen = freeze
@@ -278,11 +278,7 @@ module.exports = class Fighter extends Entity
     if @frozen > 0
       @frozen = Math.max(0, @frozen - deltaTime)
     else
-      if @dying > 0
-        @dying = Math.max(0, @dying - deltaTime)
-        if @dying is 0
-          @respawn()
-      else
+      if @move.name isnt "dead"
         if @initialInvulnerability > 0 and @initialInvulnerability - deltaTime <= 0
           @makeVulnerable()
         @initialInvulnerability = Math.max(@initialInvulnerability - deltaTime, 0)
@@ -291,10 +287,7 @@ module.exports = class Fighter extends Entity
         @velocity.y -= Math.max(0, Math.min(8 * deltaTime * @jumpHeight / @airTime / @airTime, @velocity.y + @maxFallSpeed))
 
       # Complete the current move
-      if @move.name is "walk"
-        @move.update(Math.abs(@controller.joystick.x)*deltaTime)
-      else
-        @move.update(deltaTime)
+      @move.update(deltaTime)
 
       # Handle automatic endings of moves
       if @move.triggerNext?
@@ -304,7 +297,7 @@ module.exports = class Fighter extends Entity
 
       @updatePhysics(deltaTime)
 
-    if @dying is 0
+    if @move.name isnt "dead"
       @updateShield(deltaTime)
       @updateMesh(deltaTime)
 
@@ -322,7 +315,6 @@ module.exports = class Fighter extends Entity
     @jumpRemaining = true
     @ledge = null
     @canGrabLedge = true
-    @dying = 0
     @trigger("idle")
     @move.animationReset()
     @move.reset()
@@ -483,9 +475,8 @@ module.exports = class Fighter extends Entity
 
     #Detect out of bounds
     if not @box.intersects(@stage.safeBox)
-      if @dying is 0
+      if @move.name isnt "dead"
         @trigger("dead")
-        @dying = Fighter.DEAD_TIME
       return
     
     #Don't fall off the stage
@@ -582,5 +573,4 @@ module.exports = class Fighter extends Entity
   @ROTATION_SPEED: 0.3
   @MAX_VELOCITY: 0.4
   @SOFT_COLLISION_VELOCITY: 0.001
-  @INITIAL_INVULNERABILITY: 180
-  @DEAD_TIME: 60
+  @INITIAL_INVULNERABILITY: 120

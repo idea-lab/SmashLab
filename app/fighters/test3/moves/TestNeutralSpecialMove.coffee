@@ -9,6 +9,7 @@ module.exports = class TestNeutralSpecialMove extends SpecialAttackMove
   constructor: (@fighter, options)->
     super
     @duration = TestNeutralSpecialMove.CHARGE_TIME
+    @blendFrames = 10
     @triggerableMoves = @triggerableMoves.concat [
       "test3fire"
       "idle"

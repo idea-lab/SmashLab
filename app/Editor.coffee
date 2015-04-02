@@ -27,8 +27,8 @@ module.exports = class Editor
 
   getJSON: ()->
     try
-      JSON.parse(@getText())
       @element.style.color = ""
+      return JSON.parse(@getText())
     catch
       @element.style.color = "red"
       return null

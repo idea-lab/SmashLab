@@ -12,6 +12,9 @@ module.exports = class DeadMove extends Move
           @fighter.stage.cameraShake.sub(tempVector)
           @fighter.stage.cameraShakeTime = 1
         startTime: 0
+        end: ()=>
+          @fighter.respawn()
+        endTime: 60
       })
     ]
     @nextMove = null

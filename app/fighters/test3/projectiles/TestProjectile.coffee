@@ -2,7 +2,7 @@ Entity = require("Entity")
 Stage = require("Stage")
 Box = require("Box")
 module.exports = class TestProjectile extends Entity
-  @START_POSITION: new THREE.Vector3(0.6, 1.1, 0)
+  @START_POSITION: new THREE.Vector3(0.6, 1.2, 0)
   # TODO: Get these assets into a loader!
   @IMAGE_MAP: THREE.ImageUtils.loadTexture("images/Test3Projectile.png")
   @INITIAL_SCALE: 0.5

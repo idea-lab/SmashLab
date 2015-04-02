@@ -10,7 +10,7 @@ module.exports = class CrawlMove extends GroundMove
 
   update: (deltaTime)->
     # Do the crawl
-    super
+    super(Math.abs(@fighter.controller.joystick.x) * deltaTime)
     if (@fighter.controller.move & Controller.ANY_DIRECTION)
       if (@fighter.controller.move & Controller.DOWN)
         if @fighter.controller.joystick.x is 0

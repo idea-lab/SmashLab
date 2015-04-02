@@ -607,8 +607,8 @@ module.exports = {
       "hitBoxes": [
         {
           "size": [
-            0.8,
-            1.8
+            1.2,
+            1.2
           ],
           "position": [
             0,
@@ -624,8 +624,8 @@ module.exports = {
         },
         {
           "size": [
-            0.5,
-            1.5
+            0.6,
+            0.6
           ],
           "position": [
             0,
@@ -654,6 +654,37 @@ module.exports = {
       "name": "test3fire",
       "custom": "TestFireMove",
       "animation": "Fire"
+    },
+    {
+      "name": "downspecial",
+      "custom": "TestCounterMove",
+      "animation": "TestCounter",
+      "duration": 100
+    },
+    {
+      "name": "testcounterattack",
+      "custom": "TestCounterAttackMove",
+      "animation": "TestCounterAttack",
+      "duration": 50,
+      "hitBoxes": [
+        {
+          "size": [
+            1.3,
+            0.8
+          ],
+          "angle": 0.8,
+          "knockback": 0,
+          "knockbackScaling": 0,
+          "damage": 0,
+          "position": [
+            0.7,
+            1.2
+          ],
+          "startTime": 13,
+          "endTime": 20,
+          "freezeTime": 25
+        }
+      ]     
     }
   ]
 }
