@@ -10,7 +10,7 @@ module.exports = {
   "airAccel": 0.01,
   "airSpeed": 0.08,
   "airFriction": 0.002,
-  "groundAccel": 0.015,
+  "groundAccel": 0.03,
   "groundSpeed": 0.12,
   "groundFriction": 0.01,
   "dashSpeed": 0.17,
@@ -149,8 +149,8 @@ module.exports = {
             0.5
           ],
           "angle": 1.2,
-          "knockback": 5,
-          "knockbackScaling": 15,
+          "knockback": 10,
+          "knockbackScaling": 5,
           "damage": 2,
           "position": [
             0.3,
@@ -172,7 +172,7 @@ module.exports = {
             0.4
           ],
           "angle": 0.7,
-          "knockback": 2,
+          "knockback": 3,
           "knockbackScaling": 7,
           "damage": 2,
           "position": [
@@ -194,8 +194,8 @@ module.exports = {
             0.8
           ],
           "angle": 1.3,
-          "knockback": 4,
-          "knockbackScaling": 6,
+          "knockback": 6,
+          "knockbackScaling": 4,
           "damage": 10,
           "position": [
             0.1,
@@ -216,8 +216,8 @@ module.exports = {
             0.5
           ],
           "angle": 1.2,
-          "knockback": 2,
-          "knockbackScaling": 6,
+          "knockback": 4,
+          "knockbackScaling": 4,
           "damage": 8,
           "position": [
             0.8,
@@ -238,8 +238,8 @@ module.exports = {
             0.6
           ],
           "angle": 0.8,
-          "knockback": 3,
-          "knockbackScaling": 8,
+          "knockback": 4,
+          "knockbackScaling": 7,
           "damage": 11,
           "position": [
             0.6,
@@ -264,8 +264,8 @@ module.exports = {
             0.9
           ],
           "angle": 1.4,
-          "knockback": 10,
-          "knockbackScaling": 20,
+          "knockback": 15,
+          "knockbackScaling": 10,
           "damage": 16,
           "position": [
             0,
@@ -291,8 +291,8 @@ module.exports = {
             0.8
           ],
           "angle": 0.8,
-          "knockback": 5,
-          "knockbackScaling": 20,
+          "knockback": 14,
+          "knockbackScaling": 10,
           "damage": 18,
           "position": [
             0.7,
@@ -308,8 +308,8 @@ module.exports = {
             0.2
           ],
           "angle": 0.8,
-          "knockback": 6,
-          "knockbackScaling": 23,
+          "knockback": 5,
+          "knockbackScaling": 5,
           "damage": 2,
           "position": [
             0.4,
@@ -335,8 +335,8 @@ module.exports = {
             0.9
           ],
           "angle": 0.7,
-          "knockback": 6,
-          "knockbackScaling": 19,
+          "knockback": 13,
+          "knockbackScaling": 10,
           "damage": 14,
           "position": [
             0.6,
@@ -352,8 +352,8 @@ module.exports = {
             0.9
           ],
           "angle": 2.4,
-          "knockback": 2,
-          "knockbackScaling": 22,
+          "knockback": 13,
+          "knockbackScaling": 10,
           "damage": 14,
           "position": [
             -0.6,
@@ -426,8 +426,8 @@ module.exports = {
             0.4
           ],
           "angle": 2.3,
-          "knockback": 6,
-          "knockbackScaling": 12,
+          "knockback": 9,
+          "knockbackScaling": 8,
           "damage": 2,
           "position": [
             0,
@@ -449,8 +449,8 @@ module.exports = {
             0.85
           ],
           "angle": 0.8,
-          "knockback": 2,
-          "knockbackScaling": 13,
+          "knockback": 8,
+          "knockbackScaling": 7,
           "damage": 6,
           "position": [
             0.6,
@@ -465,8 +465,8 @@ module.exports = {
             0.2
           ],
           "angle": 0.7,
-          "knockback": 2,
-          "knockbackScaling": 13,
+          "knockback": 8,
+          "knockbackScaling": 7,
           "damage": 2,
           "position": [
             0.28,
@@ -488,8 +488,8 @@ module.exports = {
             0.7
           ],
           "angle": 2.5,
-          "knockback": 5,
-          "knockbackScaling": 0,
+          "knockback": 4,
+          "knockbackScaling": 3,
           "damage": 6,
           "position": [
             -0.6,
@@ -505,7 +505,7 @@ module.exports = {
           ],
           "angle": 2.5,
           "knockback": 5,
-          "knockbackScaling": 10,
+          "knockbackScaling": 4,
           "damage": 3,
           "position": [
             -0.6,
@@ -526,8 +526,8 @@ module.exports = {
             0.6
           ],
           "angle": 1.5,
-          "knockback": 4,
-          "knockbackScaling": 10,
+          "knockback": 7,
+          "knockbackScaling": 7,
           "damage": 4,
           "position": [
             0.1,
@@ -542,8 +542,8 @@ module.exports = {
             1.2
           ],
           "angle": 1.3,
-          "knockback": 2,
-          "knockbackScaling": 8,
+          "knockback": 5,
+          "knockbackScaling": 5,
           "damage": 2,
           "position": [
             0.5,
@@ -558,8 +558,8 @@ module.exports = {
             1
           ],
           "angle": 1.8,
-          "knockback": 2,
-          "knockbackScaling": 8,
+          "knockback": 5,
+          "knockbackScaling": 5,
           "damage": 2,
           "position": [
             -0.4,
@@ -580,8 +580,8 @@ module.exports = {
             0.8
           ],
           "angle": -1.3,
-          "knockback": 6,
-          "knockbackScaling": 16,
+          "knockback": 11,
+          "knockbackScaling": 11,
           "damage": 7,
           "position": [
             0.1,
@@ -615,8 +615,8 @@ module.exports = {
             0.9
           ],
           "angle": 1.5707963267949,
-          "knockback": 5,
-          "knockbackScaling": 3,
+          "knockback": 6,
+          "knockbackScaling": 4,
           "damage": 8,
           "startTime": 40,
           "endTime": 60,
@@ -632,8 +632,8 @@ module.exports = {
             0.9
           ],
           "angle": 1.6,
-          "knockback": 6,
-          "knockbackScaling": 7,
+          "knockback": 7,
+          "knockbackScaling": 6,
           "damage": 3,
           "startTime": 55,
           "endTime": 60,

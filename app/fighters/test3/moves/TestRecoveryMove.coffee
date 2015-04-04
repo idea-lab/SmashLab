@@ -24,6 +24,6 @@ module.exports = class TestRecoveryMove extends SpecialAttackMove
           @fighter.facingRight = false
       tempVec.copy(@flightDirection).multiplyScalar(0.15 * deltaTime)
       @fighter.position.add(tempVec)
-      @fighter.velocity.copy(tempVec).multiplyScalar(0.6)
+      @fighter.velocity.copy(tempVec).multiplyScalar(0.8)
     else
       @fighter.velocity.set(0, 0, 0)

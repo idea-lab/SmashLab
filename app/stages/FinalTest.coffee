@@ -11,14 +11,14 @@ module.exports = class FinalTest
 
   # The camera boundaries
   @cameraBox: {
-    size: [26, 20]
-    position: [0, 2]
+    size: [28, 20]
+    position: [0, 1]
   }
 
   # The KO Boundaries
   @safeBox: {
     size: [36, 22]
-    position: [0, 4]
+    position: [0, 3]
   }
 
   # The main hitboxes
