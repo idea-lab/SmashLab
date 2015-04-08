@@ -1,18 +1,18 @@
 CACHE MANIFEST
 # 4-7-2015 wonderful
 
-CACHE:
-index.html
-app.js
-models\Stage.json
-models\Test%203.json
-models\nexus.json
-images\TRON_Tile.png
-images\Mote.png
-images\Shield%20Additive.png
-images\Shield%20Subtractive.png
-images\Shield%20Tint.png
-images\Test3Projectile.png
+# CACHE:
+# index.html
+# app.js
+# models\Stage.json
+# models\Test%203.json
+# models\nexus.json
+# images\TRON_Tile.png
+# images\Mote.png
+# images\Shield%20Additive.png
+# images\Shield%20Subtractive.png
+# images\Shield%20Tint.png
+# images\Test3Projectile.png
 
 NETWORK:
 *

@@ -2,10 +2,6 @@ module.exports = class Editor
   @magicKey: 192 # Tilde
   constructor: (@element, @id)->
     @onupdate = null
-    @element.addEventListener "input", (event)=>
-      @saveText(@element.innerText)
-      try
-        @onupdate?(@getJSON())
     @element.addEventListener "keydown", (event)=>
       if event.keyCode is Editor.magicKey
         event.preventDefault()
@@ -13,6 +9,9 @@ module.exports = class Editor
           @element.style.display = "none"
       event.stopPropagation()
     @element.addEventListener "keyup", (event)=>
+      @saveText(@element.innerText)
+      try
+        @onupdate?(@getJSON())
       event.stopPropagation()
     @element.addEventListener "mouseenter", (event)=>
       @element.style.opacity = 1

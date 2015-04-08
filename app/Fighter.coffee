@@ -231,7 +231,8 @@ module.exports = class Fighter extends Entity
     
     # Freeze Time
     launchSpeedFactor = Math.max(Math.min(launchSpeed * 3 - .4, 1), 0.01)
-    freeze = Math.max(hitbox.freezeTime, 3) * launchSpeedFactor
+    damageFactor = Math.min(@damage/100, 1)
+    freeze = Math.max(hitbox.freezeTime, 3) * damageFactor
     # console.log launchSpeedFactor
     if otherFighter?
       otherFighter.frozen = freeze
@@ -242,9 +243,8 @@ module.exports = class Fighter extends Entity
     @velocity.add(velocityToAdd)
     # else
     #   @velocity.copy(velocityToAdd)
-    velocityToAdd.normalize().multiplyScalar(launchSpeedFactor)
+    velocityToAdd.normalize().multiplyScalar(damageFactor * launchSpeedFactor)
     @stage.cameraShake.sub(velocityToAdd)
-    @stage.cameraShakeTime = 1
     if not @shielding
       @trigger("hurt", launchSpeed)
     

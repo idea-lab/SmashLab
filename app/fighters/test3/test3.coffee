@@ -482,8 +482,8 @@ module.exports = {
             0.2
           ],
           "angle": 0.7,
-          "knockback": 8,
-          "knockbackScaling": 7,
+          "knockback": 10,
+          "knockbackScaling": 18,
           "damage": 2,
           "position": [
             0.28,
@@ -491,7 +491,7 @@ module.exports = {
           ],
           "startTime": 7,
           "endTime": 9,
-          "freezeTime": 15
+          "freezeTime": 30
         }
       ]
     },

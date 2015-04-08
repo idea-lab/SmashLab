@@ -27,8 +27,8 @@ module.exports = class Stage extends THREE.Scene
     @camera.position.set(0, 0, 10)
     @add(@camera)
     @resize()
-    @cameraShakeTime = 0
     @cameraShake = new THREE.Vector3()
+    @cameraShakePos = new THREE.Vector3()
 
     # Add hitboxes
     @collisionBoxes = []
@@ -294,11 +294,12 @@ module.exports = class Stage extends THREE.Scene
     
     # Lerp the camera to the averagePosition
     @camera.position.lerp(averagePosition, 0.1)
-    shake = tempVector.copy(@cameraShake)
-    @cameraShakeTime+= @deltaTime
-    shake.multiplyScalar(0.7 * Math.sin(@cameraShakeTime * 0.5))
-    @camera.position.add(shake)
-    @cameraShake.multiplyScalar(0.8)
+
+    kx = tempVector.copy(@cameraShakePos).multiplyScalar(-@deltaTime*Stage.CAMERA_SHAKE_K)
+    @cameraShake.add(kx).multiplyScalar(Stage.CAMERA_SHAKE_DECAY)
+    tempVector.copy(@cameraShake).multiplyScalar(@deltaTime)
+    @cameraShakePos.add(tempVector)
+    @camera.position.add(@cameraShakePos)
 
   resize: ->
     @camera.aspect = @game.width/@game.height
@@ -344,3 +345,5 @@ module.exports = class Stage extends THREE.Scene
       when 6 then new THREE.Color(0xff00ff)
       when 7 then new THREE.Color(0x8800ff)
       else new THREE.Color(Math.round(Math.random() * 0xffffff))
+  @CAMERA_SHAKE_K: 0.25
+  @CAMERA_SHAKE_DECAY: 0.75

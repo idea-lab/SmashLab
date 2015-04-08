@@ -10,7 +10,6 @@ module.exports = class DeadMove extends Move
         start: ()=>
           tempVector.copy(@fighter.velocity).normalize().multiplyScalar(2.5)
           @fighter.stage.cameraShake.sub(tempVector)
-          @fighter.stage.cameraShakeTime = 1
         startTime: 0
         end: ()=>
           @fighter.respawn()
