@@ -192,14 +192,14 @@ module.exports = class Stage extends THREE.Scene
         for box in entity.collisionBoxes when box.collides
           for otherBox in @collisionBoxes when box.collides
               if box.intersects(otherBox)
-                entity.resolveCollision(otherBox, this, @deltaTime)            
-        for f in [e + 1...@children.length]
-          secondEntity = @children[f]
-          if secondEntity instanceof Entity
-            for otherBox in secondEntity.collisionBoxes when box.collides
-              if box.intersects(otherBox)
-                entity.resolveCollision(otherBox, secondEntity, @deltaTime)
-                secondEntity.resolveCollision(box, entity, @deltaTime)
+                entity.resolveCollision(box, otherBox, this, @deltaTime)            
+          for f in [e + 1...@children.length]
+            secondEntity = @children[f]
+            if secondEntity instanceof Entity
+              for otherBox in secondEntity.collisionBoxes when otherBox.collides
+                if box.intersects(otherBox)
+                  entity.resolveCollision(box, otherBox, secondEntity, @deltaTime)
+                  secondEntity.resolveCollision(otherBox, box, entity, @deltaTime)
 
     # - Update hitboxes and moves, player input, set movement velocity,
     #   controllers, gravity, and the rest of the good stuff

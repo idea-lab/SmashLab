@@ -56,8 +56,8 @@ module.exports = class TestProjectile extends Entity
     # This line makes the hitboxes work with reflectors
     @rotation.y = if @velocity.x < 0 then Math.PI else 0
 
-  resolveCollision: (box, entity, deltaTime)->
-    if entity instanceof Stage
+  resolveCollision: (box, otherBox, otherEntity, deltaTime)->
+    if otherEntity instanceof Stage
       @lifetime = 0
 
   giveDamage: (box, target)->

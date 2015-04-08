@@ -38,6 +38,7 @@ module.exports = class Move
     @triggerNext = null
     @triggerArguments = []
 
+    @duration = 20 or @animationDuration
     # The number of frames the previous animation will blend into the current one
     @blendFrames = 0
     @weight = 0
@@ -71,7 +72,7 @@ module.exports = class Move
     # 2. be activated by an event in the eventSequence.
     # Take care that a move is only created with options from fighterData.
     # That means all boxes are initialized with arrays instead of Vector3's, etc.
-    @duration = options.duration or @animationDuration or 20
+    @duration = options.duration or @duration
 
     if options.hitBoxes?
       for i in [0...options.hitBoxes.length]

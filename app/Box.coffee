@@ -7,7 +7,7 @@ returnVector = new THREE.Vector3()
 
 Utils = require("Utils")
 module.exports = class Box extends THREE.Object3D
-  constructor: (options)->
+  constructor: (options = {})->
     super()
     @size = new THREE.Vector3()
 
@@ -15,14 +15,7 @@ module.exports = class Box extends THREE.Object3D
     @debugBox = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshNormalMaterial(wireframe: true))
     @add(@debugBox)
 
-    @owner = options.owner or null
-
     @alreadyHit = []
-
-    @collides = true
-    # Can this box actively cause damage?
-    @active = options.active or false
-
 
     @activate = ()=>
       @active = @collides = true
@@ -54,6 +47,14 @@ module.exports = class Box extends THREE.Object3D
     @freezeTime = options.freezeTime or 0
 
     @debugBox.visible = options.debug? or false
+
+    @name = options.name or ""
+
+    @owner = options.owner or null
+
+    @collides = options.collides or true
+    # Can this box actively cause damage?
+    @active = options.active or false
 
   # Gets the top left/right vertex of the box.
   getVertex: (right)->

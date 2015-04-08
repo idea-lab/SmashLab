@@ -3,10 +3,10 @@ module.exports = {
   "id": "test3",
   "modelSrc": "models/Test 3.json",
   "modelJSON": null,
-  "airTime": 60,
-  "jumpHeight": 3,
+  "airTime": 50,
+  "jumpHeight": 2.5,
   "shortHopHeight": 1.3,
-  "maxFallSpeed": 0.12,
+  "maxFallSpeed": 0.14,
   "airAccel": 0.01,
   "airSpeed": 0.08,
   "airFriction": 0.002,
@@ -15,26 +15,43 @@ module.exports = {
   "groundFriction": 0.01,
   "dashSpeed": 0.17,
   "crawlSpeed": 0.06,
-  "box": {
-    "size": [
-      0.5,
-      1.86
-    ],
-    "position": [
-      0,
-      0.93
-    ]
-  },
-  "ledgeBox": {
-    "size": [
-      2.2,
-      1.5
-    ],
-    "position": [
-      0.1,
-      1.7
-    ]
-  },
+  "collisionBoxes": [
+    {
+      "name": "mainBox",
+      "size": [
+        0.5,
+        1.86
+      ],
+      "position": [
+        0,
+        0.93
+      ]
+    },
+    {
+      "name": "grabBox",
+      "collides": false,
+      "size": [
+        0.1,
+        0.1
+      ],
+      "position": [
+        0.5,
+        0.9
+      ]
+    },
+    {
+      "name": "ledgeBox",
+      "collides": false,
+      "size": [
+        2.2,
+        1.5
+      ],
+      "position": [
+        0.1,
+        1.7
+      ]
+    }
+  ],
   "moves": [
     {
       "name": "idle",
@@ -264,8 +281,8 @@ module.exports = {
             0.9
           ],
           "angle": 1.4,
-          "knockback": 15,
-          "knockbackScaling": 10,
+          "knockback": 18,
+          "knockbackScaling": 13,
           "damage": 16,
           "position": [
             0,
@@ -291,8 +308,8 @@ module.exports = {
             0.8
           ],
           "angle": 0.8,
-          "knockback": 14,
-          "knockbackScaling": 10,
+          "knockback": 17,
+          "knockbackScaling": 13,
           "damage": 18,
           "position": [
             0.7,
@@ -335,8 +352,8 @@ module.exports = {
             0.9
           ],
           "angle": 0.7,
-          "knockback": 13,
-          "knockbackScaling": 10,
+          "knockback": 15,
+          "knockbackScaling": 13,
           "damage": 14,
           "position": [
             0.6,
@@ -352,8 +369,8 @@ module.exports = {
             0.9
           ],
           "angle": 2.4,
-          "knockback": 13,
-          "knockbackScaling": 10,
+          "knockback": 15,
+          "knockbackScaling": 13,
           "damage": 14,
           "position": [
             -0.6,

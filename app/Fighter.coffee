@@ -21,12 +21,6 @@ module.exports = class Fighter extends Entity
     @stage = options.stage
     @color = options.color or new THREE.Color(Math.floor(Math.random()*0xffffff))
 
-    # Hitbox
-    @box = new Box(fighterData.box)
-    @collisionBoxes = [@box]
-    # @box.debugBox.visible = true
-    @add(@box)
-
     # The fighterdata is expected to come with its own JSON. Be sure to load beforehand!
     parsedJSON = THREE.JSONLoader.prototype.parse(Utils.clone(fighterData.modelJSON))
     @mesh=new THREE.SkinnedMesh(parsedJSON.geometry, new THREE.MeshLambertMaterial({skinning:true, shading:THREE.FlatShading, color: (new THREE.Color()).copy(@color)}))
@@ -41,11 +35,6 @@ module.exports = class Fighter extends Entity
     # The current ledge being grabbed, if any
     @ledge = null
     @canGrabLedge = true
-
-    # The box used for grabbing the edge
-    @ledgeBox = new Box(fighterData.ledgeBox)
-    # @ledgeBox.debugBox.visible = true
-    @add(@ledgeBox)
 
     # Whether or not the player is INVICIBLE
     @invulnerable = true
@@ -76,6 +65,8 @@ module.exports = class Fighter extends Entity
     # How much the current player has been charged by a smash
     @smashCharge = 0 # TODO: Eventually remove this to have it passed to the hurt target
 
+    # Contains all boxes that collide peacefully
+    @collisionBoxes = []
     # Contains all hitBoxes that can hurt
     @hitBoxes = []
 
@@ -86,12 +77,11 @@ module.exports = class Fighter extends Entity
     @shieldDamage = Fighter.SHIELD_MAX_DAMAGE
     @shielding = false
     @shieldScale = 1.5
-    @shieldBox = new Box(position: @box.position)
+    @shieldBox = new Box()
     @add(@shieldBox)
 
     @shieldObject = new THREE.Object3D()
     @shieldObject.visible = false
-    @shieldObject.position.copy(@box.position)
     @add(@shieldObject)
     shield1Image = THREE.ImageUtils.loadTexture("images/Shield Additive.png")
     shield1 = new THREE.Sprite(new THREE.SpriteMaterial({depthTest:false, blending:THREE.AdditiveBlending, map:shield1Image, opacity:1}))
@@ -177,6 +167,27 @@ module.exports = class Fighter extends Entity
     @dashSpeed = fighterData.dashSpeed
     @crawlSpeed = fighterData.crawlSpeed
 
+    # Parse all collision boxes
+    for b in fighterData.collisionBoxes
+      box = Utils.findObjectByName(@collisionBoxes, b.name)
+      if box?
+        box.copyFromOptions(b)
+      else
+        box = new Box(b)
+        @collisionBoxes.push(box)
+        @add(box)
+    
+    # Hitbox
+    @box = Utils.findObjectByName(@collisionBoxes, "mainBox")
+    # The box used for grabbing the edge
+    @ledgeBox = Utils.findObjectByName(@collisionBoxes, "ledgeBox")
+    # The box used for grabbing others
+    @grabBox = Utils.findObjectByName(@collisionBoxes, "grabBox")
+    # @box.debugBox.visible = true
+    # Move the shield into place
+    @shieldBox.position.copy(@box.position)
+    @shieldObject.position.copy(@box.position)
+
     # Add/update moves
     for move in fighterData.moves
       moveObject = Utils.findObjectByName(@moveset, move.name)
@@ -221,7 +232,7 @@ module.exports = class Fighter extends Entity
     # Freeze Time
     launchSpeedFactor = Math.max(Math.min(launchSpeed * 3 - .4, 1), 0.01)
     freeze = Math.max(hitbox.freezeTime, 3) * launchSpeedFactor
-    console.log launchSpeedFactor
+    # console.log launchSpeedFactor
     if otherFighter?
       otherFighter.frozen = freeze
     @frozen = freeze
@@ -246,30 +257,31 @@ module.exports = class Fighter extends Entity
     @position.add(tempVector)
     @touchingGround = false
 
-  resolveCollision: (otherBox, entity, deltaTime)->
-    if entity is @stage
-      # Ground collision - Touching the stage
-      resolutionVector = @box.resolveCollision(otherBox)
-      @position.add(resolutionVector)
-      if resolutionVector.y > 0
-        # Just landing. Engage your flaps and reverse your jets
-        # because ground control needs to know your heading.
-        if @move.name is "hurt"
-          # Bounce!
-          @velocity.y = 0.8 * Math.abs(@velocity.y)
+  resolveCollision: (myBox, otherBox, otherEntity, deltaTime)->
+    if myBox is @box
+      if otherEntity is @stage
+        # Ground collision - Touching the stage
+        resolutionVector = @box.resolveCollision(otherBox)
+        @position.add(resolutionVector)
+        if resolutionVector.y > 0
+          # Just landing. Engage your flaps and reverse your jets
+          # because ground control needs to know your heading.
+          if @move.name is "hurt"
+            # Bounce!
+            @velocity.y = 0.8 * Math.abs(@velocity.y)
+          else
+            @touchingGround = true
+            @jumpRemaining = true
+            if @velocity.y < 0
+              @velocity.y = 0
+      else if otherEntity instanceof Fighter and otherBox is otherEntity.box
+        # Soft fighter-fighter collision
+        if @position.x > otherEntity.position.x
+          @position.x += Fighter.SOFT_COLLISION_VELOCITY * deltaTime
+          otherEntity.position.x -= Fighter.SOFT_COLLISION_VELOCITY * deltaTime
         else
-          @touchingGround = true
-          @jumpRemaining = true
-          if @velocity.y < 0
-            @velocity.y = 0
-    else if entity instanceof Fighter
-      # Soft fighter-fighter collision
-      if @position.x > entity.position.x
-        @position.x += Fighter.SOFT_COLLISION_VELOCITY * deltaTime
-        entity.position.x -= Fighter.SOFT_COLLISION_VELOCITY * deltaTime
-      else
-        @position.x -= Fighter.SOFT_COLLISION_VELOCITY * deltaTime
-        entity.position.x += Fighter.SOFT_COLLISION_VELOCITY * deltaTime
+          @position.x -= Fighter.SOFT_COLLISION_VELOCITY * deltaTime
+          otherEntity.position.x += Fighter.SOFT_COLLISION_VELOCITY * deltaTime
 
   update: (deltaTime)->
     @controller.update(deltaTime)

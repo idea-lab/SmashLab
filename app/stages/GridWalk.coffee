@@ -8,38 +8,38 @@ module.exports = class GridWalk
 
   # The camera boundaries
   @cameraBox: {
-    size: [20, 18]
-    position: [0, 2]
+    size: [28, 20]
+    position: [0, 1]
   }
 
   # The KO Boundaries
   @safeBox: {
-    size: [23, 20]
-    position: [0, 4]
+    size: [36, 22]
+    position: [0, 3]
   }
 
   # The main hitboxes
-  @activeBoxes: [
+  @collisionBoxes: [
     {
       size: [34, 10]
       position: [0, -5]
     }
     {
-      size: [2, 1]
-      position: [4.45, 0.5]
+      size: [3, 1.5]
+      position: [6.675, 0.75]
       debug: true
     }
     {
-      size: [2, 1]
-      position: [-4.45, 0.5]
+      size: [3, 1.5]
+      position: [-6.675, 0.75]
       debug: true
     }
   ]
 
   constructor: (@stage)->
-    geometry = THREE.JSONLoader.prototype.parse(@modelJSON).geometry
+    geometry = THREE.JSONLoader.prototype.parse(GridWalk.modelJSON).geometry
     mesh = new THREE.Mesh(geometry, new THREE.MeshNormalMaterial(shading:THREE.FlatShading))
-    mesh.scale.multiplyScalar(1.5)
+    mesh.scale.multiplyScalar(2.25)
     mesh.position.set(0, 1, -4).multiply(mesh.scale)
     @stage.add(mesh)
 

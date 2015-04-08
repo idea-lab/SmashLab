@@ -16,6 +16,7 @@ module.exports = class Controller
     @shieldPrevious = 0
 
     @tapJump = options.tapJump or true
+    @abToGrab = options.abToGrab or true
     @jump = 0
     @jumpPrevious = 0
 
@@ -40,7 +41,12 @@ module.exports = class Controller
     length = @joystick.length()
     @joystick.normalize().multiplyScalar(Math.min(1, length))
 
-    move = @getJoystickDirection()
+    if @suspendCounter > 0
+      move = @suspendedMove & ~Controller.ANY_DIRECTION
+    else
+      move = 0
+
+    move |= @getJoystickDirection()
 
     if @doubleTiltAnalog
       if @joystick.length() and not @joystickPrevious.length()
@@ -67,16 +73,19 @@ module.exports = class Controller
     if @shield and not @shieldPrevious
       move |= Controller.SHIELD
 
+    if @abToGrab and (@move & (Controller.ATTACK && Controller.SPECIAL))
+      move |= Controller.GRAB
+
     if @doubleTiltCounter > 0 
       @doubleTiltCounter = Math.max(0, @doubleTiltCounter - deltaTime)
     else
       @doubleTiltDirection = 0
 
     if @suspendCounter > 0
-      @move = 0
       @suspendCounter = Math.max(0, @suspendCounter - deltaTime)
       # Update suspended direction, save everything else
-      @suspendedMove = (@suspendedMove & ~Controller.ANY_DIRECTION) | move
+      @suspendedMove = move
+      @move = 0
       if @suspendCounter is 0
         # Trigger the suspended move
         @move = @suspendedMove
@@ -126,7 +135,8 @@ module.exports = class Controller
   @ATTACK : 128
   @SPECIAL : 256
   @SHIELD : 512
-  @ANY_BUTTON : @ATTACK | @SPECIAL | @SHIELD
+  @GRAB: 1024
+  @ANY_BUTTON : @ATTACK | @SPECIAL | @SHIELD | @GRAB
 
   # Frames to suspend a move while looking for combos
   # 3 for keyboard
@@ -138,4 +148,4 @@ module.exports = class Controller
   # Time to register two tilts
   @DOUBLE_TILT_FRAMES : 15
   # Time to register a "strong" tilt
-  @DOUBLE_TILT_ANALOG_FRAMES : 5
+  @DOUBLE_TILT_ANALOG_FRAMES : 3

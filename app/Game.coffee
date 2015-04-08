@@ -4,7 +4,8 @@ finalTestData = require("stages/FinalTest")
 gridWalkData = require("stages/GridWalk")
 module.exports = class Game
   constructor: (@element) ->
-    stageData = finalTestData # if confirm("Choose your stage") then finalTestData else gridWalkData
+    # stageData = finalTestData
+    stageData = if confirm("Choose your stage") then finalTestData else gridWalkData
     @renderer= new THREE.WebGLRenderer({preserveDrawingBuffer: true})
     # @cyclicalbuffer = window.buffer = []
     # @record = true

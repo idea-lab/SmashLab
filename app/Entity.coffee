@@ -23,7 +23,7 @@ module.exports = class Entity extends THREE.Object3D
     tempVector.copy(@velocity).multiplyScalar(deltaTime / 60)
     @position.add(tempVector)
 
-  resolveCollision: (box, entity, deltaTime)->
+  resolveCollision: (thisBox, otherBox, otherEntity, deltaTime)->
 
   takeDamage: (hitbox, entity)->
 
