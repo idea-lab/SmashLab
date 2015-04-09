@@ -8,7 +8,7 @@ module.exports = class DeadMove extends Move
     @eventSequence = [
       new Event({
         start: ()=>
-          tempVector.copy(@fighter.velocity).normalize().multiplyScalar(2.5)
+          tempVector.copy(@fighter.velocity).normalize().multiplyScalar(0.8)
           @fighter.stage.cameraShake.sub(tempVector)
         startTime: 0
         end: ()=>
@@ -16,5 +16,4 @@ module.exports = class DeadMove extends Move
         endTime: 60
       })
     ]
-    @nextMove = null
-      
+    @nextMove = null      

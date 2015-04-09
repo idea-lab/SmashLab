@@ -145,6 +145,9 @@ module.exports = class Fighter extends Entity
     "crouch" : "CrouchMove"
     "crawl" : "CrawlMove"
     "upspecial" : "SpecialAttackMove"
+    "downspecial" : "SpecialAttackMove"
+    "neutralspecial" : "SpecialAttackMove"
+    "sidespecial" : "SpecialAttackMove"
     "disabledfall" : "DisabledFallMove"
   }
 
@@ -229,22 +232,24 @@ module.exports = class Fighter extends Entity
       # Gain another jump
       @jumpRemaining = true
     
-    # Freeze Time
     launchSpeedFactor = Math.max(Math.min(launchSpeed * 3 - .4, 1), 0.01)
     damageFactor = Math.min(@damage/100, 1)
+
+    # Multiple hitBoxes compound velocities
+    # if not @shielding and @move.name is "hurt" and @move.currentTime is 1
+    #if @frozen is 0
+    @velocity.add(velocityToAdd)
+    # else
+    #   @velocity.copy(velocityToAdd)
+    velocityToAdd.normalize().multiplyScalar(0.6 * damageFactor * launchSpeedFactor)
+    @stage.cameraShake.sub(velocityToAdd)
+
+    # Freeze Time
     freeze = Math.max(hitbox.freezeTime, 3) * damageFactor
     # console.log launchSpeedFactor
     if otherFighter?
       otherFighter.frozen = freeze
-    @frozen = freeze
-
-    # Multiple hitBoxes compound velocities
-    # if not @shielding and @move.name is "hurt" and @move.currentTime is 1
-    @velocity.add(velocityToAdd)
-    # else
-    #   @velocity.copy(velocityToAdd)
-    velocityToAdd.normalize().multiplyScalar(damageFactor * launchSpeedFactor)
-    @stage.cameraShake.sub(velocityToAdd)
+    @frozen = freeze + hitbox.captureTime
     if not @shielding
       @trigger("hurt", launchSpeed)
     
@@ -252,10 +257,11 @@ module.exports = class Fighter extends Entity
   applyVelocity: (deltaTime)->
     if @frozen > 0
       return
-    tempVector.copy(@velocity).normalize().multiplyScalar(Math.min(@velocity.length(), Fighter.MAX_VELOCITY))
-    tempVector.multiplyScalar(deltaTime)
-    @position.add(tempVector)
-    @touchingGround = false
+    if @move.name isnt "dead"
+      tempVector.copy(@velocity).normalize().multiplyScalar(Math.min(@velocity.length(), Fighter.MAX_VELOCITY))
+      tempVector.multiplyScalar(deltaTime)
+      @position.add(tempVector)
+      @touchingGround = false
 
   resolveCollision: (myBox, otherBox, otherEntity, deltaTime)->
     if myBox is @box
@@ -289,7 +295,8 @@ module.exports = class Fighter extends Entity
     #console.log @move.name
     if @frozen > 0
       @frozen = Math.max(0, @frozen - deltaTime)
-    else
+
+    if @frozen is 0
       if @move.name isnt "dead"
         if @initialInvulnerability > 0 and @initialInvulnerability - deltaTime <= 0
           @makeVulnerable()
@@ -298,13 +305,14 @@ module.exports = class Fighter extends Entity
         # Gotta get that gravity (goes here because the move can mess with it)
         @velocity.y -= Math.max(0, Math.min(8 * deltaTime * @jumpHeight / @airTime / @airTime, @velocity.y + @maxFallSpeed))
 
-      # Complete the current move
-      @move.update(deltaTime)
+    # Complete the current move
+    @move.update(if @frozen then 0 else deltaTime)
 
-      # Handle automatic endings of moves
-      if @move.triggerNext?
-        @trigger(@move.triggerNext, @move.triggerArguments...)
+    # Handle automatic endings of moves
+    if @move.triggerNext?
+      @trigger(@move.triggerNext, @move.triggerArguments...)
 
+    if @frozen is 0
       @triggerFromController()
 
       @updatePhysics(deltaTime)
@@ -489,12 +497,14 @@ module.exports = class Fighter extends Entity
     if not @box.intersects(@stage.safeBox)
       if @move.name isnt "dead"
         @trigger("dead")
-      return
     
+    if @move.name is "dead"
+      return
+
     #Don't fall off the stage
-    if @move.preventFall
+    if @move.stopAtLedges
       for ledgeBox in @stage.ledgeBoxes when ledgeBox instanceof Box
-        if @box.intersects(ledgeBox)
+        if ledgeBox.facingRight is @facingRight and @box.intersects(ledgeBox)
           #Touching the stage
           resolutionVector = @box.resolveCollision(ledgeBox)
           @position.add(resolutionVector)

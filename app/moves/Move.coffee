@@ -38,7 +38,7 @@ module.exports = class Move
     @triggerNext = null
     @triggerArguments = []
 
-    @duration = 20 or @animationDuration
+    @duration = @animationDuration or 20
     # The number of frames the previous animation will blend into the current one
     @blendFrames = 0
     @weight = 0
@@ -60,19 +60,21 @@ module.exports = class Move
     @currentTime = 1
     @active = false
 
-    @copyFromOptions(options)
     # Stop the character from falling off the stage
-    @preventFall = false
+    @stopAtLedges = false
+    
+    @copyFromOptions(options)
 
     @reset()
 
   copyFromOptions: (options)->
-
     # In order for a hitbox to register, it needs to 1. be a member of hitBoxes and
     # 2. be activated by an event in the eventSequence.
     # Take care that a move is only created with options from fighterData.
     # That means all boxes are initialized with arrays instead of Vector3's, etc.
     @duration = options.duration or @duration
+    @allowAnimatedMovement = options.allowAnimatedMovement or @allowAnimatedMovement
+    @stopAtLedges = options.stopAtLedges or @stopAtLedges
 
     if options.hitBoxes?
       for i in [0...options.hitBoxes.length]

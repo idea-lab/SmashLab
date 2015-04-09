@@ -45,6 +45,7 @@ module.exports = class Box extends THREE.Object3D
     @damage = options.damage or 0
 
     @freezeTime = options.freezeTime or 0
+    @captureTime = options.captureTime or 0
 
     @debugBox.visible = options.debug? or false
 
@@ -55,6 +56,8 @@ module.exports = class Box extends THREE.Object3D
     @collides = options.collides or true
     # Can this box actively cause damage?
     @active = options.active or false
+    # Can this box deflect projectiles?
+    @deflect = options.deflect or false
 
   # Gets the top left/right vertex of the box.
   getVertex: (right)->

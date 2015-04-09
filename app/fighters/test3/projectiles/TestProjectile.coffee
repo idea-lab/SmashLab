@@ -67,3 +67,11 @@ module.exports = class TestProjectile extends Entity
         @lifetime = 1
     else
       @lifetime = 1
+
+  deflect: (box, entity)->
+    # DRY up the next two lines!
+    for box in @hitBoxes
+      box.alreadyHit = []
+      box.owner = entity
+    @facingRight = not @facingRight
+    @velocity.x *= -1

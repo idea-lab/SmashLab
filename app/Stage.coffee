@@ -47,6 +47,7 @@ module.exports = class Stage extends THREE.Scene
         ledgeBox = new Box(size: new THREE.Vector3(1, 1 ,0), position: (new THREE.Vector3()).copy(box.getVertex(true)))
         ledgeBox.position.x += 0.5
         ledgeBox.position.y += 0.5
+        ledgeBox.facingRight = true
         @ledgeBoxes.push(ledgeBox)
         @add(ledgeBox)
       if activeBox.rightLedge?
@@ -55,6 +56,7 @@ module.exports = class Stage extends THREE.Scene
         ledgeBox = new Box(size: new THREE.Vector3(1, 1 ,0), position: (new THREE.Vector3()).copy(box.getVertex(false)))
         ledgeBox.position.x -= 0.5
         ledgeBox.position.y += 0.5
+        ledgeBox.facingRight = false
         @ledgeBoxes.push(ledgeBox)
         @add(ledgeBox)
 
@@ -138,6 +140,7 @@ module.exports = class Stage extends THREE.Scene
     @inactiveControllers.push(new GamepadController(gamepadIndex: 1))
     @inactiveControllers.push(new GamepadController(gamepadIndex: 2))
     @inactiveControllers.push(new GamepadController(gamepadIndex: 3))
+    @activeControllers = []
 
 
     @players = []
@@ -164,8 +167,12 @@ module.exports = class Stage extends THREE.Scene
     @deltaTime = 1
     $(window).on "keydown", (event)=>
       switch event.keyCode
-        when 49 then @deltaTime = Math.max(0.1, @deltaTime * 0.9)
-        when 50 then @deltaTime = Math.min(2, @deltaTime / 0.9)
+        when 49 then @deltaTime = 0.1 #Math.max(0.1, @deltaTime * 0.9)
+        #when 50 then @deltaTime = Math.min(2, @deltaTime / 0.9)
+        when 51 then @removeAllFighters()
+    $(window).on "keyup", (event)=>
+      switch event.keyCode
+        when 49 then @deltaTime = 1
     #@orbitcontrols = new THREE.OrbitControls(@camera)
 
   # Updates the entire fight.
@@ -209,14 +216,16 @@ module.exports = class Stage extends THREE.Scene
     # - Detect hitbox-player collision, set velocities for colliding hitboxes
     #   (velocities will be applied next render)
     for entity in @children when entity instanceof Entity
-      for hitbox in entity.hitBoxes when hitbox.active
+      for hitbox in entity.hitBoxes when hitbox.active or hitbox.deflect
         hitbox.updateMatrixWorld()
         # Go through potential targets
         for target in @children when target isnt entity and target instanceof Entity and hitbox.owner isnt target
           if not (target in hitbox.alreadyHit)
             # TODO: Account for multiple collision boxes?
             if target.collisionBoxes.length > 0 and hitbox.intersects(target.collisionBoxes[0]) or target.shielding and hitbox.intersects(target.shieldBox)
-              if not target.dodging
+              if hitbox.deflect
+                target.deflect?(hitbox, entity)
+              else if not target.dodging
                 target.takeDamage(hitbox, entity)
                 entity.giveDamage(hitbox, target)
               hitbox.alreadyHit.push(target)
@@ -327,7 +336,20 @@ module.exports = class Stage extends THREE.Scene
         @playerHudElements.push(
           hudElement
         )
+        @activeControllers.push(controller)
         @inactiveControllers.splice(i, 1)
+
+  removeAllFighters: ()->
+    $(".bottombar").empty()
+    @playerHudElements=[]
+    for fighter in @players
+      @remove(fighter)
+    @players = []
+    for activeController in @activeControllers
+      activeController.active = false
+      @inactiveControllers.push(activeController)
+    @activeControllers = []
+    #TODO: Incomplete
 
   updateHUD: ()->
     for i in [0...@players.length]
@@ -345,5 +367,6 @@ module.exports = class Stage extends THREE.Scene
       when 6 then new THREE.Color(0xff00ff)
       when 7 then new THREE.Color(0x8800ff)
       else new THREE.Color(Math.round(Math.random() * 0xffffff))
-  @CAMERA_SHAKE_K: 0.25
+  @CAMERA_SHAKE_K: 0.28
   @CAMERA_SHAKE_DECAY: 0.75
+

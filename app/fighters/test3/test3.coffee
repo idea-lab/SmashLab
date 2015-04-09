@@ -189,15 +189,16 @@ module.exports = {
             0.4
           ],
           "angle": 0.7,
-          "knockback": 3,
-          "knockbackScaling": 7,
+          "knockback": 1,
+          "knockbackScaling": 1,
           "damage": 2,
           "position": [
             0.4,
             1.3
           ],
           "startTime": 1,
-          "endTime": 8
+          "endTime": 8,
+          "captureTime": 8
         }
       ]
     },
@@ -388,71 +389,51 @@ module.exports = {
       "hitBoxes": [
         {
           "size": [
-            1.5,
-            0.4
+            0.6,
+            0.6
           ],
-          "angle": 2.6,
-          "knockback": 1,
-          "knockbackScaling": 0,
-          "damage": 1.5,
+          "angle": 1.5,
+          "knockback": 4,
+          "knockbackScaling": 4,
+          "damage": 4,
           "position": [
-            0,
-            1.4
+            0.1,
+            1.5
           ],
-          "startTime": 6,
-          "endTime": 9,
-          "freezeTime": 6
+          "startTime": 11,
+          "endTime": 16
         },
         {
           "size": [
-            1.5,
-            0.4
+            0.6,
+            1.2
           ],
-          "angle": 0.5,
-          "knockback": 1,
-          "knockbackScaling": 0,
-          "damage": 1.5,
-          "position": [
-            0,
-            1.4
-          ],
-          "startTime": 9,
-          "endTime": 12,
-          "freezeTime": 6
-        },
-        {
-          "size": [
-            1.5,
-            0.4
-          ],
-          "angle": 0.5,
-          "knockback": 1,
-          "knockbackScaling": 0,
-          "damage": 1.5,
-          "position": [
-            0,
-            1.4
-          ],
-          "startTime": 17,
-          "endTime": 21,
-          "freezeTime": 6
-        },
-        {
-          "size": [
-            1.5,
-            0.4
-          ],
-          "angle": 2.3,
-          "knockback": 9,
-          "knockbackScaling": 8,
+          "angle": 1.3,
+          "knockback": 5,
+          "knockbackScaling": 5,
           "damage": 2,
           "position": [
-            0,
-            1.4
+            0.5,
+            1
           ],
-          "startTime": 21,
-          "endTime": 25,
-          "freezeTime": 10
+          "startTime": 2,
+          "endTime": 10
+        },
+        {
+          "size": [
+            0.5,
+            1
+          ],
+          "angle": 1.8,
+          "knockback": 5,
+          "knockbackScaling": 5,
+          "damage": 2,
+          "position": [
+            -0.4,
+            0.9
+          ],
+          "startTime": 12,
+          "endTime": 20
         }
       ]
     },
@@ -539,51 +520,38 @@ module.exports = {
       "hitBoxes": [
         {
           "size": [
-            0.6,
-            0.6
+            0.8,
+            0.8
+          ],
+          "position": [
+            0.0,
+            1.9
           ],
           "angle": 1.5,
-          "knockback": 7,
-          "knockbackScaling": 7,
+          "knockback": 1,
+          "knockbackScaling": 0,
+          "damage": 3,
+          "startTime": 6,
+          "endTime": 8,
+          "freezeTime": 7,
+          "captureTime": 5
+        },
+        {
+          "size": [
+            0.8,
+            0.8
+          ],
+          "position": [
+            0.0,
+            1.9
+          ],
+          "angle": 1.5,
+          "knockback": 10,
+          "knockbackScaling": 10,
           "damage": 4,
-          "position": [
-            0.1,
-            1.5
-          ],
-          "startTime": 11,
-          "endTime": 16
-        },
-        {
-          "size": [
-            0.6,
-            1.2
-          ],
-          "angle": 1.3,
-          "knockback": 5,
-          "knockbackScaling": 5,
-          "damage": 2,
-          "position": [
-            0.5,
-            1
-          ],
-          "startTime": 2,
-          "endTime": 10
-        },
-        {
-          "size": [
-            0.5,
-            1
-          ],
-          "angle": 1.8,
-          "knockback": 5,
-          "knockbackScaling": 5,
-          "damage": 2,
-          "position": [
-            -0.4,
-            0.9
-          ],
-          "startTime": 12,
-          "endTime": 20
+          "startTime": 10,
+          "freezeTime": 7,
+          "endTime": 17
         }
       ]
     },
@@ -702,6 +670,98 @@ module.exports = {
           "freezeTime": 25
         }
       ]     
+    },
+    {
+      "name": "sidespecial",
+      "animation": "Side Special",
+      "allowAnimatedMovement": true,
+      "stopAtLedges": true,
+      "hitBoxes": [
+        {
+          "size": [
+            1.5,
+            0.8
+          ],
+          "angle": 2.6,
+          "knockback": 1,
+          "knockbackScaling": 0,
+          "damage": 1.5,
+          "position": [
+            0,
+            1.1
+          ],
+          "startTime": 6,
+          "endTime": 9,
+          "freezeTime": 6,
+          "captureTime": 5
+        },
+        {
+          "size": [
+            1.5,
+            0.8
+          ],
+          "angle": 0.5,
+          "knockback": 1,
+          "knockbackScaling": 0,
+          "damage": 1.5,
+          "position": [
+            0,
+            1.1
+          ],
+          "startTime": 9,
+          "endTime": 12,
+          "freezeTime": 6,
+          "captureTime": 5
+        },
+        {
+          "size": [
+            1.5,
+            0.8
+          ],
+          "angle": 0.5,
+          "knockback": 1,
+          "knockbackScaling": 0,
+          "damage": 1.5,
+          "position": [
+            0,
+            1.1
+          ],
+          "startTime": 17,
+          "endTime": 21,
+          "freezeTime": 6,
+          "captureTime": 5
+        },
+        {
+          "size": [
+            1.5,
+            0.8
+          ],
+          "angle": 2.3,
+          "knockback": 9,
+          "knockbackScaling": 8,
+          "damage": 2,
+          "position": [
+            0,
+            1.1
+          ],
+          "startTime": 21,
+          "endTime": 25,
+          "freezeTime": 10
+        },
+        {
+          "deflect": true,
+          "size": [
+            1.8,
+            1.0
+          ],
+          "position": [
+            0,
+            1.1
+          ],
+          "startTime": 6,
+          "endTime": 20
+        }
+      ] 
     }
   ]
 }

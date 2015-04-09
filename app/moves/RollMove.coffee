@@ -14,4 +14,4 @@ module.exports = class RollMove extends Move
       })
     ]
     @nextMove = "idle"
-    @preventFall = true
+    @stopAtLedges = true

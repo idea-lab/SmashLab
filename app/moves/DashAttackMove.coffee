@@ -4,4 +4,4 @@ module.exports = class DashAttackMove extends GroundAttackMove
     super
     @blendFrames = 10
     @allowAnimatedMovement = true
-    @preventFall = true
+    @stopAtLedges = true
