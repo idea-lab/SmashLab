@@ -4,6 +4,7 @@ module.exports = class DashMove extends WalkMove
     super
     @triggerableMoves = [
       "dashattack"
+      "sidespecial"
       "jump"
       "shield"
     ]

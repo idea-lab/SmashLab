@@ -13,10 +13,11 @@ module.exports = class Utils
     for item in array when item.name is name
       return item
     return null
+
   @clone: (object)->
     JSON.parse(JSON.stringify(object))
 
-  # Converts a THREE.js color to a CSS color
+  #  verts a THREE.js color to a CSS color
   @colorToCSS: (color)->
     return "rgb(#{Math.floor(color.r*256)}, #{Math.floor(color.g*256)}, #{Math.floor(color.b*256)})"
 

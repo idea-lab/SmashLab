@@ -28,18 +28,6 @@ module.exports = {
       ]
     },
     {
-      "name": "grabBox",
-      "collides": false,
-      "size": [
-        0.1,
-        0.1
-      ],
-      "position": [
-        0.5,
-        0.9
-      ]
-    },
-    {
       "name": "ledgeBox",
       "collides": false,
       "size": [
@@ -389,51 +377,37 @@ module.exports = {
       "hitBoxes": [
         {
           "size": [
-            0.6,
-            0.6
+            1,
+            0.8
           ],
-          "angle": 1.5,
-          "knockback": 4,
-          "knockbackScaling": 4,
+          "angle": 1.0,
+          "knockback": 6,
+          "knockbackScaling": 0,
           "damage": 4,
           "position": [
-            0.1,
-            1.5
+            -0.2,
+            1.4
           ],
-          "startTime": 11,
-          "endTime": 16
+          "startTime": 8,
+          "endTime": 11,
+          "freezeTime": 2
         },
         {
           "size": [
-            0.6,
-            1.2
+            0.7,
+            1.3
           ],
-          "angle": 1.3,
-          "knockback": 5,
-          "knockbackScaling": 5,
+          "angle": -0.7,
+          "knockback": 8,
+          "knockbackScaling": 7,
           "damage": 2,
           "position": [
-            0.5,
-            1
-          ],
-          "startTime": 2,
-          "endTime": 10
-        },
-        {
-          "size": [
-            0.5,
-            1
-          ],
-          "angle": 1.8,
-          "knockback": 5,
-          "knockbackScaling": 5,
-          "damage": 2,
-          "position": [
-            -0.4,
+            0.8,
             0.9
           ],
           "startTime": 12,
-          "endTime": 20
+          "endTime": 24,
+          "freezeTime": 7
         }
       ]
     },
@@ -463,8 +437,8 @@ module.exports = {
             0.2
           ],
           "angle": 0.7,
-          "knockback": 10,
-          "knockbackScaling": 18,
+          "knockback": 7,
+          "knockbackScaling": 15,
           "damage": 2,
           "position": [
             0.28,
@@ -524,7 +498,7 @@ module.exports = {
             0.8
           ],
           "position": [
-            0.0,
+            0,
             1.9
           ],
           "angle": 1.5,
@@ -542,7 +516,7 @@ module.exports = {
             0.8
           ],
           "position": [
-            0.0,
+            0,
             1.9
           ],
           "angle": 1.5,
@@ -658,9 +632,6 @@ module.exports = {
             0.8
           ],
           "angle": 0.8,
-          "knockback": 0,
-          "knockbackScaling": 0,
-          "damage": 0,
           "position": [
             0.7,
             1.2
@@ -669,7 +640,7 @@ module.exports = {
           "endTime": 20,
           "freezeTime": 25
         }
-      ]     
+      ]
     },
     {
       "name": "sidespecial",
@@ -679,8 +650,8 @@ module.exports = {
       "hitBoxes": [
         {
           "size": [
-            1.5,
-            0.8
+            1.3,
+            0.6
           ],
           "angle": 2.6,
           "knockback": 1,
@@ -697,8 +668,8 @@ module.exports = {
         },
         {
           "size": [
-            1.5,
-            0.8
+            1.3,
+            0.6
           ],
           "angle": 0.5,
           "knockback": 1,
@@ -715,8 +686,8 @@ module.exports = {
         },
         {
           "size": [
-            1.5,
-            0.8
+            1.3,
+            0.6
           ],
           "angle": 0.5,
           "knockback": 1,
@@ -733,8 +704,8 @@ module.exports = {
         },
         {
           "size": [
-            1.5,
-            0.8
+            1.3,
+            0.6
           ],
           "angle": 2.3,
           "knockback": 9,
@@ -751,17 +722,44 @@ module.exports = {
         {
           "deflect": true,
           "size": [
-            1.8,
-            1.0
+            1.5,
+            0.8
           ],
           "position": [
             0,
             1.1
           ],
           "startTime": 6,
-          "endTime": 20
+          "endTime": 18
         }
-      ] 
+      ]
+    },
+    {
+      "name": "grab",
+      "animation": "Grab",
+      "hitBoxes": {
+        "size": [
+          0.1,
+          0.1
+        ],
+        "position": [
+          0.5,
+          0.9
+        ],
+        "startTime": 1,
+        "endTime": 10
+      }
+    },
+    {
+      "name": "pummel",
+      "animation": "Pummel",
+      "hitBoxes": [
+        {
+          "collides": false,
+          "startTime": 13,
+          "damage": 2
+        }
+      ]
     }
   ]
 }

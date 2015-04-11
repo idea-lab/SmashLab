@@ -4,6 +4,7 @@ Entity = require("Entity")
 Box = require("Box")
 Utils = require("Utils")
 Ledge = require("Ledge")
+CPS = require("CSSParticleSystem")
 KeyboardController = require("controller/KeyboardController")
 GamepadController = require("controller/GamepadController")
 tempVector = new THREE.Vector3()
@@ -47,7 +48,6 @@ module.exports = class Stage extends THREE.Scene
         ledgeBox = new Box(size: new THREE.Vector3(1, 1 ,0), position: (new THREE.Vector3()).copy(box.getVertex(true)))
         ledgeBox.position.x += 0.5
         ledgeBox.position.y += 0.5
-        ledgeBox.facingRight = true
         @ledgeBoxes.push(ledgeBox)
         @add(ledgeBox)
       if activeBox.rightLedge?
@@ -56,7 +56,6 @@ module.exports = class Stage extends THREE.Scene
         ledgeBox = new Box(size: new THREE.Vector3(1, 1 ,0), position: (new THREE.Vector3()).copy(box.getVertex(false)))
         ledgeBox.position.x -= 0.5
         ledgeBox.position.y += 0.5
-        ledgeBox.facingRight = false
         @ledgeBoxes.push(ledgeBox)
         @add(ledgeBox)
 
@@ -75,25 +74,25 @@ module.exports = class Stage extends THREE.Scene
     @loaded = false
     
     @inactiveControllers = [
-      # Arrow Keys ZXC
+      # Arrow Keys ZXC -> ,./
       new KeyboardController({
         upKey: 38
         downKey: 40
         leftKey: 37
         rightKey: 39
-        attackKey: 90
-        specialKey: 88
-        shieldKey: 67
+        attackKey: 188 #90
+        specialKey: 190 #88
+        shieldKey: 191 #67
       })
-      # WASDY78
+      # WASDY78->VBN
       new KeyboardController({
         upKey: 87
         downKey: 83
         leftKey: 65
         rightKey: 68
-        attackKey: 89
-        specialKey: 55
-        shieldKey: 56 #FIGURE ME OUT
+        attackKey: 86 #89
+        specialKey: 66 #55
+        shieldKey: 78 #56
       })
       # TFGHO0-
       new KeyboardController({
@@ -175,6 +174,8 @@ module.exports = class Stage extends THREE.Scene
         when 49 then @deltaTime = 1
     #@orbitcontrols = new THREE.OrbitControls(@camera)
 
+    @particleSystem = new CPS.CSSParticleSystem()
+
   # Updates the entire fight.
   update: ->
     if not @loaded
@@ -216,7 +217,7 @@ module.exports = class Stage extends THREE.Scene
     # - Detect hitbox-player collision, set velocities for colliding hitboxes
     #   (velocities will be applied next render)
     for entity in @children when entity instanceof Entity
-      for hitbox in entity.hitBoxes when hitbox.active or hitbox.deflect
+      for hitbox in entity.hitBoxes when hitbox.collides and (hitbox.active or hitbox.deflect)
         hitbox.updateMatrixWorld()
         # Go through potential targets
         for target in @children when target isnt entity and target instanceof Entity and hitbox.owner isnt target
@@ -244,6 +245,8 @@ module.exports = class Stage extends THREE.Scene
 
     @updateHUD()
     @updateCamera()
+
+    @particleSystem.update(@deltaTime)
 
   # Update camera
   updateCamera: ->

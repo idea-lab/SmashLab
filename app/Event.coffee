@@ -9,8 +9,8 @@ module.exports = class Event
   copyFromOptions: (options)->
     @start = options.start
     @startTime = options.startTime
-    @end = options.end or null
-    @endTime = options.endTime or 0
+    @endTime = options.endTime or null
+    @end = @endTime and options.end or null
 
   update: (currentTime)->
     if not @startOccurred

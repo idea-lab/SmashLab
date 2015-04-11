@@ -6,6 +6,7 @@ Controller = require("controller/Controller")
 Ledge = require("Ledge")
 tempVector = new THREE.Vector3()
 Entity = require("Entity")
+CPS = require("CSSParticleSystem")
 module.exports = class Fighter extends Entity
   constructor: (options, fighterData = {})->
     super
@@ -149,6 +150,13 @@ module.exports = class Fighter extends Entity
     "neutralspecial" : "SpecialAttackMove"
     "sidespecial" : "SpecialAttackMove"
     "disabledfall" : "DisabledFallMove"
+    "grab": "GrabMove"
+    "hold": "HoldMove"
+    "pummel": "PummelMove"
+    "upthrow": "ThrowMove"
+    "downthrow": "ThrowMove"
+    "forwardthrow": "ThrowMove"
+    "backthrow": "ThrowMove"
   }
 
   copyFighterData: (fighterData)->
@@ -184,8 +192,6 @@ module.exports = class Fighter extends Entity
     @box = Utils.findObjectByName(@collisionBoxes, "mainBox")
     # The box used for grabbing the edge
     @ledgeBox = Utils.findObjectByName(@collisionBoxes, "ledgeBox")
-    # The box used for grabbing others
-    @grabBox = Utils.findObjectByName(@collisionBoxes, "grabBox")
     # @box.debugBox.visible = true
     # Move the shield into place
     @shieldBox.position.copy(@box.position)
@@ -215,9 +221,21 @@ module.exports = class Fighter extends Entity
       launchSpeed = smashChargeFactor * (@damage/100*hitbox.knockbackScaling+hitbox.knockback)/60
     velocityToAdd = tempVector.set(Math.cos(hitbox.angle)*launchSpeed,Math.sin(hitbox.angle)*launchSpeed,0)
     # Change velocity based on facing
-    velocityToAdd.x *= hitbox.matrixWorld.elements[0]
+    velocityToAdd.x *= otherFighter.matrixWorld.elements[0]
 
     damage = hitbox.damage * smashChargeFactor
+
+    unless @shielding
+      # Particle code
+      particle = new CPS.CSSDamageParticle(Math.round(damage))
+      particle.position.setFromMatrixPosition(hitbox.matrixWorld).project(@stage.camera)
+      particle.position.x = (particle.position.x * 0.5 + 0.5) * window.innerWidth
+      particle.position.y = (-particle.position.y * 0.5 + 0.5) * window.innerHeight
+      particle.velocity.set(Math.random()-0.5, Math.random(), 0).multiplyScalar(0.1).add(velocityToAdd).normalize().multiplyScalar(5)
+      particle.velocity.y*=-1
+      particle.gravity.set(0, 0.2, 0)
+      @stage.particleSystem.addParticle(particle)
+
     if @shielding
       # Nullify upwards knockback
       velocityToAdd.y = -0.01
@@ -371,7 +389,13 @@ module.exports = class Fighter extends Entity
       if @controller.move and not @controller.suspendedMove
         @controller.suspendMove(@controller.move)
 
+    if (@controller.move & Controller.GRAB)
+      #console.log @move
+      @request("grab")
+      #console.log "Grab yo"
+
     if (@controller.move & Controller.SPECIAL)
+      #console.log "Special no"
       if (@controller.move & Controller.UP)
         @request("upspecial")
       else if (@controller.move & Controller.DOWN)
@@ -390,6 +414,7 @@ module.exports = class Fighter extends Entity
         if "sidesmashcharge" in @move.triggerableMoves
           if @request("sidesmashcharge")
             @facingRight = not (@controller.move & Controller.LEFT)
+
     if (@controller.move & Controller.ATTACK)
       @request("dashattack")
       if (@controller.move & Controller.UP)
@@ -502,9 +527,9 @@ module.exports = class Fighter extends Entity
       return
 
     #Don't fall off the stage
-    if @move.stopAtLedges
+    if @move.stopAtLedges and @touchingGround
       for ledgeBox in @stage.ledgeBoxes when ledgeBox instanceof Box
-        if ledgeBox.facingRight is @facingRight and @box.intersects(ledgeBox)
+        if @box.intersects(ledgeBox)
           #Touching the stage
           resolutionVector = @box.resolveCollision(ledgeBox)
           @position.add(resolutionVector)

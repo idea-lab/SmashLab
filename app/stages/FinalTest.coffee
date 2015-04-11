@@ -17,7 +17,7 @@ module.exports = class FinalTest
 
   # The KO Boundaries
   @safeBox: {
-    size: [36, 22]
+    size: [36, 23]
     position: [0, 3]
   }
 

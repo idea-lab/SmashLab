@@ -39,7 +39,7 @@ module.exports = class TestProjectile extends Entity
       angle: 0.5
       knockback: 5 + 5 * @charge
       knockbackScaling: 5 + 15 * @charge
-      damage: 5 + @charge * 20
+      damage: 5 + @charge * 15
       freezeTime: 7 + 15 * @charge
       debug: true
       owner: @fighter

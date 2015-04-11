@@ -15,8 +15,11 @@ module.exports = class Controller
     @shield = 0
     @shieldPrevious = 0
 
+    @grab = 0
+    @grabPrevious = 0
+
     @tapJump = options.tapJump or true
-    @abToGrab = options.abToGrab or true
+
     @jump = 0
     @jumpPrevious = 0
 
@@ -73,7 +76,7 @@ module.exports = class Controller
     if @shield and not @shieldPrevious
       move |= Controller.SHIELD
 
-    if @abToGrab and (@move & (Controller.ATTACK && Controller.SPECIAL))
+    if @grab and not @grabPrevious
       move |= Controller.GRAB
 
     if @doubleTiltCounter > 0 
@@ -101,6 +104,7 @@ module.exports = class Controller
     @attackPrevious = @attack
     @specialPrevious = @special
     @shieldPrevious = @shield
+    @grabPrevious = @grab
     @jumpPrevious = @jump
 
   getJoystickDirection: ()->

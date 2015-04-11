@@ -16,6 +16,6 @@ module.exports = class HurtMove extends Move
     super
 
   trigger: (launchSpeed)->
-    @duration = launchSpeed * 200
+    @duration = launchSpeed * 160
     @movement = Move.NO_MOVEMENT
     super

@@ -21,7 +21,7 @@ module.exports = class GridWalk
   # The main hitboxes
   @collisionBoxes: [
     {
-      size: [34, 10]
+      size: [40, 10]
       position: [0, -5]
     }
     {
