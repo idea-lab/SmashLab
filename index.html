@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html manifest="smashlab.appcache">
+<html>
+<!-- <html manifest="smashlab.appcache"> -->
   <head>
     <style>
       html{
@@ -54,6 +55,21 @@
         z-index: 9001;
         background-color: rgba(0, 0, 0, 0.8);
         display: none;
+      }
+      .particle {
+        position: fixed;
+        z-index: 9900;
+        font-weight: bold;
+        color: white;
+        -webkit-text-stroke-width: 1.5px;
+        -webkit-text-stroke-color: #aaaaaa;
+        -moz-text-stroke-width: 1.5px;
+        -moz-text-stroke-color: #aaaaaa;
+        font-size: 48pt;
+        top: -40px;
+        text-align: center;
+        left: -50px;
+        width: 100px;
       }
     </style>
   </head>
