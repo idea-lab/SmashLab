@@ -7,8 +7,10 @@ module.exports = class GrabMove extends Move
     @triggerableMoves = @triggerableMoves.concat [
       "holdingmove"
     ]
+    @hitBoxes[0].collide = (target)=>
+      if target.initialInvulnerability is 0
+        @fighter.grabbing = target
+        target.trigger("held", @fighter)
+        @request("hold", 100)
+        return true
     @nextMove = "idle"
-
-  update: (deltaTime)->
-    console.log "IT WORKS"
-    # Find collisions between grabBox and others

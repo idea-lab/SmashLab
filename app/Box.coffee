@@ -11,18 +11,17 @@ module.exports = class Box extends THREE.Object3D
     super()
     @size = new THREE.Vector3()
 
-
     @debugBox = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshNormalMaterial(wireframe: true))
     @add(@debugBox)
 
     @alreadyHit = []
 
     @activate = ()=>
-      @active = @collides = true
+      @active = true
       @debugBox.visible = true
 
     @deactivate = ()=>
-      @active = @collides = false
+      @active = false
       @debugBox.visible = false
 
     @copyFromOptions(options)
@@ -31,7 +30,10 @@ module.exports = class Box extends THREE.Object3D
     Utils.setVectorByArray(@size, options.size)
     Utils.setVectorByArray(@position, options.position)
     
-    @debugBox.scale.set(@size.x, @size.y, 0.1)
+    if @size.x is 0 or @size.y is 0
+      @debugBox.scale.set(0.01, 0.01)
+    else
+      @debugBox.scale.set(@size.x, @size.y, 0.1)
 
     # 0 degrees is straight out, -90 is down, and 90 is up. Use radians.
     @angle = options.angle or 0
@@ -53,7 +55,7 @@ module.exports = class Box extends THREE.Object3D
 
     @owner = options.owner or null
 
-    @collides = options.collides or true
+    @collides = if options.collides? then options.collides else true
     # Can this box actively cause damage?
     @active = options.active or false
     # Can this box deflect projectiles?

@@ -37,6 +37,13 @@ module.exports = class Fighter extends Entity
     @ledge = null
     @canGrabLedge = true
 
+    # The current player being grabbed, if any
+    @grabbing = null
+    # If the player is being grabbed
+    @grabbedBy = null
+    # A countdown to escape from a grab
+    @grabEscape = 0
+
     # Whether or not the player is INVICIBLE
     @invulnerable = true
     @initialInvulnerability = Fighter.INITIAL_INVULNERABILITY
@@ -152,7 +159,9 @@ module.exports = class Fighter extends Entity
     "disabledfall" : "DisabledFallMove"
     "grab": "GrabMove"
     "hold": "HoldMove"
+    "held": "HeldMove"
     "pummel": "PummelMove"
+    "pummelled": "PummelledMove"
     "upthrow": "ThrowMove"
     "downthrow": "ThrowMove"
     "forwardthrow": "ThrowMove"
@@ -193,6 +202,7 @@ module.exports = class Fighter extends Entity
     # The box used for grabbing the edge
     @ledgeBox = Utils.findObjectByName(@collisionBoxes, "ledgeBox")
     # @box.debugBox.visible = true
+    @grabPoint = Utils.findObjectByName(@collisionBoxes, "grabPoint")
     # Move the shield into place
     @shieldBox.position.copy(@box.position)
     @shieldObject.position.copy(@box.position)
@@ -221,8 +231,8 @@ module.exports = class Fighter extends Entity
       launchSpeed = smashChargeFactor * (@damage/100*hitbox.knockbackScaling+hitbox.knockback)/60
     velocityToAdd = tempVector.set(Math.cos(hitbox.angle)*launchSpeed,Math.sin(hitbox.angle)*launchSpeed,0)
     # Change velocity based on facing
-    velocityToAdd.x *= otherFighter.matrixWorld.elements[0]
 
+    velocityToAdd.x *= hitbox.matrixWorld.elements[0]
     damage = hitbox.damage * smashChargeFactor
 
     unless @shielding
@@ -256,7 +266,8 @@ module.exports = class Fighter extends Entity
     # Multiple hitBoxes compound velocities
     # if not @shielding and @move.name is "hurt" and @move.currentTime is 1
     #if @frozen is 0
-    @velocity.add(velocityToAdd)
+    @velocity.y = Math.max(0, @velocity.y) + velocityToAdd.y
+    @velocity.x += velocityToAdd.x
     # else
     #   @velocity.copy(velocityToAdd)
     velocityToAdd.normalize().multiplyScalar(0.6 * damageFactor * launchSpeedFactor)
@@ -269,7 +280,11 @@ module.exports = class Fighter extends Entity
       otherFighter.frozen = freeze
     @frozen = freeze + hitbox.captureTime
     if not @shielding
-      @trigger("hurt", launchSpeed)
+      if @grabbedBy isnt null and @grabbedBy.move.name is "pummel"
+        @request("pummelled")
+      else
+        @grabbedBy = null
+        @trigger("hurt", launchSpeed * 160)
     
   # Plenty of these methods are explained in Stage.update()
   applyVelocity: (deltaTime)->
@@ -353,6 +368,8 @@ module.exports = class Fighter extends Entity
     @jumpRemaining = true
     @ledge = null
     @canGrabLedge = true
+    @grabbing = null
+    @grabbedBy = null
     @trigger("idle")
     @move.animationReset()
     @move.reset()
@@ -593,10 +610,7 @@ module.exports = class Fighter extends Entity
       @facingRight = @ledge.facingRight
       # Move to the ledge
       handPosition = @box.getVertex(@facingRight)
-      @velocity.copy(@ledge.position).sub(handPosition)
-      length = @velocity.length()
-      factor = 1 / Math.max(1, 10 - @move.currentTime)
-      @velocity.normalize().multiplyScalar(length * factor)
+      @velocity.copy(@ledge.position).sub(handPosition).multiplyScalar(0.3)
 
   updateShield: (deltaTime)->
     if @shielding

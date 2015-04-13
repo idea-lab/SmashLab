@@ -2,12 +2,15 @@ class module.exports.CSSParticleSystem
   constructor: () ->
     @particles = []
   update: (deltaTime)->
-    for i in [0...@particles.length]
+    i = 0
+    while i < @particles.length
       particle = @particles[i]
       particle.update(deltaTime)
       if particle.lifetime<=0
         particle.destroy()
         @particles.splice(i, 1)
+        i--
+      i++
   addParticle: (particle)->
     @particles.push(particle)
 

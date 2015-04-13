@@ -74,15 +74,16 @@ module.exports = class Stage extends THREE.Scene
     @loaded = false
     
     @inactiveControllers = [
-      # Arrow Keys ZXC -> ,./
+      # Arrow Keys ZXC #-> ,./
       new KeyboardController({
         upKey: 38
         downKey: 40
         leftKey: 37
         rightKey: 39
-        attackKey: 188 #90
-        specialKey: 190 #88
-        shieldKey: 191 #67
+        attackKey: 90 #188
+        specialKey: 88 #190
+        shieldKey: 67 #191
+        grabKey: 86
       })
       # WASDY78->VBN
       new KeyboardController({
@@ -90,9 +91,9 @@ module.exports = class Stage extends THREE.Scene
         downKey: 83
         leftKey: 65
         rightKey: 68
-        attackKey: 86 #89
-        specialKey: 66 #55
-        shieldKey: 78 #56
+        attackKey: 89 #86
+        specialKey: 55 #66
+        shieldKey: 56 #78
       })
       # TFGHO0-
       new KeyboardController({
@@ -200,12 +201,16 @@ module.exports = class Stage extends THREE.Scene
         for box in entity.collisionBoxes when box.collides
           for otherBox in @collisionBoxes when box.collides
               if box.intersects(otherBox)
-                entity.resolveCollision(box, otherBox, this, @deltaTime)            
+                entity.resolveCollision(box, otherBox, this, @deltaTime)
+                # box.resolveCollision?(otherBox, @stage)
+                # otherBox.resolveCollision?(box, entity)
           for f in [e + 1...@children.length]
             secondEntity = @children[f]
             if secondEntity instanceof Entity
               for otherBox in secondEntity.collisionBoxes when otherBox.collides
                 if box.intersects(otherBox)
+                  # box.resolveCollision?(otherBox, secondEntity)
+                  # otherBox.resolveCollision?(box, entity)
                   entity.resolveCollision(box, otherBox, secondEntity, @deltaTime)
                   secondEntity.resolveCollision(otherBox, box, entity, @deltaTime)
 
@@ -224,11 +229,12 @@ module.exports = class Stage extends THREE.Scene
           if not (target in hitbox.alreadyHit)
             # TODO: Account for multiple collision boxes?
             if target.collisionBoxes.length > 0 and hitbox.intersects(target.collisionBoxes[0]) or target.shielding and hitbox.intersects(target.shieldBox)
-              if hitbox.deflect
-                target.deflect?(hitbox, entity)
-              else if not target.dodging
-                target.takeDamage(hitbox, entity)
-                entity.giveDamage(hitbox, target)
+              unless hitbox.collide?(target)
+                if hitbox.deflect
+                  target.deflect?(hitbox, entity)
+                else if not target.dodging
+                  target.takeDamage(hitbox, entity)
+                  entity.giveDamage(hitbox, target)
               hitbox.alreadyHit.push(target)
 
     # Remove dead projectiles

@@ -10,6 +10,7 @@ module.exports = class KeyboardController extends Controller
     @attackKey = options.attackKey or 16
     @specialKey = options.specialKey or 18
     @shieldKey = options.shieldKey or 17
+    @grabKey = options.grabKey or 0
 
   update: ()->
     # TODO: Clean up jump, move into Controller
@@ -31,6 +32,7 @@ module.exports = class KeyboardController extends Controller
     @attack = if @attackKey in KeyboardController.keysDown then 1 else 0
     @special = if @specialKey in KeyboardController.keysDown then 1 else 0
     @shield = if @shieldKey in KeyboardController.keysDown then 1 else 0
+    @grab = if @grabKey in KeyboardController.keysDown then 1 else 0
     super
 
   @keysDown: []

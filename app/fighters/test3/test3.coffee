@@ -38,6 +38,14 @@ module.exports = {
         0.1,
         1.7
       ]
+    },
+    {
+      "name": "grabPoint",
+      "collides": false,
+      "position": [
+        0.5,
+        1.0
+      ]
     }
   ],
   "moves": [
@@ -520,7 +528,7 @@ module.exports = {
             1.9
           ],
           "angle": 1.5,
-          "knockback": 10,
+          "knockback": 12,
           "knockbackScaling": 10,
           "damage": 4,
           "startTime": 10,
@@ -737,18 +745,18 @@ module.exports = {
     {
       "name": "grab",
       "animation": "Grab",
-      "hitBoxes": {
+      "hitBoxes": [{
         "size": [
-          0.1,
-          0.1
+          0.3,
+          0.3
         ],
         "position": [
-          0.5,
-          0.9
+          0.3,
+          0.3
         ],
-        "startTime": 1,
-        "endTime": 10
-      }
+        "startTime": 10,
+        "endTime": 30
+      }]
     },
     {
       "name": "pummel",
@@ -756,10 +764,78 @@ module.exports = {
       "hitBoxes": [
         {
           "collides": false,
-          "startTime": 13,
+          "startTime": 2,
           "damage": 2
         }
       ]
+    },
+    {
+      "name": "hold",
+      "animation": "Hold"
+    },
+    {
+      "name": "held",
+      "animation": "Held"
+    },
+    {
+      "name": "upthrow",
+      "animation": "Up Throw",
+      "hitBoxes": [
+        {
+          "collides": false,
+          "startTime": 5,
+          "angle": 1.5,
+          "knockback": 12,
+          "knockbackScaling": 10,
+          "damage": 8
+        }
+      ]
+    },
+    {
+      "name": "downthrow",
+      "animation": "Down Throw",
+      "hitBoxes": [
+        {
+          "collides": false,
+          "startTime": 5,
+          "angle": -1.2,
+          "knockback": 12,
+          "knockbackScaling": 10,
+          "damage": 8
+        }
+      ]
+    },
+    {
+      "name": "forwardthrow",
+      "animation": "Forward Throw",
+      "hitBoxes": [
+        {
+          "collides": false,
+          "startTime": 5,
+          "angle": 0.8,
+          "knockback": 12,
+          "knockbackScaling": 10,
+          "damage": 8
+        }
+      ]
+    },
+    {
+      "name": "backthrow",
+      "animation": "Back Throw",
+      "hitBoxes": [
+        {
+          "collides": false,
+          "startTime": 5,
+          "angle": 2.3,
+          "knockback": 12,
+          "knockbackScaling": 10,
+          "damage": 8
+        }
+      ]
+    },
+    {
+      "name": "pummelled",
+      "animation": "Pummelled"
     }
   ]
 }
