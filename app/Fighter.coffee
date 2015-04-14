@@ -458,7 +458,7 @@ module.exports = class Fighter extends Entity
         @request("neutralaerial")
 
     # Shield
-    if (@controller.move & Controller.SHIELD)
+    if (@controller.move & Controller.SHIELD) or (@controller.move & Controller.GRAB)
       @request("airdodge")
     if ((@controller.move & Controller.SHIELD) or @move.name is "shield") and (@controller.move & Controller.TILT)
       if (@controller.move & (Controller.LEFT | Controller.RIGHT))
@@ -466,7 +466,7 @@ module.exports = class Fighter extends Entity
           @facingRight = not (@controller.move & Controller.RIGHT)
       if (@controller.move & Controller.DOWN)
         @request("dodge")
-    else if (@controller.shield isnt 0 and not @controller.suspendedMove)
+    else if (@controller.shield isnt 0 or @controller.grab isnt 0) and not @controller.suspendedMove
       @request("shield")
 
     # Dashing

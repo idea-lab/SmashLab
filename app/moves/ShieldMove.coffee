@@ -25,7 +25,7 @@ module.exports = class ShieldMove extends Move
 
   update: ()->
     super
-    if @fighter.controller.shield is 0
+    if @fighter.controller.shield is 0 and @fighter.controller.grab is 0
       @request("idle", 50)
     if not @fighter.touchingGround
       @request("fall", 100) # Higher priority fall

@@ -3,6 +3,7 @@ Controller = require("controller/Controller")
 module.exports = class HoldMove extends GrabBaseMove
   constructor: (@fighter, options)->
     super
+    @blendFrames = 10
     @triggerableMoves = @triggerableMoves.concat [
       "pummel"
       "upthrow"

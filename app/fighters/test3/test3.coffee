@@ -43,8 +43,8 @@ module.exports = {
       "name": "grabPoint",
       "collides": false,
       "position": [
-        0.5,
-        1.0
+        0.7,
+        1.1
       ]
     }
   ],
@@ -210,7 +210,7 @@ module.exports = {
           "angle": 1.3,
           "knockback": 6,
           "knockbackScaling": 4,
-          "damage": 10,
+          "damage": 7,
           "position": [
             0.1,
             1.7
@@ -232,7 +232,7 @@ module.exports = {
           "angle": 1.2,
           "knockback": 4,
           "knockbackScaling": 4,
-          "damage": 8,
+          "damage": 7,
           "position": [
             0.8,
             0.3
@@ -254,7 +254,7 @@ module.exports = {
           "angle": 0.8,
           "knockback": 4,
           "knockbackScaling": 7,
-          "damage": 11,
+          "damage": 7,
           "position": [
             0.6,
             1.3
@@ -747,15 +747,15 @@ module.exports = {
       "animation": "Grab",
       "hitBoxes": [{
         "size": [
-          0.3,
-          0.3
+          0.4,
+          0.4
         ],
         "position": [
-          0.3,
-          0.3
+          0.5,
+          1.4
         ],
         "startTime": 10,
-        "endTime": 30
+        "endTime": 22
       }]
     },
     {
@@ -783,7 +783,7 @@ module.exports = {
       "hitBoxes": [
         {
           "collides": false,
-          "startTime": 5,
+          "startTime": 12,
           "angle": 1.5,
           "knockback": 12,
           "knockbackScaling": 10,
@@ -797,7 +797,7 @@ module.exports = {
       "hitBoxes": [
         {
           "collides": false,
-          "startTime": 5,
+          "startTime": 14,
           "angle": -1.2,
           "knockback": 12,
           "knockbackScaling": 10,
@@ -811,7 +811,7 @@ module.exports = {
       "hitBoxes": [
         {
           "collides": false,
-          "startTime": 5,
+          "startTime": 14,
           "angle": 0.8,
           "knockback": 12,
           "knockbackScaling": 10,
@@ -825,7 +825,7 @@ module.exports = {
       "hitBoxes": [
         {
           "collides": false,
-          "startTime": 5,
+          "startTime": 15,
           "angle": 2.3,
           "knockback": 12,
           "knockbackScaling": 10,

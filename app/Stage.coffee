@@ -104,6 +104,7 @@ module.exports = class Stage extends THREE.Scene
         attackKey: 79
         specialKey: 48
         shieldKey: 189 #FIGURE ME OUT
+        grabKey: 187
       })
       # IJKL']
       new KeyboardController({

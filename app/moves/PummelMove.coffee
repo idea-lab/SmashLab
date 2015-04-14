@@ -4,7 +4,6 @@ Event = require("Event")
 module.exports = class PummelMove extends GrabBaseMove
   constructor: (@fighter, options)->
     super
-    @blendFrames = 10
     @duration = 20
     @nextMove = "hold"
     @eventSequence = @eventSequence.concat [

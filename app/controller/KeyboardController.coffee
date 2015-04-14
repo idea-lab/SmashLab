@@ -38,7 +38,7 @@ module.exports = class KeyboardController extends Controller
   @keysDown: []
   @handleKeyDown: (event)=>
     # Add if it's not in the array already
-    #console.log(event.keyCode)
+    console.log(event.keyCode)
     if not (event.keyCode in KeyboardController.keysDown)
       KeyboardController.keysDown.push(event.keyCode)
     return

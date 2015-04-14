@@ -5,8 +5,12 @@ tempVector = new THREE.Vector3()
 module.exports = class HeldMove extends Move
   @CONTROLLER_ESCAPE_MULTIPLIER: 3
   constructor: (@fighter, options)->
-    @lastMove = 0
     super
+    @lastMove = 0
+    @blendFrames = 10
+    @triggerableMoves = @triggerableMoves.concat [
+      "pummelled"
+    ]
 
   update: (deltaTime)->
     super
