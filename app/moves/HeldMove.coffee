@@ -34,4 +34,4 @@ module.exports = class HeldMove extends Move
     if grabbedBy?
       @fighter.makeVulnerable()
       @fighter.grabbedBy = grabbedBy
-      @fighter.grabEscape = @fighter.damage * 2 + 60
+      @fighter.grabEscape = @fighter.damage * 2 + 120

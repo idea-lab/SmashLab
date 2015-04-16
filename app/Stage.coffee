@@ -74,26 +74,27 @@ module.exports = class Stage extends THREE.Scene
     @loaded = false
     
     @inactiveControllers = [
-      # Arrow Keys ZXC #-> ,./
+      # Arrow Keys ZXC
       new KeyboardController({
         upKey: 38
         downKey: 40
         leftKey: 37
         rightKey: 39
-        attackKey: 90 #188
-        specialKey: 88 #190
-        shieldKey: 67 #191
+        attackKey: 90
+        specialKey: 88
+        shieldKey: 67
         grabKey: 86
       })
-      # WASDY78->VBN
+      # WASDY789
       new KeyboardController({
         upKey: 87
         downKey: 83
         leftKey: 65
         rightKey: 68
-        attackKey: 89 #86
-        specialKey: 55 #66
-        shieldKey: 56 #78
+        attackKey: 89
+        specialKey: 55
+        shieldKey: 56
+        grabKey: 57
       })
       # TFGHO0-
       new KeyboardController({
@@ -103,20 +104,21 @@ module.exports = class Stage extends THREE.Scene
         rightKey: 72
         attackKey: 79
         specialKey: 48
-        shieldKey: 189 #FIGURE ME OUT
+        shieldKey: 189
         grabKey: 187
       })
-      # IJKL']
+      # IJKL;[]\
       new KeyboardController({
         upKey: 73
         downKey: 75
         leftKey: 74
         rightKey: 76
-        attackKey: 222
-        specialKey: 221
-        shieldKey: 220 #FIGURE ME OUT
+        attackKey: 186
+        specialKey: 219
+        shieldKey: 221
+        grabKey: 220
       })
-      # HomeEndDeletePageDownNumpad7SlashStar
+      # HomeEndDeletePageDownNumpad7SlashStarMinus 
       new KeyboardController({
         upKey: 36
         downKey: 35
@@ -124,17 +126,9 @@ module.exports = class Stage extends THREE.Scene
         rightKey: 34
         attackKey: 103
         specialKey: 111
-        shieldKey: 106 #FIGURE ME OUT
+        shieldKey: 106
+        grabKey: 109
       })
-      # Numpad8456
-    #   new KeyboardController({
-    #     upKey: 
-    #     downKey: 
-    #     leftKey: 
-    #     rightKey: 
-    #     attackKey: 
-    #     shieldKey: 
-    #   })
     ]
 
     @inactiveControllers.push(new GamepadController(gamepadIndex: 0))

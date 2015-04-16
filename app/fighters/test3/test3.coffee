@@ -747,12 +747,12 @@ module.exports = {
       "animation": "Grab",
       "hitBoxes": [{
         "size": [
-          0.4,
-          0.4
+          0.75,
+          0.5
         ],
         "position": [
-          0.5,
-          1.4
+          0.3,
+          1.0
         ],
         "startTime": 10,
         "endTime": 22
@@ -785,8 +785,8 @@ module.exports = {
           "collides": false,
           "startTime": 12,
           "angle": 1.5,
-          "knockback": 12,
-          "knockbackScaling": 10,
+          "knockback": 14,
+          "knockbackScaling": 12,
           "damage": 8
         }
       ]
@@ -799,9 +799,9 @@ module.exports = {
           "collides": false,
           "startTime": 14,
           "angle": -1.2,
-          "knockback": 12,
-          "knockbackScaling": 10,
-          "damage": 8
+          "knockback": 14,
+          "knockbackScaling": 12,
+          "damage": 9
         }
       ]
     },
@@ -813,9 +813,9 @@ module.exports = {
           "collides": false,
           "startTime": 14,
           "angle": 0.8,
-          "knockback": 12,
-          "knockbackScaling": 10,
-          "damage": 8
+          "knockback": 13,
+          "knockbackScaling": 11,
+          "damage": 10
         }
       ]
     },
@@ -829,7 +829,7 @@ module.exports = {
           "angle": 2.3,
           "knockback": 12,
           "knockbackScaling": 10,
-          "damage": 8
+          "damage": 11
         }
       ]
     },

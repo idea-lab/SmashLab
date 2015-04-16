@@ -280,7 +280,7 @@ module.exports = class Fighter extends Entity
       otherFighter.frozen = freeze
     @frozen = freeze + hitbox.captureTime
     if not @shielding
-      if @grabbedBy isnt null and @grabbedBy.move.name is "pummel"
+      if @grabbedBy is otherFighter and @grabbedBy.move.name is "pummel"
         @request("pummelled")
       else
         @grabbedBy = null
