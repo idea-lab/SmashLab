@@ -25,7 +25,7 @@ Stage = module.exports = (@game) ->
 
   # Camera stays in the camera box
   @camerabox = new Box(size: new THREE.Vector3(24,13.5))
-  @camerabox.debugBox.visible = true
+  #@camerabox.debugBox.visible = true
   @add(@camerabox)
 
   @add(new Fighter({controller: new KeyboardControls({
