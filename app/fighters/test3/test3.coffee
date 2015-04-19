@@ -1,7 +1,7 @@
 module.exports = {
   "name": "Test player",
   "id": "test3",
-  "modelSrc": "models/Test 3.json",
+  "modelSrc": "models/Test 4.json",
   "modelJSON": null,
   "airTime": 50,
   "jumpHeight": 2.5,

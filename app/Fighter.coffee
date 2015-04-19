@@ -24,7 +24,7 @@ module.exports = class Fighter extends Entity
 
     # The fighterdata is expected to come with its own JSON. Be sure to load beforehand!
     parsedJSON = THREE.JSONLoader.prototype.parse(Utils.clone(fighterData.modelJSON))
-    @mesh=new THREE.SkinnedMesh(parsedJSON.geometry, new THREE.MeshLambertMaterial({skinning:true, shading:THREE.FlatShading, color: (new THREE.Color()).copy(@color)}))
+    @mesh=new THREE.SkinnedMesh(parsedJSON.geometry, new THREE.MeshLambertMaterial({skinning:true, color: (new THREE.Color()).copy(@color)}))
     @mesh.rotation.y=Math.PI/2
     @add(@mesh)
     # @mesh.sdebug=new THREE.SkeletonHelper(@mesh)
@@ -242,6 +242,7 @@ module.exports = class Fighter extends Entity
       particle.position.x = (particle.position.x * 0.5 + 0.5) * window.innerWidth
       particle.position.y = (-particle.position.y * 0.5 + 0.5) * window.innerHeight
       particle.velocity.set(Math.random()-0.5, Math.random(), 0).multiplyScalar(0.1).add(velocityToAdd).normalize().multiplyScalar(5)
+      particle.velocity.y = Math.max(0, particle.velocity.y)
       particle.velocity.y*=-1
       particle.gravity.set(0, 0.2, 0)
       @stage.particleSystem.addParticle(particle)
